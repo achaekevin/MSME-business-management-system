@@ -1,0 +1,38 @@
+const express = require('express')
+const router = express.Router()
+
+// Health (no auth)
+router.use('/', require('./health.routes'))
+
+// Auth (no tenant required)
+router.use('/auth', require('../modules/auth/auth.routes'))
+
+// Fully implemented modules
+router.use('/customers', require('../modules/customers/customers.routes'))
+router.use('/products', require('../modules/products/products.routes'))
+router.use('/inventory', require('../modules/inventory/inventory.routes'))
+router.use('/sales', require('../modules/sales/sales.routes'))
+router.use('/purchases', require('../modules/purchases/purchases.routes'))
+router.use('/invoices', require('../modules/invoices/invoices.routes'))
+router.use('/users', require('../modules/users/users.routes'))
+router.use('/notifications', require('../modules/notifications/notifications.routes'))
+router.use('/reports', require('../modules/reports/reports.routes'))
+
+// Scaffolded modules (real routes, service stubs — expand same pattern as above)
+router.use('/suppliers', require('../modules/suppliers/suppliers.routes'))
+router.use('/payments', require('../modules/payments/payments.routes'))
+router.use('/expenses', require('../modules/expenses/expenses.routes'))
+router.use('/finance', require('../modules/finance/finance.routes'))
+router.use('/accounting', require('../modules/accounting/accounting.routes'))
+router.use('/employees', require('../modules/employees/employees.routes'))
+router.use('/payroll', require('../modules/payroll/payroll.routes'))
+router.use('/business', require('../modules/businesses/businesses.routes'))
+router.use('/branches', require('../modules/branches/branches.routes'))
+router.use('/warehouses', require('../modules/warehouses/warehouses.routes'))
+router.use('/settings', require('../modules/settings/settings.routes'))
+router.use('/subscriptions', require('../modules/subscriptions/subscriptions.routes'))
+router.use('/documents', require('../modules/documents/documents.routes'))
+router.use('/analytics', require('../modules/analytics/analytics.routes'))
+router.use('/audit', require('../modules/audit/audit.routes'))
+
+module.exports = router

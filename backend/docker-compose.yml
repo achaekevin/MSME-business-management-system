@@ -1,0 +1,128 @@
+version: '3.9'
+
+services:
+  # ── API server ───────────────────────────────────────────────────────────
+  api:
+    build: .
+    container_name: msme_api
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=mysql://msme_user:msme_pass@mysql:3306/msme_bms
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - MINIO_ENDPOINT=minio
+      - MINIO_PORT=9000
+      - MINIO_USE_SSL=false
+    env_file: .env
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - msme_net
+    command: >
+      sh -c "npx prisma migrate deploy &&
+             npx prisma db seed &&
+             node src/server.js"
+
+  # ── Background job worker ────────────────────────────────────────────────
+  worker:
+    build: .
+    container_name: msme_worker
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=mysql://msme_user:msme_pass@mysql:3306/msme_bms
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - MINIO_ENDPOINT=minio
+      - MINIO_PORT=9000
+    env_file: .env
+    depends_on:
+      - mysql
+      - redis
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - msme_net
+    command: node src/queues/worker.js
+
+  # ── MySQL 8 ──────────────────────────────────────────────────────────────
+  mysql:
+    image: mysql:8.0
+    container_name: msme_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: msme_bms
+      MYSQL_USER: msme_user
+      MYSQL_PASSWORD: msme_pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - msme_net
+
+  # ── Redis 7 ──────────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: msme_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - msme_net
+
+  # ── MinIO (S3-compatible object storage) ─────────────────────────────────
+  minio:
+    image: minio/minio:latest
+    container_name: msme_minio
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+      - "9001:9001"   # Console UI
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - msme_net
+
+volumes:
+  mysql_data:
+  redis_data:
+  minio_data:
+
+networks:
+  msme_net:
+    driver: bridge

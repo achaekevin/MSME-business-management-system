@@ -1,0 +1,29 @@
+# ── Environment & Secrets ─────────────────────────────────────────────────────
+.env
+.env.local
+.env.example
+*.local
+
+# ── Documentation (excluded per project policy) ───────────────────────────────
+README.md
+*.md
+
+# ── Node ─────────────────────────────────────────────────────────────────────
+node_modules
+dist
+dist-ssr
+dev-dist
+npm-debug.log*
+
+# ── Logs ─────────────────────────────────────────────────────────────────────
+*.log
+
+# ── OS / Editor ───────────────────────────────────────────────────────────────
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
