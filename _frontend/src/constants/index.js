@@ -121,7 +121,7 @@ export const PERMISSIONS = {
   'users.delete': 'Delete Users'
 }
 
-export const ROLE_PERMISSIONS: Record<string, string[]> = {
+export const ROLE_PERMISSIONS = {
   owner: Object.keys(PERMISSIONS),
   admin: Object.keys(PERMISSIONS),
   manager: [
