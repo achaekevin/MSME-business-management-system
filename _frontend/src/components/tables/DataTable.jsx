@@ -8,9 +8,7 @@ import {
 } from '@tanstack/react-table'
 import { ChevronUp, ChevronDown, ChevronsUpDown, Search, Download } from 'lucide-react'
 import { cn } from '@/utils'
-import { Button } from './button'
-import { Input } from './index'
-import { Skeleton, Spinner } from './index'
+import { Button, Input, Skeleton } from '@/components/ui'
 import { PAGINATION_LIMITS } from '@/constants'
 
 export function DataTable({
