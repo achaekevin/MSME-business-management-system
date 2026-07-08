@@ -163,3 +163,59 @@ export const userInviteSchema = z.object({
   role: z.string().min(1, 'Select a role'),
   branchId: z.string().optional()
 })
+
+// Bank Account schema
+export const bankAccountSchema = z.object({
+  name: z.string().min(2, 'Account name must be at least 2 characters'),
+  bankName: z.string().min(2, 'Bank name must be at least 2 characters'),
+  accountNumber: z.string().min(5, 'Account number must be at least 5 characters'),
+  balance: z.number().min(0, 'Initial balance cannot be negative').optional(),
+  currency: z.string().default('USD')
+})
+
+// Journal Entry schema
+export const journalEntrySchema = z.object({
+  date: z.string().min(1, 'Date is required'),
+  description: z.string().min(3, 'Description must be at least 3 characters'),
+  reference: z.string().optional(),
+  lines: z.array(
+    z.object({
+      accountId: z.string().min(1, 'Select an account'),
+      debit: z.number().min(0).default(0),
+      credit: z.number().min(0).default(0),
+      memo: z.string().optional()
+    })
+  ).min(2, 'Journal entry must have at least 2 lines')
+  .refine(
+    lines => {
+      const totalDebits = lines.reduce((sum, line) => sum + (line.debit || 0), 0)
+      const totalCredits = lines.reduce((sum, line) => sum + (line.credit || 0), 0)
+      return Math.abs(totalDebits - totalCredits) < 0.01
+    },
+    { message: 'Debits and Credits must balance' }
+  )
+})
+
+// Attendance schema
+export const attendanceSchema = z.object({
+  employeeId: z.string().min(1, 'Employee required'),
+  date: z.string().min(1, 'Date is required'),
+  status: z.enum(['present', 'absent', 'late', 'half_day']),
+  checkIn: z.string().optional().or(z.literal('')),
+  checkOut: z.string().optional().or(z.literal('')),
+  notes: z.string().optional()
+})
+
+// Leave schema
+export const leaveSchema = z.object({
+  employeeId: z.string().min(1, 'Employee required'),
+  type: z.enum(['annual', 'sick', 'unpaid', 'maternity', 'paternity']),
+  startDate: z.string().min(1, 'Start date is required'),
+  endDate: z.string().min(1, 'End date is required'),
+  reason: z.string().optional()
+})
+
+// Payroll schema
+export const payrollSchema = z.object({
+  period: z.string().regex(/^\d{4}-\d{2}$/, 'Period must be in YYYY-MM format')
+})

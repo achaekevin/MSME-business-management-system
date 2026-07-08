@@ -221,3 +221,18 @@ export const subscriptionService = {
   addPaymentMethod: (data) => api.post('/subscriptions/payment-methods', data),
   deletePaymentMethod: (id) => api.delete(`/subscriptions/payment-methods/${id}`)
 }
+
+// Documents
+export const documentService = {
+  list: (params) => api.get('/documents', { params }),
+  get: (id) => api.get(`/documents/${id}`),
+  getSignedUrl: (id) => api.get(`/documents/${id}/signed-url`),
+  upload: (file, category, metadata) => {
+    const f = new FormData()
+    f.append('file', file)
+    f.append('category', category)
+    if (metadata) f.append('metadata', JSON.stringify(metadata))
+    return api.post('/documents', f, { headers: { 'Content-Type': 'multipart/form-data' } })
+  },
+  delete: (id) => api.delete(`/documents/${id}`)
+}
