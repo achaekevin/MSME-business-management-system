@@ -15,8 +15,6 @@ const requestLogger = require('./middleware/requestLogger')
 const { errorHandler, notFoundHandler } = require('./middleware/errorHandler')
 const { apiLimiter } = require('./middleware/rateLimiter')
 const apiRouter = require('./routes')
-const emailQueue = require('./queues/email.queue')
-const { smsQueue, notificationsQueue, reportGenerationQueue, inventoryAlertsQueue } = require('./queues')
 const logger = require('./config/logger')
 
 function createApp() {
@@ -65,28 +63,45 @@ function createApp() {
   app.get('/api/docs.json', (req, res) => res.json(swaggerSpec))
 
   // ── Queue monitoring dashboard (lock down in prod) ────────────────────────
-  const bullBoardAdapter = new ExpressAdapter()
-  bullBoardAdapter.setBasePath('/queues')
+  // Only setup Bull Board if queues are available (requires Redis 5.0+)
+  try {
+    const emailQueue = require('./queues/email.queue')
+    const { smsQueue, notificationsQueue, reportGenerationQueue, inventoryAlertsQueue } = require('./queues')
+    
+    const bullBoardAdapter = new ExpressAdapter()
+    bullBoardAdapter.setBasePath('/queues')
 
-  createBullBoard({
-    queues: [
-      new BullMQAdapter(emailQueue),
-      new BullMQAdapter(smsQueue),
-      new BullMQAdapter(notificationsQueue),
-      new BullMQAdapter(reportGenerationQueue),
-      new BullMQAdapter(inventoryAlertsQueue)
-    ],
-    serverAdapter: bullBoardAdapter
-  })
+    createBullBoard({
+      queues: [
+        new BullMQAdapter(emailQueue),
+        new BullMQAdapter(smsQueue),
+        new BullMQAdapter(notificationsQueue),
+        new BullMQAdapter(reportGenerationQueue),
+        new BullMQAdapter(inventoryAlertsQueue)
+      ],
+      serverAdapter: bullBoardAdapter
+    })
 
-  // Protect queue board in production — basic check, replace with proper auth
-  app.use('/queues', (req, res, next) => {
-    if (appConfig.env === 'production') {
-      const key = req.headers['x-queue-key']
-      if (key !== process.env.QUEUE_BOARD_KEY) return res.status(403).json({ message: 'Forbidden' })
-    }
-    next()
-  }, bullBoardAdapter.getRouter())
+    // Protect queue board in production — basic check, replace with proper auth
+    app.use('/queues', (req, res, next) => {
+      if (appConfig.env === 'production') {
+        const key = req.headers['x-queue-key']
+        if (key !== process.env.QUEUE_BOARD_KEY) return res.status(403).json({ message: 'Forbidden' })
+      }
+      next()
+    }, bullBoardAdapter.getRouter())
+    
+    logger.info('✅ Queue dashboard available at /queues')
+  } catch (err) {
+    logger.warn('⚠️  Queue dashboard disabled - Redis may be incompatible')
+    // Queue board unavailable, but app continues
+    app.use('/queues', (req, res) => {
+      res.status(503).json({ 
+        message: 'Queue dashboard unavailable - Redis version incompatible or not running',
+        error: err.message 
+      })
+    })
+  }
 
   // ── API routes ─────────────────────────────────────────────────────────────
   app.use('/api', apiRouter)
