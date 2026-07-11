@@ -100,4 +100,149 @@ async function getDashboardStats(businessId) {
   }
 }
 
-module.exports = { getProfile, updateProfile, uploadLogo, getSettings, updateSettings, getDashboardStats }
+// Branding
+async function getBranding(businessId) {
+  const settings = await getSettings(businessId)
+  return {
+    brandColor: settings.brandColor,
+    accentColor: settings.accentColor,
+    fontFamily: settings.fontFamily,
+    customCss: settings.customCss
+  }
+}
+
+async function updateBranding(businessId, data, req) {
+  const settings = await repo.upsertSettings(businessId, data)
+  await invalidateTenantCache(businessId, 'settings')
+  req?.audit?.('business.branding_updated', 'BusinessSetting', businessId, { changes: data })
+  return {
+    brandColor: settings.brandColor,
+    accentColor: settings.accentColor,
+    fontFamily: settings.fontFamily,
+    customCss: settings.customCss
+  }
+}
+
+// Tax settings
+async function getTaxSettings(businessId) {
+  const settings = await getSettings(businessId)
+  return {
+    taxRate: settings.taxRate,
+    taxInclusive: settings.taxInclusive,
+    taxLabel: settings.taxLabel,
+    multiTaxEnabled: settings.multiTaxEnabled,
+    taxRegions: settings.taxRegions
+  }
+}
+
+async function updateTaxSettings(businessId, data, req) {
+  const settings = await repo.upsertSettings(businessId, data)
+  await invalidateTenantCache(businessId, 'settings')
+  req?.audit?.('business.tax_settings_updated', 'BusinessSetting', businessId, { changes: data })
+  return {
+    taxRate: settings.taxRate,
+    taxInclusive: settings.taxInclusive,
+    taxLabel: settings.taxLabel,
+    multiTaxEnabled: settings.multiTaxEnabled,
+    taxRegions: settings.taxRegions
+  }
+}
+
+// Business hours
+async function getBusinessHours(businessId) {
+  const settings = await getSettings(businessId)
+  return {
+    businessHours: settings.businessHours || getDefaultBusinessHours(),
+    timezone: settings.timezone || 'UTC'
+  }
+}
+
+async function updateBusinessHours(businessId, data, req) {
+  const settings = await repo.upsertSettings(businessId, { businessHours: data, timezone: data.timezone })
+  await invalidateTenantCache(businessId, 'settings')
+  req?.audit?.('business.hours_updated', 'BusinessSetting', businessId, { changes: data })
+  return {
+    businessHours: settings.businessHours,
+    timezone: settings.timezone
+  }
+}
+
+function getDefaultBusinessHours() {
+  const defaultDay = { open: '09:00', close: '17:00', closed: false }
+  return {
+    monday: defaultDay,
+    tuesday: defaultDay,
+    wednesday: defaultDay,
+    thursday: defaultDay,
+    friday: defaultDay,
+    saturday: { open: '09:00', close: '13:00', closed: false },
+    sunday: { open: '', close: '', closed: true }
+  }
+}
+
+// Holidays
+async function listHolidays(businessId, query) {
+  const { year, active } = query
+  const filters = {}
+  
+  if (year) {
+    const startOfYear = new Date(`${year}-01-01`)
+    const endOfYear = new Date(`${year}-12-31T23:59:59`)
+    filters.date = { gte: startOfYear, lte: endOfYear }
+  }
+  
+  if (active !== undefined) {
+    filters.isActive = active === 'true' || active === true
+  }
+  
+  return await repo.listHolidays(businessId, filters)
+}
+
+async function createHoliday(businessId, data, req) {
+  const holiday = await repo.createHoliday(businessId, data)
+  req?.audit?.('business.holiday_created', 'Holiday', holiday.id, { data })
+  return holiday
+}
+
+async function getHoliday(businessId, holidayId) {
+  const holiday = await repo.findHolidayById(businessId, holidayId)
+  if (!holiday) throw ApiError.notFound('Holiday not found')
+  return holiday
+}
+
+async function updateHoliday(businessId, holidayId, data, req) {
+  const holiday = await repo.findHolidayById(businessId, holidayId)
+  if (!holiday) throw ApiError.notFound('Holiday not found')
+  
+  const updated = await repo.updateHoliday(holidayId, data)
+  req?.audit?.('business.holiday_updated', 'Holiday', holidayId, { changes: data })
+  return updated
+}
+
+async function deleteHoliday(businessId, holidayId, req) {
+  const holiday = await repo.findHolidayById(businessId, holidayId)
+  if (!holiday) throw ApiError.notFound('Holiday not found')
+  
+  await repo.deleteHoliday(holidayId)
+  req?.audit?.('business.holiday_deleted', 'Holiday', holidayId)
+}
+
+module.exports = { 
+  getProfile, 
+  updateProfile, 
+  uploadLogo, 
+  getSettings, 
+  updateSettings, 
+  getDashboardStats,
+  getBranding,
+  updateBranding,
+  getTaxSettings,
+  updateTaxSettings,
+  getBusinessHours,
+  updateBusinessHours,
+  listHolidays,
+  createHoliday,
+  getHoliday,
+  updateHoliday,
+  deleteHoliday
+}
