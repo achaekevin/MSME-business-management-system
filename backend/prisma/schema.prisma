@@ -71,6 +71,7 @@ model Business {
   apiKeys       ApiKey[]
   webhooks      Webhook[]
   settings      BusinessSetting?
+  holidays      Holiday[]
   inventoryTransactions InventoryTransaction[]
   stockTransfers StockTransfer[]
 
@@ -162,20 +163,62 @@ model SubscriptionPaymentMethod {
 model BusinessSetting {
   id                    String   @id @default(uuid())
   businessId            String   @unique
-  notificationSettings  Json?
-  appearanceSettings    Json?
-  securitySettings      Json?
-  receiptTemplate       String?
-  invoiceTemplate       String?
+  
+  // Branding settings
+  brandColor            String?  // primary brand color hex
+  accentColor           String?  // secondary/accent color hex
+  fontFamily            String?  // custom font
+  customCss             String?  @db.Text
+  
+  // Tax settings
   taxRate               Decimal  @default(0) @db.Decimal(5, 2)
   taxInclusive          Boolean  @default(false)
+  taxLabel              String?  @default("VAT") // VAT, GST, Sales Tax, etc.
+  multiTaxEnabled       Boolean  @default(false)
+  taxRegions            Json?    // array of tax region configurations
+  
+  // Business hours
+  businessHours         Json?    // { monday: { open: "09:00", close: "17:00", closed: false }, ... }
+  timezone              String?  @default("UTC")
+  
+  // Notification settings
+  notificationSettings  Json?
+  
+  // Appearance settings  
+  appearanceSettings    Json?
+  
+  // Security settings
+  securitySettings      Json?
+  
+  // Templates
+  receiptTemplate       String?
+  invoiceTemplate       String?
+  
+  // Inventory
   lowStockThreshold     Int      @default(10)
+  
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
 
   business              Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
 
   @@map("business_settings")
+}
+
+model Holiday {
+  id          String   @id @default(uuid())
+  businessId  String
+  name        String
+  date        DateTime
+  recurring   Boolean  @default(false) // if true, repeats annually
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  business    Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([businessId])
+  @@index([businessId, date])
+  @@map("holidays")
 }
 
 // ----------------------------------------------------------------------------
