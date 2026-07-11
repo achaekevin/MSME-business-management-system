@@ -34,5 +34,6 @@ router.use('/subscriptions', require('../modules/subscriptions/subscriptions.rou
 router.use('/documents', require('../modules/documents/documents.routes'))
 router.use('/analytics', require('../modules/analytics/analytics.routes'))
 router.use('/audit', require('../modules/audit/audit.routes'))
+router.use('/security', require('../modules/security/security.routes'))
 
 module.exports = router
