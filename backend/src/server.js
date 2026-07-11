@@ -4,7 +4,6 @@ const createApp = require('./app')
 const { connectDatabase, disconnectDatabase } = require('./config/database')
 const { redisClient } = require('./config/redis')
 const { initSocket } = require('./config/socket')
-const { registerScheduledJobs } = require('./queues/scheduler')
 const { ensureBucket } = require('./storage/storage.service')
 const appConfig = require('./config/app')
 const logger = require('./config/logger')
@@ -16,8 +15,26 @@ async function boot() {
     logger.info('Database ready')
 
     // Redis client connects lazily on first command; verify it here
-    await redisClient.ping()
-    logger.info('Redis ready')
+    let redisAvailable = false
+    let redisVersionOk = false
+    try {
+      await redisClient.ping()
+      const redisInfo = await redisClient.info('server')
+      const versionMatch = redisInfo.match(/redis_version:(\d+)\.(\d+)\.(\d+)/)
+      if (versionMatch) {
+        const majorVersion = parseInt(versionMatch[1])
+        redisVersionOk = majorVersion >= 5
+      }
+      logger.info('Redis ready')
+      redisAvailable = true
+      
+      if (!redisVersionOk) {
+        logger.warn('⚠️  Redis version < 5.0.0 detected — BullMQ queue features will be disabled')
+      }
+    } catch (err) {
+      logger.warn('⚠️  Redis not available — queue features disabled')
+      logger.warn(`Redis error: ${err.message}`)
+    }
 
     // Ensure object-storage bucket exists (creates it if not)
     await ensureBucket().catch((err) =>
@@ -33,7 +50,15 @@ async function boot() {
     logger.info('Socket.io initialized')
 
     // ── Scheduled / repeatable BullMQ jobs ────────────────────────────────
-    await registerScheduledJobs()
+    if (redisAvailable && redisVersionOk) {
+      try {
+        const { registerScheduledJobs } = require('./queues/scheduler')
+        await registerScheduledJobs()
+      } catch (err) {
+        logger.warn('⚠️  Failed to register scheduled jobs — queue features disabled')
+        logger.warn(`Scheduler error: ${err.message}`)
+      }
+    }
 
     // ── Listen ─────────────────────────────────────────────────────────────
     server.listen(appConfig.port, () => {
@@ -49,7 +74,13 @@ async function boot() {
       logger.info(`${signal} received — shutting down gracefully...`)
       server.close(async () => {
         await disconnectDatabase()
-        await redisClient.quit()
+        if (redisAvailable) {
+          try {
+            await redisClient.quit()
+          } catch (err) {
+            logger.warn('Redis disconnect failed:', err.message)
+          }
+        }
         logger.info('Shutdown complete')
         process.exit(0)
       })

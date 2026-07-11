@@ -18,35 +18,40 @@ const { prisma } = require('../config/database')
  *   - Data backups:         nightly at 02:00 UTC for each business
  */
 async function registerScheduledJobs() {
-  // ── Fixed repeatable jobs ─────────────────────────────────────────────────
-  await inventoryAlertsQueue.add(
-    'scan-low-stock',
-    {},
-    { repeat: { pattern: '0 * * * *' }, jobId: 'inventory-alert-hourly' }
-  )
+  try {
+    // ── Fixed repeatable jobs ─────────────────────────────────────────────────
+    await inventoryAlertsQueue.add(
+      'scan-low-stock',
+      {},
+      { repeat: { pattern: '0 * * * *' }, jobId: 'inventory-alert-hourly' }
+    )
 
-  await subscriptionRenewalsQueue.add(
-    'check-expiring-subscriptions',
-    {},
-    { repeat: { pattern: '0 6 * * *' }, jobId: 'subscription-check-daily' }
-  )
+    await subscriptionRenewalsQueue.add(
+      'check-expiring-subscriptions',
+      {},
+      { repeat: { pattern: '0 6 * * *' }, jobId: 'subscription-check-daily' }
+    )
 
-  await scheduledReportsQueue.add(
-    'dispatch-due-reports',
-    {},
-    { repeat: { pattern: '0 7 * * 1' }, jobId: 'scheduled-reports-weekly' }
-  )
+    await scheduledReportsQueue.add(
+      'dispatch-due-reports',
+      {},
+      { repeat: { pattern: '0 7 * * 1' }, jobId: 'scheduled-reports-weekly' }
+    )
 
-  // ── Nightly data backup for all active businesses ─────────────────────────
-  // One parent job dispatches per-business backup jobs at 02:00 UTC.
-  // Individual business backup jobs land in the DATA_BACKUPS queue.
-  await scheduledReportsQueue.add(
-    'trigger-nightly-backups',
-    { _type: 'nightly_backup_trigger' },
-    { repeat: { pattern: '0 2 * * *' }, jobId: 'nightly-backup-trigger' }
-  )
+    // ── Nightly data backup for all active businesses ─────────────────────────
+    // One parent job dispatches per-business backup jobs at 02:00 UTC.
+    // Individual business backup jobs land in the DATA_BACKUPS queue.
+    await scheduledReportsQueue.add(
+      'trigger-nightly-backups',
+      { _type: 'nightly_backup_trigger' },
+      { repeat: { pattern: '0 2 * * *' }, jobId: 'nightly-backup-trigger' }
+    )
 
-  logger.info('✅ Scheduled (repeatable) jobs registered')
+    logger.info('✅ Scheduled (repeatable) jobs registered')
+  } catch (err) {
+    logger.warn('⚠️  Queue registration failed - Redis version may be incompatible')
+    throw err // Re-throw so server.js can handle it
+  }
 }
 
 /**
