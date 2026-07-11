@@ -72,6 +72,7 @@ model Business {
   webhooks      Webhook[]
   settings      BusinessSetting?
   holidays      Holiday[]
+  ipRestrictions IpRestriction[]
   inventoryTransactions InventoryTransaction[]
   stockTransfers StockTransfer[]
 
@@ -259,6 +260,7 @@ model User {
   refreshTokens       RefreshToken[]
   otpCodes            OtpCode[]
   passwordResets      PasswordReset[]
+  loginAttempts       LoginAttempt[]
   auditLogs           AuditLog[]
   notifications       Notification[]
   createdSaleOrders   SaleOrder[]      @relation("SaleCreatedBy")
@@ -326,6 +328,7 @@ model Session {
   userAgent    String?
   location     String?
   isCurrent    Boolean  @default(false)
+  isTrusted    Boolean  @default(false)
   lastActiveAt DateTime @default(now())
   expiresAt    DateTime
   createdAt    DateTime @default(now())
@@ -334,6 +337,42 @@ model Session {
 
   @@index([userId])
   @@map("sessions")
+}
+
+model LoginAttempt {
+  id         String   @id @default(uuid())
+  userId     String?
+  email      String
+  ipAddress  String?
+  userAgent  String?
+  location   String?
+  status     String   // success | failed | blocked
+  failReason String?
+  createdAt  DateTime @default(now())
+
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([email])
+  @@index([status])
+  @@map("login_attempts")
+}
+
+model IpRestriction {
+  id          String   @id @default(uuid())
+  businessId  String
+  ipAddress   String
+  type        String   // allow | block
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  business    Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([businessId])
+  @@index([businessId, isActive])
+  @@map("ip_restrictions")
 }
 
 model RefreshToken {
