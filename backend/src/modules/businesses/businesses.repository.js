@@ -76,8 +76,42 @@ function countActiveProducts(businessId) {
   return prisma.product.count({ where: { businessId, isActive: true } })
 }
 
+// Holiday management
+function listHolidays(businessId, filters = {}) {
+  return prisma.holiday.findMany({
+    where: { businessId, ...filters },
+    orderBy: { date: 'asc' }
+  })
+}
+
+function createHoliday(businessId, data) {
+  return prisma.holiday.create({
+    data: { businessId, ...data }
+  })
+}
+
+function findHolidayById(businessId, holidayId) {
+  return prisma.holiday.findFirst({
+    where: { id: holidayId, businessId }
+  })
+}
+
+function updateHoliday(holidayId, data) {
+  return prisma.holiday.update({
+    where: { id: holidayId },
+    data
+  })
+}
+
+function deleteHoliday(holidayId) {
+  return prisma.holiday.delete({
+    where: { id: holidayId }
+  })
+}
+
 module.exports = {
   findById, update, getSettings, createSettings, upsertSettings,
   countSales, countSaleOrders, sumExpenses, countNewCustomers,
-  getOutstandingInvoices, countLowStock, countActiveCustomers, countActiveProducts
+  getOutstandingInvoices, countLowStock, countActiveCustomers, countActiveProducts,
+  listHolidays, createHoliday, findHolidayById, updateHoliday, deleteHoliday
 }
