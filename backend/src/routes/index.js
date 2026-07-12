@@ -8,6 +8,7 @@ router.use('/', require('./health.routes'))
 router.use('/auth', require('../modules/auth/auth.routes'))
 
 // Fully implemented modules
+router.use('/dashboard', require('../modules/dashboard/dashboard.routes'))
 router.use('/customers', require('../modules/customers/customers.routes'))
 router.use('/products', require('../modules/products/products.routes'))
 router.use('/inventory', require('../modules/inventory/inventory.routes'))
