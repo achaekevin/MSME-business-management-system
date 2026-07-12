@@ -282,8 +282,12 @@ model Role {
   id          String   @id @default(uuid())
   businessId  String
   name        String
+  displayName String?
   description String?
   isSystem    Boolean  @default(false) // owner/admin built-ins, not deletable
+  isEnabled   Boolean  @default(true)  // business can enable/disable roles
+  isCustom    Boolean  @default(false) // custom role created by business
+  category    String?  // sales, finance, operations, hr, etc.
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -293,6 +297,7 @@ model Role {
 
   @@unique([businessId, name])
   @@index([businessId])
+  @@index([businessId, isEnabled])
   @@map("roles")
 }
 
