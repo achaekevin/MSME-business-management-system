@@ -1,6 +1,6 @@
 const { PrismaClient } = require('@prisma/client')
 const bcrypt = require('bcryptjs')
-const { PERMISSIONS, SYSTEM_ROLES, ROLE_PERMISSIONS } = require('../src/constants/permissions')
+const { PERMISSIONS, ENTERPRISE_ROLES, ENTERPRISE_ROLE_PERMISSIONS } = require('../src/constants/permissions')
 
 const prisma = new PrismaClient()
 
@@ -16,6 +16,44 @@ async function seedPermissions() {
     await prisma.permission.upsert({ where: { key: perm.key }, update: {}, create: perm })
   }
   console.log(`✅ Seeded ${permissionData.length} permissions`)
+}
+
+const ROLE_CATEGORIES = {
+  SYSTEM: 'system',
+  MANAGEMENT: 'management',
+  SALES: 'sales',
+  INVENTORY: 'inventory',
+  FINANCE: 'finance',
+  HR: 'hr',
+  OPERATIONS: 'operations',
+  SUPPORT: 'support',
+  MARKETING: 'marketing',
+  EXTERNAL: 'external'
+}
+
+const ROLE_METADATA = {
+  [ENTERPRISE_ROLES.SUPER_ADMIN]: { category: ROLE_CATEGORIES.SYSTEM, displayName: 'Super Administrator' },
+  [ENTERPRISE_ROLES.BUSINESS_OWNER]: { category: ROLE_CATEGORIES.MANAGEMENT, displayName: 'Business Owner' },
+  [ENTERPRISE_ROLES.BRANCH_MANAGER]: { category: ROLE_CATEGORIES.MANAGEMENT, displayName: 'Branch Manager' },
+  [ENTERPRISE_ROLES.OPERATIONS_MANAGER]: { category: ROLE_CATEGORIES.OPERATIONS, displayName: 'Operations Manager' },
+  [ENTERPRISE_ROLES.SALES_MANAGER]: { category: ROLE_CATEGORIES.SALES, displayName: 'Sales Manager' },
+  [ENTERPRISE_ROLES.SALES_REP]: { category: ROLE_CATEGORIES.SALES, displayName: 'Sales Representative' },
+  [ENTERPRISE_ROLES.CASHIER]: { category: ROLE_CATEGORIES.SALES, displayName: 'Cashier / POS Operator' },
+  [ENTERPRISE_ROLES.INVENTORY_OFFICER]: { category: ROLE_CATEGORIES.INVENTORY, displayName: 'Inventory Officer' },
+  [ENTERPRISE_ROLES.WAREHOUSE_MANAGER]: { category: ROLE_CATEGORIES.INVENTORY, displayName: 'Warehouse Manager' },
+  [ENTERPRISE_ROLES.PROCUREMENT_OFFICER]: { category: ROLE_CATEGORIES.INVENTORY, displayName: 'Procurement Officer' },
+  [ENTERPRISE_ROLES.ACCOUNTANT]: { category: ROLE_CATEGORIES.FINANCE, displayName: 'Accountant' },
+  [ENTERPRISE_ROLES.FINANCE_MANAGER]: { category: ROLE_CATEGORIES.FINANCE, displayName: 'Finance Manager' },
+  [ENTERPRISE_ROLES.HR_MANAGER]: { category: ROLE_CATEGORIES.HR, displayName: 'HR Manager' },
+  [ENTERPRISE_ROLES.EMPLOYEE]: { category: ROLE_CATEGORIES.HR, displayName: 'Employee' },
+  [ENTERPRISE_ROLES.PROJECT_MANAGER]: { category: ROLE_CATEGORIES.OPERATIONS, displayName: 'Project Manager' },
+  [ENTERPRISE_ROLES.SUPPORT_OFFICER]: { category: ROLE_CATEGORIES.SUPPORT, displayName: 'Customer Support Officer' },
+  [ENTERPRISE_ROLES.DELIVERY_DRIVER]: { category: ROLE_CATEGORIES.OPERATIONS, displayName: 'Delivery Driver' },
+  [ENTERPRISE_ROLES.MARKETING_OFFICER]: { category: ROLE_CATEGORIES.MARKETING, displayName: 'Marketing Officer' },
+  [ENTERPRISE_ROLES.AUDITOR]: { category: ROLE_CATEGORIES.FINANCE, displayName: 'Auditor' },
+  [ENTERPRISE_ROLES.DEVELOPER]: { category: ROLE_CATEGORIES.SYSTEM, displayName: 'System Integrator' },
+  [ENTERPRISE_ROLES.SUPPLIER]: { category: ROLE_CATEGORIES.EXTERNAL, displayName: 'Supplier' },
+  [ENTERPRISE_ROLES.CUSTOMER]: { category: ROLE_CATEGORIES.EXTERNAL, displayName: 'Customer' }
 }
 
 async function seedDemoBusinessAndUser() {
@@ -41,13 +79,22 @@ async function seedDemoBusinessAndUser() {
   const allPermissions = await prisma.permission.findMany()
   const permMap = Object.fromEntries(allPermissions.map((p) => [p.key, p.id]))
 
+  // Create all enterprise roles
   const createdRoles = {}
-  for (const [roleName, permKeys] of Object.entries(ROLE_PERMISSIONS)) {
+  for (const [roleName, permKeys] of Object.entries(ENTERPRISE_ROLE_PERMISSIONS)) {
+    const metadata = ROLE_METADATA[roleName] || {}
+    
+    // Skip Super Admin for demo business (system-level only)
+    if (roleName === ENTERPRISE_ROLES.SUPER_ADMIN) continue
+    
     const role = await prisma.role.create({
       data: {
         businessId: business.id,
         name: roleName,
+        displayName: metadata.displayName || roleName,
+        category: metadata.category,
         isSystem: true,
+        isEnabled: true, // All roles enabled by default
         permissions: {
           create: permKeys.filter((k) => permMap[k]).map((k) => ({ permissionId: permMap[k] }))
         }
@@ -60,6 +107,7 @@ async function seedDemoBusinessAndUser() {
     data: { businessId: business.id, name: 'Head Office', code: 'HQ', isHeadquarters: true }
   })
 
+  // Create Business Owner user
   await prisma.user.create({
     data: {
       businessId: business.id,
@@ -69,7 +117,7 @@ async function seedDemoBusinessAndUser() {
       phone: '+254700000000',
       passwordHash: await bcrypt.hash('Demo@1234', 12),
       isOwner: true,
-      roleId: createdRoles[SYSTEM_ROLES.OWNER].id,
+      roleId: createdRoles[ENTERPRISE_ROLES.BUSINESS_OWNER].id,
       status: 'active',
       emailVerifiedAt: new Date()
     }
@@ -112,6 +160,7 @@ async function seedDemoBusinessAndUser() {
   await prisma.warehouse.create({ data: { businessId: business.id, name: 'Main Warehouse', isActive: true } })
 
   console.log('✅ Demo business seeded — Login: demo@msmebms.com / Demo@1234')
+  console.log(`✅ Created ${Object.keys(createdRoles).length} enterprise roles`)
 }
 
 async function main() {
