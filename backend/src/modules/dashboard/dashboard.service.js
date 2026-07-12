@@ -17,11 +17,11 @@ async function getRoleDashboard(businessId, userId, userRole) {
     case ENTERPRISE_ROLES.BRANCH_MANAGER:
       return await getBranchManagerDashboard(businessId, userId)
     
+    case ENTERPRISE_ROLES.OPERATIONS_MANAGER:
+      return await getOperationsManagerDashboard(businessId)
+    
     case ENTERPRISE_ROLES.SALES_MANAGER:
       return await getSalesManagerDashboard(businessId)
-    
-    case ENTERPRISE_ROLES.SALES_REP:
-      return await getSalesRepDashboard(businessId, userId)
     
     case ENTERPRISE_ROLES.CASHIER:
       return await getCashierDashboard(businessId, userId)
@@ -29,50 +29,14 @@ async function getRoleDashboard(businessId, userId, userRole) {
     case ENTERPRISE_ROLES.INVENTORY_OFFICER:
       return await getInventoryOfficerDashboard(businessId)
     
-    case ENTERPRISE_ROLES.WAREHOUSE_MANAGER:
-      return await getWarehouseManagerDashboard(businessId)
-    
     case ENTERPRISE_ROLES.PROCUREMENT_OFFICER:
       return await getProcurementOfficerDashboard(businessId)
     
     case ENTERPRISE_ROLES.ACCOUNTANT:
       return await getAccountantDashboard(businessId)
     
-    case ENTERPRISE_ROLES.FINANCE_MANAGER:
-      return await getFinanceManagerDashboard(businessId)
-    
     case ENTERPRISE_ROLES.HR_MANAGER:
       return await getHRManagerDashboard(businessId)
-    
-    case ENTERPRISE_ROLES.EMPLOYEE:
-      return await getEmployeeDashboard(businessId, userId)
-    
-    case ENTERPRISE_ROLES.PROJECT_MANAGER:
-      return await getProjectManagerDashboard(businessId, userId)
-    
-    case ENTERPRISE_ROLES.SUPPORT_OFFICER:
-      return await getSupportOfficerDashboard(businessId)
-    
-    case ENTERPRISE_ROLES.DELIVERY_DRIVER:
-      return await getDeliveryDriverDashboard(businessId, userId)
-    
-    case ENTERPRISE_ROLES.MARKETING_OFFICER:
-      return await getMarketingOfficerDashboard(businessId)
-    
-    case ENTERPRISE_ROLES.AUDITOR:
-      return await getAuditorDashboard(businessId)
-    
-    case ENTERPRISE_ROLES.OPERATIONS_MANAGER:
-      return await getOperationsManagerDashboard(businessId)
-    
-    case ENTERPRISE_ROLES.DEVELOPER:
-      return await getDeveloperDashboard(businessId)
-    
-    case ENTERPRISE_ROLES.SUPPLIER:
-      return await getSupplierDashboard(businessId, userId)
-    
-    case ENTERPRISE_ROLES.CUSTOMER:
-      return await getCustomerDashboard(businessId, userId)
     
     default:
       return await getDefaultDashboard(businessId)
@@ -209,33 +173,6 @@ async function getSalesManagerDashboard(businessId) {
 }
 
 /**
- * Sales Rep Dashboard - Personal sales
- */
-async function getSalesRepDashboard(businessId, userId) {
-  const thisMonth = getMonthRange()
-  const today = getTodayRange()
-
-  const [
-    mySales, myRevenue, todaySales, myCustomers
-  ] = await Promise.all([
-    prisma.saleOrder.count({ where: { businessId, createdById: userId, createdAt: thisMonth } }),
-    prisma.saleOrder.aggregate({ where: { businessId, createdById: userId, createdAt: thisMonth }, _sum: { total: true } }),
-    prisma.saleOrder.count({ where: { businessId, createdById: userId, createdAt: today } }),
-    prisma.customer.count({ where: { businessId, isActive: true } })
-  ])
-
-  return {
-    role: 'Sales Representative',
-    overview: {
-      mySales: { value: mySales, period: 'This Month' },
-      myRevenue: { value: Number(myRevenue._sum.total || 0), period: 'This Month' },
-      todaySales: { value: todaySales, period: 'Today' },
-      customers: { value: myCustomers, period: 'Available' }
-    }
-  }
-}
-
-/**
  * Cashier Dashboard - Daily transactions
  */
 async function getCashierDashboard(businessId, userId) {
@@ -295,37 +232,6 @@ async function getInventoryOfficerDashboard(businessId) {
 }
 
 /**
- * Warehouse Manager Dashboard - Warehouse operations
- */
-async function getWarehouseManagerDashboard(businessId) {
-  const thisMonth = getMonthRange()
-
-  const [
-    warehouses, transfers, totalStock, recentTransfers
-  ] = await Promise.all([
-    prisma.warehouse.count({ where: { businessId, isActive: true } }),
-    prisma.inventoryTransfer.count({ where: { businessId, createdAt: thisMonth } }),
-    prisma.product.aggregate({ where: { businessId }, _sum: { stockQuantity: true } }),
-    prisma.inventoryTransfer.findMany({ where: { businessId }, orderBy: { createdAt: 'desc' }, take: 10, include: { fromWarehouse: true, toWarehouse: true } })
-  ])
-
-  return {
-    role: 'Warehouse Manager',
-    overview: {
-      warehouses: { value: warehouses, period: 'Active' },
-      transfers: { value: transfers, period: 'This Month' },
-      totalStock: { value: totalStock._sum.stockQuantity || 0, period: 'Total Units' }
-    },
-    recentTransfers: recentTransfers.map(t => ({
-      from: t.fromWarehouse?.name,
-      to: t.toWarehouse?.name,
-      status: t.status,
-      createdAt: t.createdAt
-    }))
-  }
-}
-
-/**
  * Procurement Officer Dashboard - Purchasing
  */
 async function getProcurementOfficerDashboard(businessId) {
@@ -378,41 +284,6 @@ async function getAccountantDashboard(businessId) {
 }
 
 /**
- * Finance Manager Dashboard - Financial oversight
- */
-async function getFinanceManagerDashboard(businessId) {
-  const thisMonth = getMonthRange()
-
-  const [
-    revenue, expenses, profit, cashFlow, outstandingPayables, outstandingReceivables
-  ] = await Promise.all([
-    prisma.saleOrder.aggregate({ where: { businessId, createdAt: thisMonth }, _sum: { total: true } }),
-    prisma.expense.aggregate({ where: { businessId, createdAt: thisMonth }, _sum: { amount: true } }),
-    prisma.journalEntry.count({ where: { businessId, createdAt: thisMonth } }),
-    prisma.payment.aggregate({ where: { businessId, createdAt: thisMonth }, _sum: { amount: true } }),
-    prisma.purchaseOrder.aggregate({ where: { businessId, status: 'pending' }, _sum: { total: true } }),
-    prisma.invoice.aggregate({ where: { businessId, status: 'pending' }, _sum: { balance: true } })
-  ])
-
-  const rev = Number(revenue._sum.total || 0)
-  const exp = Number(expenses._sum.amount || 0)
-
-  return {
-    role: 'Finance Manager',
-    overview: {
-      revenue: { value: rev, period: 'This Month' },
-      expenses: { value: exp, period: 'This Month' },
-      profit: { value: rev - exp, period: 'This Month' },
-      cashFlow: { value: Number(cashFlow._sum.amount || 0), period: 'This Month' }
-    },
-    financial: {
-      outstandingPayables: Number(outstandingPayables._sum.total || 0),
-      outstandingReceivables: Number(outstandingReceivables._sum.balance || 0)
-    }
-  }
-}
-
-/**
  * HR Manager Dashboard - Human resources
  */
 async function getHRManagerDashboard(businessId) {
@@ -439,147 +310,6 @@ async function getHRManagerDashboard(businessId) {
 }
 
 /**
- * Employee Dashboard - Self-service
- */
-async function getEmployeeDashboard(businessId, userId) {
-  const user = await prisma.user.findUnique({ 
-    where: { id: userId }, 
-    include: { role: true, branch: true } 
-  })
-
-  return {
-    role: 'Employee',
-    profile: {
-      name: user.name,
-      email: user.email,
-      phone: user.phone,
-      role: user.role?.displayName || user.role?.name,
-      branch: user.branch?.name,
-      employeeNumber: user.employeeNumber
-    },
-    overview: {
-      status: user.status,
-      joinedAt: user.createdAt
-    }
-  }
-}
-
-/**
- * Project Manager Dashboard - Projects
- */
-async function getProjectManagerDashboard(businessId, userId) {
-  const thisMonth = getMonthRange()
-
-  // Note: Projects module needs to be implemented
-  return {
-    role: 'Project Manager',
-    overview: {
-      activeProjects: { value: 0, period: 'In Progress' },
-      completedProjects: { value: 0, period: 'This Month' },
-      pendingTasks: { value: 0, period: 'Assigned' }
-    },
-    message: 'Projects module not yet implemented'
-  }
-}
-
-/**
- * Support Officer Dashboard - Customer support
- */
-async function getSupportOfficerDashboard(businessId) {
-  const thisMonth = getMonthRange()
-
-  const [
-    totalCustomers, activeCustomers, recentCustomers
-  ] = await Promise.all([
-    prisma.customer.count({ where: { businessId } }),
-    prisma.customer.count({ where: { businessId, isActive: true } }),
-    prisma.customer.findMany({ where: { businessId }, orderBy: { createdAt: 'desc' }, take: 10, select: { name: true, email: true, phone: true, createdAt: true } })
-  ])
-
-  return {
-    role: 'Customer Support Officer',
-    overview: {
-      totalCustomers: { value: totalCustomers, period: 'All' },
-      activeCustomers: { value: activeCustomers, period: 'Active' }
-    },
-    recentCustomers: recentCustomers.map(c => ({ name: c.name, email: c.email, phone: c.phone, createdAt: c.createdAt }))
-  }
-}
-
-/**
- * Delivery Driver Dashboard - Deliveries
- */
-async function getDeliveryDriverDashboard(businessId, userId) {
-  const today = getTodayRange()
-
-  // Note: Deliveries module needs to be implemented
-  return {
-    role: 'Delivery Driver',
-    overview: {
-      todayDeliveries: { value: 0, period: 'Assigned Today' },
-      completedDeliveries: { value: 0, period: 'Completed' },
-      pendingDeliveries: { value: 0, period: 'Pending' }
-    },
-    message: 'Deliveries module not yet implemented'
-  }
-}
-
-/**
- * Marketing Officer Dashboard - Campaigns
- */
-async function getMarketingOfficerDashboard(businessId) {
-  const thisMonth = getMonthRange()
-
-  const [
-    totalCustomers, newCustomers, sales, revenue
-  ] = await Promise.all([
-    prisma.customer.count({ where: { businessId, isActive: true } }),
-    prisma.customer.count({ where: { businessId, createdAt: thisMonth } }),
-    prisma.saleOrder.count({ where: { businessId, createdAt: thisMonth } }),
-    prisma.saleOrder.aggregate({ where: { businessId, createdAt: thisMonth }, _sum: { total: true } })
-  ])
-
-  return {
-    role: 'Marketing Officer',
-    overview: {
-      totalCustomers: { value: totalCustomers, period: 'Active' },
-      newCustomers: { value: newCustomers, period: 'This Month' },
-      sales: { value: sales, period: 'This Month' },
-      revenue: { value: Number(revenue._sum.total || 0), period: 'This Month' }
-    },
-    message: 'Marketing campaigns module not yet implemented'
-  }
-}
-
-/**
- * Auditor Dashboard - Audit logs
- */
-async function getAuditorDashboard(businessId) {
-  const thisMonth = getMonthRange()
-
-  const [
-    totalAuditLogs, criticalLogs, userActivity
-  ] = await Promise.all([
-    prisma.auditLog.count({ where: { businessId, createdAt: thisMonth } }),
-    prisma.auditLog.count({ where: { businessId, action: { contains: 'delete' }, createdAt: thisMonth } }),
-    prisma.auditLog.findMany({ where: { businessId }, orderBy: { createdAt: 'desc' }, take: 20, include: { user: { select: { name: true, email: true } } } })
-  ])
-
-  return {
-    role: 'Auditor',
-    overview: {
-      totalLogs: { value: totalAuditLogs, period: 'This Month' },
-      criticalActions: { value: criticalLogs, period: 'This Month' }
-    },
-    recentActivity: userActivity.map(log => ({
-      action: log.action,
-      user: log.user?.name,
-      createdAt: log.createdAt
-    }))
-  }
-}
-
-/**
  * Operations Manager Dashboard - Overall operations
  */
 async function getOperationsManagerDashboard(businessId) {
@@ -602,79 +332,6 @@ async function getOperationsManagerDashboard(businessId) {
       purchases: { value: purchases, period: 'This Month' },
       activeEmployees: { value: employees, period: 'Active' }
     }
-  }
-}
-
-/**
- * Developer/System Integrator Dashboard - API & integrations
- */
-async function getDeveloperDashboard(businessId) {
-  const thisMonth = getMonthRange()
-
-  const [
-    apiKeys, webhooks, auditLogs
-  ] = await Promise.all([
-    prisma.apiKey.count({ where: { businessId, isActive: true } }),
-    prisma.webhook.count({ where: { businessId, isActive: true } }),
-    prisma.auditLog.count({ where: { businessId, createdAt: thisMonth } })
-  ])
-
-  return {
-    role: 'System Integrator / Developer',
-    overview: {
-      activeApiKeys: { value: apiKeys, period: 'Active' },
-      webhooks: { value: webhooks, period: 'Configured' },
-      apiCalls: { value: auditLogs, period: 'This Month' }
-    },
-    message: 'API documentation available at /api/docs'
-  }
-}
-
-/**
- * Supplier Dashboard - Supplier portal
- */
-async function getSupplierDashboard(businessId, userId) {
-  const thisMonth = getMonthRange()
-
-  // Note: Supplier portal needs to be fully implemented
-  const [
-    purchaseOrders, pendingPayments
-  ] = await Promise.all([
-    prisma.purchaseOrder.count({ where: { businessId, createdAt: thisMonth } }),
-    prisma.purchaseOrder.count({ where: { businessId, status: 'pending' } })
-  ])
-
-  return {
-    role: 'Supplier',
-    overview: {
-      purchaseOrders: { value: purchaseOrders, period: 'This Month' },
-      pendingPayments: { value: pendingPayments, period: 'Unpaid' }
-    },
-    message: 'Supplier portal access - limited view'
-  }
-}
-
-/**
- * Customer Dashboard - Customer portal
- */
-async function getCustomerDashboard(businessId, userId) {
-  const thisMonth = getMonthRange()
-
-  // Note: Customer portal needs to be fully implemented
-  const [
-    myOrders, pendingInvoices
-  ] = await Promise.all([
-    prisma.saleOrder.count({ where: { businessId, createdAt: thisMonth } }),
-    prisma.invoice.count({ where: { businessId, status: 'pending' } })
-  ])
-
-  return {
-    role: 'Customer',
-    overview: {
-      myOrders: { value: myOrders, period: 'This Month' },
-      pendingInvoices: { value: pendingInvoices, period: 'Unpaid' }
-    },
-    message: 'Customer portal access - view orders and invoices'
   }
 }
 
