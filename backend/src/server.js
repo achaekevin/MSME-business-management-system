@@ -42,7 +42,7 @@ async function boot() {
     )
 
     // ── HTTP server ────────────────────────────────────────────────────────
-    const app = createApp()
+    const app = createApp(redisVersionOk)
     const server = http.createServer(app)
 
     // ── Socket.io ──────────────────────────────────────────────────────────
