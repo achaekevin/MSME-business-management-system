@@ -25,10 +25,7 @@ const ROLE_CATEGORIES = {
   INVENTORY: 'inventory',
   FINANCE: 'finance',
   HR: 'hr',
-  OPERATIONS: 'operations',
-  SUPPORT: 'support',
-  MARKETING: 'marketing',
-  EXTERNAL: 'external'
+  OPERATIONS: 'operations'
 }
 
 const ROLE_METADATA = {
@@ -37,23 +34,11 @@ const ROLE_METADATA = {
   [ENTERPRISE_ROLES.BRANCH_MANAGER]: { category: ROLE_CATEGORIES.MANAGEMENT, displayName: 'Branch Manager' },
   [ENTERPRISE_ROLES.OPERATIONS_MANAGER]: { category: ROLE_CATEGORIES.OPERATIONS, displayName: 'Operations Manager' },
   [ENTERPRISE_ROLES.SALES_MANAGER]: { category: ROLE_CATEGORIES.SALES, displayName: 'Sales Manager' },
-  [ENTERPRISE_ROLES.SALES_REP]: { category: ROLE_CATEGORIES.SALES, displayName: 'Sales Representative' },
   [ENTERPRISE_ROLES.CASHIER]: { category: ROLE_CATEGORIES.SALES, displayName: 'Cashier / POS Operator' },
   [ENTERPRISE_ROLES.INVENTORY_OFFICER]: { category: ROLE_CATEGORIES.INVENTORY, displayName: 'Inventory Officer' },
-  [ENTERPRISE_ROLES.WAREHOUSE_MANAGER]: { category: ROLE_CATEGORIES.INVENTORY, displayName: 'Warehouse Manager' },
   [ENTERPRISE_ROLES.PROCUREMENT_OFFICER]: { category: ROLE_CATEGORIES.INVENTORY, displayName: 'Procurement Officer' },
   [ENTERPRISE_ROLES.ACCOUNTANT]: { category: ROLE_CATEGORIES.FINANCE, displayName: 'Accountant' },
-  [ENTERPRISE_ROLES.FINANCE_MANAGER]: { category: ROLE_CATEGORIES.FINANCE, displayName: 'Finance Manager' },
-  [ENTERPRISE_ROLES.HR_MANAGER]: { category: ROLE_CATEGORIES.HR, displayName: 'HR Manager' },
-  [ENTERPRISE_ROLES.EMPLOYEE]: { category: ROLE_CATEGORIES.HR, displayName: 'Employee' },
-  [ENTERPRISE_ROLES.PROJECT_MANAGER]: { category: ROLE_CATEGORIES.OPERATIONS, displayName: 'Project Manager' },
-  [ENTERPRISE_ROLES.SUPPORT_OFFICER]: { category: ROLE_CATEGORIES.SUPPORT, displayName: 'Customer Support Officer' },
-  [ENTERPRISE_ROLES.DELIVERY_DRIVER]: { category: ROLE_CATEGORIES.OPERATIONS, displayName: 'Delivery Driver' },
-  [ENTERPRISE_ROLES.MARKETING_OFFICER]: { category: ROLE_CATEGORIES.MARKETING, displayName: 'Marketing Officer' },
-  [ENTERPRISE_ROLES.AUDITOR]: { category: ROLE_CATEGORIES.FINANCE, displayName: 'Auditor' },
-  [ENTERPRISE_ROLES.DEVELOPER]: { category: ROLE_CATEGORIES.SYSTEM, displayName: 'System Integrator' },
-  [ENTERPRISE_ROLES.SUPPLIER]: { category: ROLE_CATEGORIES.EXTERNAL, displayName: 'Supplier' },
-  [ENTERPRISE_ROLES.CUSTOMER]: { category: ROLE_CATEGORIES.EXTERNAL, displayName: 'Customer' }
+  [ENTERPRISE_ROLES.HR_MANAGER]: { category: ROLE_CATEGORIES.HR, displayName: 'HR Manager' }
 }
 
 async function seedDemoBusinessAndUser() {
@@ -107,29 +92,17 @@ async function seedDemoBusinessAndUser() {
     data: { businessId: business.id, name: 'Head Office', code: 'HQ', isHeadquarters: true }
   })
 
-  // Create demo users for each role
+  // Create demo users for core roles only
   const demoUsers = [
     { name: 'Demo Owner', email: 'demo@msmebms.com', phone: '+254700000000', role: ENTERPRISE_ROLES.BUSINESS_OWNER, isOwner: true },
     { name: 'John Manager', email: 'manager@msmebms.com', phone: '+254700000001', role: ENTERPRISE_ROLES.BRANCH_MANAGER },
-    { name: 'Sarah Sales', email: 'sales@msmebms.com', phone: '+254700000002', role: ENTERPRISE_ROLES.SALES_MANAGER },
-    { name: 'Mike Cashier', email: 'cashier@msmebms.com', phone: '+254700000003', role: ENTERPRISE_ROLES.CASHIER },
-    { name: 'Lisa Inventory', email: 'inventory@msmebms.com', phone: '+254700000004', role: ENTERPRISE_ROLES.INVENTORY_OFFICER },
-    { name: 'Tom Warehouse', email: 'warehouse@msmebms.com', phone: '+254700000005', role: ENTERPRISE_ROLES.WAREHOUSE_MANAGER },
-    { name: 'Nancy Accountant', email: 'accountant@msmebms.com', phone: '+254700000006', role: ENTERPRISE_ROLES.ACCOUNTANT },
-    { name: 'David Finance', email: 'finance@msmebms.com', phone: '+254700000007', role: ENTERPRISE_ROLES.FINANCE_MANAGER },
-    { name: 'Emma HR', email: 'hr@msmebms.com', phone: '+254700000008', role: ENTERPRISE_ROLES.HR_MANAGER },
-    { name: 'Peter Employee', email: 'employee@msmebms.com', phone: '+254700000009', role: ENTERPRISE_ROLES.EMPLOYEE },
-    { name: 'Rachel Support', email: 'support@msmebms.com', phone: '+254700000010', role: ENTERPRISE_ROLES.SUPPORT_OFFICER },
-    { name: 'Steve Driver', email: 'driver@msmebms.com', phone: '+254700000011', role: ENTERPRISE_ROLES.DELIVERY_DRIVER },
-    { name: 'Karen Marketing', email: 'marketing@msmebms.com', phone: '+254700000012', role: ENTERPRISE_ROLES.MARKETING_OFFICER },
-    { name: 'Bob Auditor', email: 'auditor@msmebms.com', phone: '+254700000013', role: ENTERPRISE_ROLES.AUDITOR },
-    { name: 'Alex Procurement', email: 'procurement@msmebms.com', phone: '+254700000014', role: ENTERPRISE_ROLES.PROCUREMENT_OFFICER },
-    { name: 'Diana Operations', email: 'operations@msmebms.com', phone: '+254700000015', role: ENTERPRISE_ROLES.OPERATIONS_MANAGER },
-    { name: 'Chris Project', email: 'project@msmebms.com', phone: '+254700000016', role: ENTERPRISE_ROLES.PROJECT_MANAGER },
-    { name: 'Sophie Sales Rep', email: 'salesrep@msmebms.com', phone: '+254700000017', role: ENTERPRISE_ROLES.SALES_REP },
-    { name: 'Mark Developer', email: 'developer@msmebms.com', phone: '+254700000018', role: ENTERPRISE_ROLES.DEVELOPER },
-    { name: 'Linda Supplier', email: 'supplier@msmebms.com', phone: '+254700000019', role: ENTERPRISE_ROLES.SUPPLIER },
-    { name: 'James Customer', email: 'customer@msmebms.com', phone: '+254700000020', role: ENTERPRISE_ROLES.CUSTOMER }
+    { name: 'Diana Operations', email: 'operations@msmebms.com', phone: '+254700000002', role: ENTERPRISE_ROLES.OPERATIONS_MANAGER },
+    { name: 'Sarah Sales', email: 'sales@msmebms.com', phone: '+254700000003', role: ENTERPRISE_ROLES.SALES_MANAGER },
+    { name: 'Mike Cashier', email: 'cashier@msmebms.com', phone: '+254700000004', role: ENTERPRISE_ROLES.CASHIER },
+    { name: 'Lisa Inventory', email: 'inventory@msmebms.com', phone: '+254700000005', role: ENTERPRISE_ROLES.INVENTORY_OFFICER },
+    { name: 'Alex Procurement', email: 'procurement@msmebms.com', phone: '+254700000006', role: ENTERPRISE_ROLES.PROCUREMENT_OFFICER },
+    { name: 'Nancy Accountant', email: 'accountant@msmebms.com', phone: '+254700000007', role: ENTERPRISE_ROLES.ACCOUNTANT },
+    { name: 'Emma HR', email: 'hr@msmebms.com', phone: '+254700000008', role: ENTERPRISE_ROLES.HR_MANAGER }
   ]
 
   const defaultPassword = await bcrypt.hash('Demo@1234', 12)
@@ -156,11 +129,11 @@ async function seedDemoBusinessAndUser() {
   await prisma.subscription.create({
     data: {
       businessId: business.id,
-      planId: 'enterprise',
-      planName: 'Enterprise (Trial)',
+      planId: 'starter',
+      planName: 'Starter (Trial)',
       status: 'trial',
       currentPeriodEnd: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
-      limits: { branches: 10, users: 100, products: 10000 }
+      limits: { branches: 3, users: 15, products: 5000 }
     }
   })
 
@@ -190,7 +163,7 @@ async function seedDemoBusinessAndUser() {
   await prisma.warehouse.create({ data: { businessId: business.id, name: 'Main Warehouse', isActive: true } })
 
   console.log('✅ Demo business seeded — Login: demo@msmebms.com / Demo@1234')
-  console.log(`✅ Created ${Object.keys(createdRoles).length} enterprise roles`)
+  console.log(`✅ Created ${Object.keys(createdRoles).length} core enterprise roles`)
 }
 
 async function main() {
