@@ -107,30 +107,60 @@ async function seedDemoBusinessAndUser() {
     data: { businessId: business.id, name: 'Head Office', code: 'HQ', isHeadquarters: true }
   })
 
-  // Create Business Owner user
-  await prisma.user.create({
-    data: {
-      businessId: business.id,
-      branchId: branch.id,
-      name: 'Demo Owner',
-      email: 'demo@msmebms.com',
-      phone: '+254700000000',
-      passwordHash: await bcrypt.hash('Demo@1234', 12),
-      isOwner: true,
-      roleId: createdRoles[ENTERPRISE_ROLES.BUSINESS_OWNER].id,
-      status: 'active',
-      emailVerifiedAt: new Date()
-    }
-  })
+  // Create demo users for each role
+  const demoUsers = [
+    { name: 'Demo Owner', email: 'demo@msmebms.com', phone: '+254700000000', role: ENTERPRISE_ROLES.BUSINESS_OWNER, isOwner: true },
+    { name: 'John Manager', email: 'manager@msmebms.com', phone: '+254700000001', role: ENTERPRISE_ROLES.BRANCH_MANAGER },
+    { name: 'Sarah Sales', email: 'sales@msmebms.com', phone: '+254700000002', role: ENTERPRISE_ROLES.SALES_MANAGER },
+    { name: 'Mike Cashier', email: 'cashier@msmebms.com', phone: '+254700000003', role: ENTERPRISE_ROLES.CASHIER },
+    { name: 'Lisa Inventory', email: 'inventory@msmebms.com', phone: '+254700000004', role: ENTERPRISE_ROLES.INVENTORY_OFFICER },
+    { name: 'Tom Warehouse', email: 'warehouse@msmebms.com', phone: '+254700000005', role: ENTERPRISE_ROLES.WAREHOUSE_MANAGER },
+    { name: 'Nancy Accountant', email: 'accountant@msmebms.com', phone: '+254700000006', role: ENTERPRISE_ROLES.ACCOUNTANT },
+    { name: 'David Finance', email: 'finance@msmebms.com', phone: '+254700000007', role: ENTERPRISE_ROLES.FINANCE_MANAGER },
+    { name: 'Emma HR', email: 'hr@msmebms.com', phone: '+254700000008', role: ENTERPRISE_ROLES.HR_MANAGER },
+    { name: 'Peter Employee', email: 'employee@msmebms.com', phone: '+254700000009', role: ENTERPRISE_ROLES.EMPLOYEE },
+    { name: 'Rachel Support', email: 'support@msmebms.com', phone: '+254700000010', role: ENTERPRISE_ROLES.SUPPORT_OFFICER },
+    { name: 'Steve Driver', email: 'driver@msmebms.com', phone: '+254700000011', role: ENTERPRISE_ROLES.DELIVERY_DRIVER },
+    { name: 'Karen Marketing', email: 'marketing@msmebms.com', phone: '+254700000012', role: ENTERPRISE_ROLES.MARKETING_OFFICER },
+    { name: 'Bob Auditor', email: 'auditor@msmebms.com', phone: '+254700000013', role: ENTERPRISE_ROLES.AUDITOR },
+    { name: 'Alex Procurement', email: 'procurement@msmebms.com', phone: '+254700000014', role: ENTERPRISE_ROLES.PROCUREMENT_OFFICER },
+    { name: 'Diana Operations', email: 'operations@msmebms.com', phone: '+254700000015', role: ENTERPRISE_ROLES.OPERATIONS_MANAGER },
+    { name: 'Chris Project', email: 'project@msmebms.com', phone: '+254700000016', role: ENTERPRISE_ROLES.PROJECT_MANAGER },
+    { name: 'Sophie Sales Rep', email: 'salesrep@msmebms.com', phone: '+254700000017', role: ENTERPRISE_ROLES.SALES_REP },
+    { name: 'Mark Developer', email: 'developer@msmebms.com', phone: '+254700000018', role: ENTERPRISE_ROLES.DEVELOPER },
+    { name: 'Linda Supplier', email: 'supplier@msmebms.com', phone: '+254700000019', role: ENTERPRISE_ROLES.SUPPLIER },
+    { name: 'James Customer', email: 'customer@msmebms.com', phone: '+254700000020', role: ENTERPRISE_ROLES.CUSTOMER }
+  ]
+
+  const defaultPassword = await bcrypt.hash('Demo@1234', 12)
+  
+  for (const userData of demoUsers) {
+    await prisma.user.create({
+      data: {
+        businessId: business.id,
+        branchId: branch.id,
+        name: userData.name,
+        email: userData.email,
+        phone: userData.phone,
+        passwordHash: defaultPassword,
+        isOwner: userData.isOwner || false,
+        roleId: createdRoles[userData.role].id,
+        status: 'active',
+        emailVerifiedAt: new Date()
+      }
+    })
+  }
+
+  console.log(`✅ Created ${demoUsers.length} demo users (password: Demo@1234)`)
 
   await prisma.subscription.create({
     data: {
       businessId: business.id,
-      planId: 'starter',
-      planName: 'Starter (Trial)',
+      planId: 'enterprise',
+      planName: 'Enterprise (Trial)',
       status: 'trial',
       currentPeriodEnd: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
-      limits: { branches: 1, users: 3, products: 1000 }
+      limits: { branches: 10, users: 100, products: 10000 }
     }
   })
 
