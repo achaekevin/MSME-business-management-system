@@ -249,6 +249,7 @@ model User {
   invitationToken     String?
   invitationExpiresAt DateTime?
   status              String    @default("active") // pending | active | suspended
+  dashboardLayout     Json?     // User's customized dashboard layout
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 
