@@ -35,7 +35,12 @@ const removeUser = asyncHandler(async (req, res) => {
 })
 
 const listRoles = asyncHandler(async (req, res) => {
-  success(res, await service.listRoles(req.businessId))
+  const { category, enabled } = req.query
+  success(res, await service.listRoles(req.businessId, { category, enabled }))
+})
+
+const getRoleDetails = asyncHandler(async (req, res) => {
+  success(res, await service.getRoleDetails(req.businessId, req.params.id))
 })
 
 const createRole = asyncHandler(async (req, res) => {
@@ -46,9 +51,17 @@ const updateRole = asyncHandler(async (req, res) => {
   success(res, await service.updateRole(req.businessId, req.params.id, req.body), 'Role updated')
 })
 
+const toggleRole = asyncHandler(async (req, res) => {
+  success(res, await service.toggleRole(req.businessId, req.params.id, req.body.isEnabled), 'Role status updated')
+})
+
 const deleteRole = asyncHandler(async (req, res) => {
   await service.deleteRole(req.businessId, req.params.id)
   noContent(res)
+})
+
+const getAvailablePermissions = asyncHandler(async (req, res) => {
+  success(res, await service.getAvailablePermissions())
 })
 
 // ── Schemas ───────────────────────────────────────────────────────────────────
@@ -86,9 +99,12 @@ router.post('/invite', requirePermission(PERMISSIONS.USERS_CREATE), validate(inv
 router.put('/:id', requirePermission(PERMISSIONS.USERS_EDIT), updateUser)
 router.delete('/:id', requirePermission(PERMISSIONS.USERS_DELETE), removeUser)
 
-router.get('/roles/all', requirePermission(PERMISSIONS.ROLES_MANAGE), listRoles)
+router.get('/roles/all', requirePermission(PERMISSIONS.ROLES_VIEW), listRoles)
+router.get('/roles/:id', requirePermission(PERMISSIONS.ROLES_VIEW), getRoleDetails)
 router.post('/roles', requirePermission(PERMISSIONS.ROLES_MANAGE), validate(roleSchema), createRole)
 router.put('/roles/:id', requirePermission(PERMISSIONS.ROLES_MANAGE), validate(roleSchema.partial()), updateRole)
+router.patch('/roles/:id/toggle', requirePermission(PERMISSIONS.ROLES_MANAGE), toggleRole)
 router.delete('/roles/:id', requirePermission(PERMISSIONS.ROLES_MANAGE), deleteRole)
+router.get('/permissions/available', requirePermission(PERMISSIONS.ROLES_VIEW), getAvailablePermissions)
 
 module.exports = router
