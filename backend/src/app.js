@@ -66,11 +66,13 @@ function createApp(redisVersionOk = false) {
   // Only setup Bull Board if queues are available (requires Redis 5.0+)
   if (redisVersionOk) {
     try {
-      const emailQueue = require('./queues/email.queue')
       const { smsQueue, notificationsQueue, reportGenerationQueue, inventoryAlertsQueue, initializeQueues } = require('./queues')
       
       // Initialize queues
       initializeQueues()
+      
+      // Now safe to load email queue
+      const emailQueue = require('./queues/email.queue')
       
       const bullBoardAdapter = new ExpressAdapter()
       bullBoardAdapter.setBasePath('/queues')
