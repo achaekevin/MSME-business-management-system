@@ -24,7 +24,7 @@
   "dependencies": {
     "@bull-board/api": "^5.21.2",
     "@bull-board/express": "^5.21.2",
-    "@prisma/client": "^5.20.0",
+    "@prisma/client": "^5.22.0",
     "aws-sdk": "^2.1691.0",
     "bcryptjs": "^2.4.3",
     "bullmq": "^5.13.2",

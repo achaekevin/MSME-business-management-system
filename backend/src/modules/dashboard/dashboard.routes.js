@@ -1,7 +1,8 @@
 const express = require('express')
 const router = express.Router()
 const controller = require('./dashboard.controller')
-const { authenticate, tenantContext } = require('../../middleware/auth.middleware')
+const { authenticate } = require('../../middleware/auth.middleware')
+const { tenantContext } = require('../../middleware/tenant.middleware')
 const { requirePermission } = require('../../middleware/permission.middleware')
 const { PERMISSIONS } = require('../../constants/permissions')
 
