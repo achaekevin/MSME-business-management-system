@@ -92,12 +92,35 @@ async function removeUser(businessId, id) {
 
 // ─────────────────────────── Roles ───────────────────────────────────────────
 
-async function listRoles(businessId) {
+async function listRoles(businessId, filters = {}) {
+  const where = { businessId }
+  
+  if (filters.category) where.category = filters.category
+  if (filters.enabled !== undefined) where.isEnabled = filters.enabled === 'true' || filters.enabled === true
+  
   return prisma.role.findMany({
-    where: { businessId },
-    include: { permissions: { include: { permission: true } }, _count: { select: { users: true } } },
-    orderBy: { name: 'asc' }
+    where,
+    include: { 
+      permissions: { include: { permission: true } }, 
+      _count: { select: { users: true } } 
+    },
+    orderBy: [{ category: 'asc' }, { name: 'asc' }]
   })
+}
+
+async function getRoleDetails(businessId, roleId) {
+  const role = await prisma.role.findFirst({
+    where: { id: roleId, businessId },
+    include: { 
+      permissions: { include: { permission: true } },
+      users: {
+        select: { id: true, name: true, email: true, status: true }
+      },
+      _count: { select: { users: true } }
+    }
+  })
+  if (!role) throw ApiError.notFound('Role not found')
+  return role
 }
 
 async function createRole(businessId, data) {
@@ -113,7 +136,11 @@ async function createRole(businessId, data) {
     data: {
       businessId,
       name: data.name,
+      displayName: data.displayName || data.name,
       description: data.description,
+      category: data.category,
+      isCustom: true, // Custom role created by business
+      isEnabled: data.isEnabled !== false,
       permissions: { create: valid.map((k) => ({ permissionId: permMap[k] })) }
     },
     include: { permissions: { include: { permission: true } } }
@@ -123,8 +150,18 @@ async function createRole(businessId, data) {
 async function updateRole(businessId, id, data) {
   const role = await prisma.role.findFirst({ where: { id, businessId } })
   if (!role) throw ApiError.notFound('Role not found')
-  if (role.isSystem) throw ApiError.forbidden('System roles cannot be modified')
+  
+  // System roles can have permissions updated but not name/category
+  const updateData = {}
+  
+  if (!role.isSystem) {
+    if (data.name) updateData.name = data.name
+    if (data.displayName) updateData.displayName = data.displayName
+    if (data.description !== undefined) updateData.description = data.description
+    if (data.category) updateData.category = data.category
+  }
 
+  // All roles can have permissions updated
   if (data.permissions) {
     const allPerms = await prisma.permission.findMany()
     const permMap = Object.fromEntries(allPerms.map((p) => [p.key, p.id]))
@@ -138,8 +175,24 @@ async function updateRole(businessId, id, data) {
 
   return prisma.role.update({
     where: { id },
-    data: { name: data.name, description: data.description },
+    data: updateData,
     include: { permissions: { include: { permission: true } } }
+  })
+}
+
+async function toggleRole(businessId, roleId, isEnabled) {
+  const role = await prisma.role.findFirst({ where: { id: roleId, businessId } })
+  if (!role) throw ApiError.notFound('Role not found')
+  
+  // Cannot disable Business Owner role
+  if (role.name === 'Business Owner' && !isEnabled) {
+    throw ApiError.forbidden('Cannot disable the Business Owner role')
+  }
+
+  return prisma.role.update({
+    where: { id: roleId },
+    data: { isEnabled },
+    include: { _count: { select: { users: true } } }
   })
 }
 
@@ -149,10 +202,41 @@ async function deleteRole(businessId, id) {
   if (role.isSystem) throw ApiError.forbidden('System roles cannot be deleted')
 
   const usersWithRole = await prisma.user.count({ where: { roleId: id } })
-  if (usersWithRole > 0) throw ApiError.conflict('Cannot delete a role that is assigned to users. Reassign them first.')
+  if (usersWithRole > 0) {
+    throw ApiError.conflict('Cannot delete a role that is assigned to users. Reassign them first.')
+  }
 
   await prisma.role.delete({ where: { id } })
   return { deleted: true }
 }
 
-module.exports = { listUsers, getUser, inviteUser, updateUser, removeUser, listRoles, createRole, updateRole, deleteRole }
+async function getAvailablePermissions() {
+  const permissions = await prisma.permission.findMany({
+    orderBy: [{ module: 'asc' }, { key: 'asc' }]
+  })
+  
+  // Group by module
+  const grouped = permissions.reduce((acc, perm) => {
+    const module = perm.module
+    if (!acc[module]) acc[module] = []
+    acc[module].push(perm)
+    return acc
+  }, {})
+  
+  return grouped
+}
+
+module.exports = { 
+  listUsers, 
+  getUser, 
+  inviteUser, 
+  updateUser, 
+  removeUser, 
+  listRoles, 
+  getRoleDetails,
+  createRole, 
+  updateRole, 
+  toggleRole,
+  deleteRole,
+  getAvailablePermissions
+}
