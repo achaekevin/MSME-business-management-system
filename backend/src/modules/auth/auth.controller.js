@@ -92,7 +92,8 @@ const acceptInvitation = asyncHandler(async (req, res) => {
 })
 
 const me = asyncHandler(async (req, res) => {
-  success(res, authService.sanitizeUser(req.user))
+  const userResponse = authService.sanitizeUser(req.user)
+  success(res, userResponse)
 })
 
 module.exports = {

@@ -109,7 +109,16 @@ async function registerBusiness({ businessName, ownerName, email, phone, passwor
 async function login({ email, password, rememberMe }, requestMeta = {}) {
   const user = await prisma.user.findFirst({
     where: { email },
-    include: { business: true, role: true }
+    include: { 
+      business: true, 
+      role: { 
+        include: { 
+          permissions: { 
+            include: { permission: true } 
+          } 
+        } 
+      } 
+    }
   })
 
   if (!user) throw ApiError.unauthorized('Invalid email or password')
@@ -180,7 +189,19 @@ async function completeLogin(user, rememberMe, requestMeta) {
 // Two-Factor Authentication
 // ---------------------------------------------------------------------------
 async function verifyTwoFactor({ userId, code }, requestMeta = {}) {
-  const user = await prisma.user.findUnique({ where: { id: userId }, include: { business: true, role: true } })
+  const user = await prisma.user.findUnique({ 
+    where: { id: userId }, 
+    include: { 
+      business: true, 
+      role: { 
+        include: { 
+          permissions: { 
+            include: { permission: true } 
+          } 
+        } 
+      } 
+    } 
+  })
   if (!user) throw ApiError.unauthorized('Invalid session')
 
   const isValid = authenticator.check(code, user.twoFactorSecret)
@@ -377,6 +398,14 @@ async function acceptInvitation(token, password) {
 // ---------------------------------------------------------------------------
 function sanitizeUser(user) {
   const { passwordHash, twoFactorSecret, ...safe } = user
+  
+  // Add permissions array from role
+  if (user.role && user.role.permissions) {
+    safe.permissions = user.role.permissions.map(rp => rp.permission.key)
+  } else {
+    safe.permissions = []
+  }
+  
   return safe
 }
 
