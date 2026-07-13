@@ -1,5 +1,5 @@
+const asyncHandler = require('../../helpers/asyncHandler')
 const taxService = require('./tax.service')
-const { asyncHandler } = require('../../helpers/asyncHandler')
 const { successResponse } = require('../../helpers/response')
 
 // Tax Rates

@@ -1,5 +1,5 @@
+const asyncHandler = require('../../helpers/asyncHandler')
 const financeService = require('./finance.service')
-const { asyncHandler } = require('../../helpers/asyncHandler')
 const { successResponse } = require('../../helpers/response')
 
 // Cash Accounts

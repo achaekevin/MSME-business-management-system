@@ -1,5 +1,5 @@
+const asyncHandler = require('../../helpers/asyncHandler')
 const assetsService = require('./assets.service')
-const { asyncHandler } = require('../../helpers/asyncHandler')
 const { successResponse } = require('../../helpers/response')
 
 // Fixed Assets
