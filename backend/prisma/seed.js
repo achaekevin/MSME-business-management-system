@@ -42,7 +42,7 @@ const ROLE_METADATA = {
 }
 
 async function seedDemoBusinessAndUser() {
-  const existingBusiness = await prisma.business.findFirst({ where: { email: 'admin@ssme@gmail.com' } })
+  const existingBusiness = await prisma.business.findFirst({ where: { email: 'admin@ssme.com' } })
   if (existingBusiness) {
     console.log('Demo business already exists, skipping...')
     return
@@ -53,7 +53,7 @@ async function seedDemoBusinessAndUser() {
     data: {
       name: 'SSME Business',
       slug: 'ssme-business-main',
-      email: 'admin@ssme@gmail.com',
+      email: 'admin@ssme.com',
       phone: '+254700000000',
       currency: 'KES',
       timezone: 'Africa/Nairobi',
@@ -94,15 +94,15 @@ async function seedDemoBusinessAndUser() {
 
   // Create users with new format
   const demoUsers = [
-    { name: 'Admin Owner', email: 'admin@ssme@gmail.com', phone: '+254700000000', password: 'admin1', role: ENTERPRISE_ROLES.BUSINESS_OWNER, isOwner: true },
-    { name: 'Operations Manager', email: 'operationmanager@ssme@gmail.com', phone: '+254700000001', password: 'manager123', role: ENTERPRISE_ROLES.OPERATIONS_MANAGER },
-    { name: 'Branch Manager', email: 'branchmanager@ssme@gmail.com', phone: '+254700000002', password: 'manager123', role: ENTERPRISE_ROLES.BRANCH_MANAGER },
-    { name: 'Sales Manager', email: 'salesmanager@ssme@gmail.com', phone: '+254700000003', password: 'manager123', role: ENTERPRISE_ROLES.SALES_MANAGER },
-    { name: 'Cashier', email: 'cashier@ssme@gmail.com', phone: '+254700000004', password: 'cashier123', role: ENTERPRISE_ROLES.CASHIER },
-    { name: 'Inventory Officer', email: 'inventoryofficer@ssme@gmail.com', phone: '+254700000005', password: 'inventory123', role: ENTERPRISE_ROLES.INVENTORY_OFFICER },
-    { name: 'Procurement Officer', email: 'procurementofficer@ssme@gmail.com', phone: '+254700000006', password: 'procurement123', role: ENTERPRISE_ROLES.PROCUREMENT_OFFICER },
-    { name: 'Accountant', email: 'accountant@ssme@gmail.com', phone: '+254700000007', password: 'accountant123', role: ENTERPRISE_ROLES.ACCOUNTANT },
-    { name: 'HR Manager', email: 'hrmanager@ssme@gmail.com', phone: '+254700000008', password: 'hrmanager123', role: ENTERPRISE_ROLES.HR_MANAGER }
+    { name: 'Admin Owner', email: 'admin@ssme.com', phone: '+254700000000', password: 'admin1', role: ENTERPRISE_ROLES.BUSINESS_OWNER, isOwner: true },
+    { name: 'Operations Manager', email: 'operationmanager@ssme.com', phone: '+254700000001', password: 'manager123', role: ENTERPRISE_ROLES.OPERATIONS_MANAGER },
+    { name: 'Branch Manager', email: 'branchmanager@ssme.com', phone: '+254700000002', password: 'manager123', role: ENTERPRISE_ROLES.BRANCH_MANAGER },
+    { name: 'Sales Manager', email: 'salesmanager@ssme.com', phone: '+254700000003', password: 'manager123', role: ENTERPRISE_ROLES.SALES_MANAGER },
+    { name: 'Cashier', email: 'cashier@ssme.com', phone: '+254700000004', password: 'cashier123', role: ENTERPRISE_ROLES.CASHIER },
+    { name: 'Inventory Officer', email: 'inventoryofficer@ssme.com', phone: '+254700000005', password: 'inventory123', role: ENTERPRISE_ROLES.INVENTORY_OFFICER },
+    { name: 'Procurement Officer', email: 'procurementofficer@ssme.com', phone: '+254700000006', password: 'procurement123', role: ENTERPRISE_ROLES.PROCUREMENT_OFFICER },
+    { name: 'Accountant', email: 'accountant@ssme.com', phone: '+254700000007', password: 'accountant123', role: ENTERPRISE_ROLES.ACCOUNTANT },
+    { name: 'HR Manager', email: 'hrmanager@ssme.com', phone: '+254700000008', password: 'hrmanager123', role: ENTERPRISE_ROLES.HR_MANAGER }
   ]
   
   for (const userData of demoUsers) {
@@ -124,8 +124,8 @@ async function seedDemoBusinessAndUser() {
   }
 
   console.log(`✅ Created ${demoUsers.length} users with custom passwords`)
-  console.log('✅ Admin login: admin@ssme@gmail.com / admin1')
-  console.log('✅ Operations Manager login: operationmanager@ssme@gmail.com / manager123')
+  console.log('✅ Admin login: admin@ssme.com / admin1')
+  console.log('✅ Operations Manager login: operationmanager@ssme.com / manager123')
 
   await prisma.subscription.create({
     data: {
