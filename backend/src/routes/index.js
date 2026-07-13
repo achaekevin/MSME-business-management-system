@@ -47,5 +47,7 @@ router.use('/documents', require('../modules/documents/documents.routes'))
 router.use('/analytics', require('../modules/analytics/analytics.routes'))
 router.use('/audit', require('../modules/audit/audit.routes'))
 router.use('/security', require('../modules/security/security.routes'))
+router.use('/api-keys', require('../modules/api-keys/api-keys.routes'))
+router.use('/webhooks', require('../modules/webhooks/webhooks.routes'))
 
 module.exports = router

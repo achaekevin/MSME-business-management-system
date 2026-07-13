@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const controller = require('./api-keys.controller')
-const { authenticate } = require('../../middleware/auth')
+const { authenticate } = require('../../middleware/auth.middleware')
 const { requirePermission } = require('../../middleware/permission.middleware')
 
 // All routes require authentication and admin permission
