@@ -17,6 +17,9 @@ const wrap = (Component) => (
   </Suspense>
 )
 
+// Landing page
+const LandingPage = lazy(() => import('@/pages/LandingPage'))
+
 // Auth pages
 const Login = lazy(() => import('@/pages/auth/Login'))
 const Register = lazy(() => import('@/pages/auth/Register'))
@@ -111,6 +114,10 @@ const UnauthorizedPage = lazy(() => import('@/pages/UnauthorizedPage'))
 
 const router = createBrowserRouter([
   {
+    path: '/',
+    element: wrap(LandingPage)
+  },
+  {
     path: '/auth',
     element: <PublicRoute><AuthLayout /></PublicRoute>,
     children: [
@@ -125,11 +132,12 @@ const router = createBrowserRouter([
     ]
   },
   {
-    path: '/',
+    path: '/app',
     element: <PrivateRoute><AppLayout /></PrivateRoute>,
     children: [
-      { index: true, element: <Navigate to="/dashboard" replace /> },
+      { index: true, element: <Navigate to="/app/dashboard" replace /> },
       { path: 'dashboard', element: wrap(Dashboard) },
+      { path: '*', element: <Navigate to="/app/dashboard" replace /> },
       // Customers
       { path: 'customers', element: wrap(CustomersList) },
       { path: 'customers/new', element: wrap(CreateCustomer) },
