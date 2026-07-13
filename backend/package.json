@@ -16,10 +16,17 @@
     "test": "jest --runInBand",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage --runInBand",
+    "test:unit": "jest --testPathPattern=tests/unit --runInBand",
+    "test:integration": "jest --testPathPattern=tests/integration --runInBand",
+    "test:load": "k6 run tests/load/k6-test.js",
     "lint": "eslint src --ext .js",
+    "lint:fix": "eslint src --ext .js --fix",
     "worker": "node src/queues/worker.js",
     "docker:up": "docker-compose up -d",
-    "docker:down": "docker-compose down"
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "docker:build": "docker-compose build",
+    "deploy:production": "docker-compose -f docker-compose.yml up -d --build"
   },
   "dependencies": {
     "@bull-board/api": "^5.21.2",
