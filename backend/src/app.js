@@ -46,6 +46,10 @@ function createApp(redisVersionOk = false) {
   app.use(mongoSanitize()) // strips $ and . from request data — prevents NoSQL-style injections even in MySQL queries
   app.use(requestLogger)
 
+  // ── Metrics tracking ──────────────────────────────────────────────────────
+  const { trackRequest } = require('./middleware/metrics')
+  app.use(trackRequest)
+
   // Trust proxy headers (needed for correct req.ip behind nginx/ALB)
   app.set('trust proxy', 1)
 

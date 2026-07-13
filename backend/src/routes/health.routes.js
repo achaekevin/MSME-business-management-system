@@ -78,4 +78,16 @@ router.get('/metrics', async (req, res) => {
   })
 })
 
+/**
+ * @swagger
+ * /metrics/detailed:
+ *   get:
+ *     summary: Detailed APM metrics including request stats and performance
+ *     tags: [Health]
+ */
+router.get('/metrics/detailed', (req, res) => {
+  const { getMetrics } = require('../middleware/metrics')
+  res.json(getMetrics())
+})
+
 module.exports = router
