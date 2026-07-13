@@ -1,7 +1,5 @@
-const { PrismaClient } = require('@prisma/client')
+const { prisma } = require('../../config/database')
 const { ENTERPRISE_ROLES } = require('../../constants/permissions')
-
-const prisma = new PrismaClient()
 
 /**
  * Get role-specific dashboard data based on user's role
@@ -68,21 +66,38 @@ function getTodayRange() {
  */
 async function getBusinessOwnerDashboard(businessId) {
   const thisMonth = getMonthRange()
-  const lastMonth = getLastMonthRange()
 
   const [
-    revenue, expenses, sales, customers, products, inventory,
-    recentSales, outstandingInvoices, lowStock
+    revenue, expenses, sales, customers, products,
+    recentSales, outstandingInvoices, lowStock, branches
   ] = await Promise.all([
     prisma.saleOrder.aggregate({ where: { businessId, createdAt: thisMonth }, _sum: { total: true } }),
     prisma.expense.aggregate({ where: { businessId, createdAt: thisMonth }, _sum: { amount: true } }),
     prisma.saleOrder.count({ where: { businessId, createdAt: thisMonth } }),
     prisma.customer.count({ where: { businessId, isActive: true } }),
     prisma.product.count({ where: { businessId, isActive: true } }),
-    prisma.inventoryTransaction.count({ where: { businessId, createdAt: thisMonth } }),
-    prisma.saleOrder.findMany({ where: { businessId }, orderBy: { createdAt: 'desc' }, take: 5 }),
-    prisma.invoice.aggregate({ where: { businessId, status: 'pending' }, _count: true, _sum: { balance: true } }),
-    prisma.product.count({ where: { businessId, stockQuantity: { lte: prisma.product.fields.reorderLevel } } })
+    prisma.saleOrder.findMany({ 
+      where: { businessId }, 
+      orderBy: { createdAt: 'desc' }, 
+      take: 5,
+      include: { customer: true }
+    }),
+    prisma.invoice.aggregate({ 
+      where: { businessId, status: { in: ['pending', 'sent'] } }, 
+      _count: true, 
+      _sum: { balance: true } 
+    }),
+    prisma.product.count({ 
+      where: { 
+        businessId,
+        inventoryStocks: {
+          some: {
+            quantity: { lte: 10 }
+          }
+        }
+      } 
+    }),
+    prisma.branch.count({ where: { businessId, isActive: true } })
   ])
 
   return {
@@ -96,7 +111,7 @@ async function getBusinessOwnerDashboard(businessId) {
     stats: {
       totalCustomers: customers,
       totalProducts: products,
-      inventoryTransactions: inventory,
+      totalBranches: branches,
       lowStockProducts: lowStock
     },
     financial: {
@@ -108,7 +123,9 @@ async function getBusinessOwnerDashboard(businessId) {
     recentActivity: recentSales.map(sale => ({
       id: sale.id,
       orderNumber: sale.orderNumber,
+      customerName: sale.customer?.name || 'Walk-in Customer',
       total: Number(sale.total),
+      status: sale.status,
       createdAt: sale.createdAt
     }))
   }
@@ -118,17 +135,26 @@ async function getBusinessOwnerDashboard(businessId) {
  * Branch Manager Dashboard - Branch operations
  */
 async function getBranchManagerDashboard(businessId, userId) {
-  const user = await prisma.user.findUnique({ where: { id: userId }, include: { branch: true } })
+  const user = await prisma.user.findUnique({ 
+    where: { id: userId }, 
+    include: { branch: true } 
+  })
   const branchId = user.branchId
   const thisMonth = getMonthRange()
 
   const [
-    branchSales, branchRevenue, branchEmployees, branchInventory
+    branchSales, branchRevenue, branchEmployees, branchInventory, recentSales
   ] = await Promise.all([
     prisma.saleOrder.count({ where: { businessId, branchId, createdAt: thisMonth } }),
     prisma.saleOrder.aggregate({ where: { businessId, branchId, createdAt: thisMonth }, _sum: { total: true } }),
     prisma.user.count({ where: { businessId, branchId, status: 'active' } }),
-    prisma.product.count({ where: { businessId } })
+    prisma.inventoryStock.count({ where: { branchId } }),
+    prisma.saleOrder.findMany({
+      where: { businessId, branchId },
+      orderBy: { createdAt: 'desc' },
+      take: 5,
+      include: { customer: true }
+    })
   ])
 
   return {
@@ -138,8 +164,14 @@ async function getBranchManagerDashboard(businessId, userId) {
       sales: { value: branchSales, period: 'This Month' },
       revenue: { value: Number(branchRevenue._sum.total || 0), period: 'This Month' },
       employees: { value: branchEmployees, period: 'Active' },
-      inventory: { value: branchInventory, period: 'Total Products' }
-    }
+      inventory: { value: branchInventory, period: 'Stock Items' }
+    },
+    recentSales: recentSales.map(sale => ({
+      orderNumber: sale.orderNumber,
+      customerName: sale.customer?.name || 'Walk-in',
+      total: Number(sale.total),
+      createdAt: sale.createdAt
+    }))
   }
 }
 
@@ -151,14 +183,28 @@ async function getSalesManagerDashboard(businessId) {
   const today = getTodayRange()
 
   const [
-    totalSales, todaySales, monthRevenue, customers, topProducts
+    totalSales, todaySales, monthRevenue, customers, quotations, topProducts
   ] = await Promise.all([
     prisma.saleOrder.count({ where: { businessId, createdAt: thisMonth } }),
     prisma.saleOrder.count({ where: { businessId, createdAt: today } }),
     prisma.saleOrder.aggregate({ where: { businessId, createdAt: thisMonth }, _sum: { total: true } }),
     prisma.customer.count({ where: { businessId, isActive: true } }),
-    prisma.saleItem.groupBy({ by: ['productId'], where: { saleOrder: { businessId } }, _sum: { quantity: true }, orderBy: { _sum: { quantity: 'desc' } }, take: 5 })
+    prisma.quotation.count({ where: { businessId, status: { in: ['draft', 'sent'] } } }),
+    prisma.saleOrderItem.groupBy({ 
+      by: ['productId'], 
+      where: { saleOrder: { businessId } }, 
+      _sum: { quantity: true }, 
+      orderBy: { _sum: { quantity: 'desc' } }, 
+      take: 5 
+    })
   ])
+
+  // Get product names for top products
+  const productIds = topProducts.map(p => p.productId)
+  const products = await prisma.product.findMany({
+    where: { id: { in: productIds } },
+    select: { id: true, name: true }
+  })
 
   return {
     role: 'Sales Manager',
@@ -166,24 +212,46 @@ async function getSalesManagerDashboard(businessId) {
       totalSales: { value: totalSales, period: 'This Month' },
       todaySales: { value: todaySales, period: 'Today' },
       revenue: { value: Number(monthRevenue._sum.total || 0), period: 'This Month' },
-      customers: { value: customers, period: 'Active' }
+      customers: { value: customers, period: 'Active' },
+      pendingQuotations: { value: quotations, period: 'Open' }
     },
-    topProducts: topProducts.map(p => ({ productId: p.productId, soldQuantity: p._sum.quantity }))
+    topProducts: topProducts.map(p => {
+      const product = products.find(prod => prod.id === p.productId)
+      return {
+        productId: p.productId,
+        productName: product?.name || 'Unknown',
+        soldQuantity: Number(p._sum.quantity)
+      }
+    })
   }
 }
 
 /**
- * Cashier Dashboard - Daily transactions
+ * Cashier Dashboard - Daily transactions and current shift
  */
 async function getCashierDashboard(businessId, userId) {
   const today = getTodayRange()
 
   const [
-    todaySales, todayRevenue, recentTransactions
+    todaySales, todayRevenue, recentTransactions, currentShift
   ] = await Promise.all([
     prisma.saleOrder.count({ where: { businessId, createdById: userId, createdAt: today } }),
     prisma.saleOrder.aggregate({ where: { businessId, createdById: userId, createdAt: today }, _sum: { total: true } }),
-    prisma.saleOrder.findMany({ where: { businessId, createdById: userId }, orderBy: { createdAt: 'desc' }, take: 10 })
+    prisma.saleOrder.findMany({ 
+      where: { businessId, createdById: userId }, 
+      orderBy: { createdAt: 'desc' }, 
+      take: 10,
+      include: { customer: true }
+    }),
+    prisma.posShift.findFirst({
+      where: { businessId, userId, status: 'open' },
+      include: {
+        transactions: {
+          take: 5,
+          orderBy: { createdAt: 'desc' }
+        }
+      }
+    })
   ])
 
   return {
@@ -192,9 +260,17 @@ async function getCashierDashboard(businessId, userId) {
       todaySales: { value: todaySales, period: 'Today' },
       todayRevenue: { value: Number(todayRevenue._sum.total || 0), period: 'Today' }
     },
+    shift: currentShift ? {
+      shiftNumber: currentShift.shiftNumber,
+      openedAt: currentShift.openedAt,
+      openingCash: Number(currentShift.openingCash),
+      transactionCount: currentShift.transactions.length
+    } : null,
     recentTransactions: recentTransactions.map(t => ({
       orderNumber: t.orderNumber,
+      customerName: t.customer?.name || 'Walk-in',
       total: Number(t.total),
+      status: t.status,
       createdAt: t.createdAt
     }))
   }
@@ -207,12 +283,26 @@ async function getInventoryOfficerDashboard(businessId) {
   const thisMonth = getMonthRange()
 
   const [
-    totalProducts, lowStock, stockAdjustments, recentTransactions
+    totalProducts, lowStock, stockTransactions, recentTransactions
   ] = await Promise.all([
     prisma.product.count({ where: { businessId, isActive: true } }),
-    prisma.product.count({ where: { businessId, stockQuantity: { lte: prisma.product.fields.reorderLevel } } }),
-    prisma.inventoryTransaction.count({ where: { businessId, type: 'adjustment', createdAt: thisMonth } }),
-    prisma.inventoryTransaction.findMany({ where: { businessId }, orderBy: { createdAt: 'desc' }, take: 10, include: { product: true } })
+    prisma.product.count({ 
+      where: { 
+        businessId,
+        inventoryStocks: {
+          some: {
+            quantity: { lte: 10 }
+          }
+        }
+      } 
+    }),
+    prisma.inventoryTransaction.count({ where: { businessId, createdAt: thisMonth } }),
+    prisma.inventoryTransaction.findMany({ 
+      where: { businessId }, 
+      orderBy: { createdAt: 'desc' }, 
+      take: 10, 
+      include: { product: { select: { name: true, sku: true } } }
+    })
   ])
 
   return {
@@ -220,12 +310,14 @@ async function getInventoryOfficerDashboard(businessId) {
     overview: {
       totalProducts: { value: totalProducts, period: 'Active' },
       lowStock: { value: lowStock, period: 'Needs Attention' },
-      adjustments: { value: stockAdjustments, period: 'This Month' }
+      transactions: { value: stockTransactions, period: 'This Month' }
     },
     recentTransactions: recentTransactions.map(t => ({
       type: t.type,
-      product: t.product?.name,
-      quantity: t.quantity,
+      productName: t.product?.name || 'Unknown',
+      productSku: t.product?.sku || 'N/A',
+      quantity: Number(t.quantity),
+      reason: t.reason,
       createdAt: t.createdAt
     }))
   }
@@ -238,12 +330,18 @@ async function getProcurementOfficerDashboard(businessId) {
   const thisMonth = getMonthRange()
 
   const [
-    purchaseOrders, pendingOrders, totalSpend, suppliers
+    purchaseOrders, pendingOrders, totalSpend, suppliers, recentOrders
   ] = await Promise.all([
     prisma.purchaseOrder.count({ where: { businessId, createdAt: thisMonth } }),
-    prisma.purchaseOrder.count({ where: { businessId, status: 'pending' } }),
+    prisma.purchaseOrder.count({ where: { businessId, status: { in: ['draft', 'sent'] } } }),
     prisma.purchaseOrder.aggregate({ where: { businessId, createdAt: thisMonth }, _sum: { total: true } }),
-    prisma.supplier.count({ where: { businessId, isActive: true } })
+    prisma.supplier.count({ where: { businessId, isActive: true } }),
+    prisma.purchaseOrder.findMany({
+      where: { businessId },
+      orderBy: { createdAt: 'desc' },
+      take: 5,
+      include: { supplier: { select: { name: true } } }
+    })
   ])
 
   return {
@@ -253,7 +351,14 @@ async function getProcurementOfficerDashboard(businessId) {
       pendingOrders: { value: pendingOrders, period: 'Awaiting' },
       totalSpend: { value: Number(totalSpend._sum.total || 0), period: 'This Month' },
       suppliers: { value: suppliers, period: 'Active' }
-    }
+    },
+    recentOrders: recentOrders.map(order => ({
+      orderNumber: order.orderNumber,
+      supplierName: order.supplier?.name || 'Unknown',
+      total: Number(order.total),
+      status: order.status,
+      createdAt: order.createdAt
+    }))
   }
 }
 
@@ -264,22 +369,56 @@ async function getAccountantDashboard(businessId) {
   const thisMonth = getMonthRange()
 
   const [
-    pendingInvoices, paidInvoices, expenses, revenue
+    pendingInvoices, paidInvoices, expenses, revenue, totalInvoices, totalExpenses
   ] = await Promise.all([
-    prisma.invoice.count({ where: { businessId, status: 'pending' } }),
+    prisma.invoice.aggregate({ 
+      where: { businessId, status: { in: ['pending', 'sent'] } }, 
+      _count: true,
+      _sum: { balance: true } 
+    }),
     prisma.invoice.count({ where: { businessId, status: 'paid', paidAt: thisMonth } }),
     prisma.expense.aggregate({ where: { businessId, createdAt: thisMonth }, _sum: { amount: true } }),
-    prisma.saleOrder.aggregate({ where: { businessId, createdAt: thisMonth }, _sum: { total: true } })
+    prisma.saleOrder.aggregate({ where: { businessId, createdAt: thisMonth }, _sum: { total: true } }),
+    prisma.invoice.findMany({
+      where: { businessId, status: { in: ['pending', 'sent'] } },
+      orderBy: { dueDate: 'asc' },
+      take: 5,
+      include: { customer: { select: { name: true } } }
+    }),
+    prisma.expense.findMany({
+      where: { businessId, createdAt: thisMonth },
+      orderBy: { createdAt: 'desc' },
+      take: 5
+    })
   ])
+
+  const netProfit = Number(revenue._sum.total || 0) - Number(expenses._sum.amount || 0)
 
   return {
     role: 'Accountant',
     overview: {
-      pendingInvoices: { value: pendingInvoices, period: 'Unpaid' },
+      pendingInvoices: { 
+        count: pendingInvoices._count,
+        amount: Number(pendingInvoices._sum.balance || 0),
+        period: 'Outstanding'
+      },
       paidInvoices: { value: paidInvoices, period: 'This Month' },
       expenses: { value: Number(expenses._sum.amount || 0), period: 'This Month' },
-      revenue: { value: Number(revenue._sum.total || 0), period: 'This Month' }
-    }
+      revenue: { value: Number(revenue._sum.total || 0), period: 'This Month' },
+      netProfit: { value: netProfit, period: 'This Month' }
+    },
+    pendingInvoicesList: totalInvoices.map(inv => ({
+      invoiceNumber: inv.invoiceNumber,
+      customerName: inv.customer?.name || 'Unknown',
+      balance: Number(inv.balance),
+      dueDate: inv.dueDate
+    })),
+    recentExpenses: totalExpenses.map(exp => ({
+      category: exp.category,
+      amount: Number(exp.amount),
+      description: exp.description,
+      createdAt: exp.createdAt
+    }))
   }
 }
 
@@ -290,12 +429,24 @@ async function getHRManagerDashboard(businessId) {
   const thisMonth = getMonthRange()
 
   const [
-    totalEmployees, activeEmployees, pendingLeaves, recentHires
+    totalEmployees, activeEmployees, newHires, recentHires, departments
   ] = await Promise.all([
     prisma.user.count({ where: { businessId } }),
     prisma.user.count({ where: { businessId, status: 'active' } }),
     prisma.user.count({ where: { businessId, createdAt: thisMonth } }),
-    prisma.user.findMany({ where: { businessId }, orderBy: { createdAt: 'desc' }, take: 5, select: { name: true, email: true, createdAt: true } })
+    prisma.user.findMany({ 
+      where: { businessId }, 
+      orderBy: { createdAt: 'desc' }, 
+      take: 5, 
+      select: { 
+        id: true,
+        name: true, 
+        email: true, 
+        role: { select: { displayName: true } },
+        createdAt: true 
+      } 
+    }),
+    prisma.department.count({ where: { businessId } })
   ])
 
   return {
@@ -303,9 +454,15 @@ async function getHRManagerDashboard(businessId) {
     overview: {
       totalEmployees: { value: totalEmployees, period: 'All' },
       activeEmployees: { value: activeEmployees, period: 'Active' },
-      newHires: { value: pendingLeaves, period: 'This Month' }
+      newHires: { value: newHires, period: 'This Month' },
+      departments: { value: departments, period: 'Total' }
     },
-    recentHires: recentHires.map(h => ({ name: h.name, email: h.email, joinedAt: h.createdAt }))
+    recentHires: recentHires.map(h => ({ 
+      name: h.name, 
+      email: h.email,
+      role: h.role?.displayName || 'N/A',
+      joinedAt: h.createdAt 
+    }))
   }
 }
 
@@ -316,21 +473,25 @@ async function getOperationsManagerDashboard(businessId) {
   const thisMonth = getMonthRange()
 
   const [
-    sales, inventory, purchases, employees
+    sales, inventoryTransactions, purchases, employees, warehouses, branches
   ] = await Promise.all([
     prisma.saleOrder.count({ where: { businessId, createdAt: thisMonth } }),
     prisma.inventoryTransaction.count({ where: { businessId, createdAt: thisMonth } }),
     prisma.purchaseOrder.count({ where: { businessId, createdAt: thisMonth } }),
-    prisma.user.count({ where: { businessId, status: 'active' } })
+    prisma.user.count({ where: { businessId, status: 'active' } }),
+    prisma.warehouse.count({ where: { businessId, isActive: true } }),
+    prisma.branch.count({ where: { businessId, isActive: true } })
   ])
 
   return {
     role: 'Operations Manager',
     overview: {
       sales: { value: sales, period: 'This Month' },
-      inventoryMovements: { value: inventory, period: 'This Month' },
+      inventoryMovements: { value: inventoryTransactions, period: 'This Month' },
       purchases: { value: purchases, period: 'This Month' },
-      activeEmployees: { value: employees, period: 'Active' }
+      activeEmployees: { value: employees, period: 'Active' },
+      warehouses: { value: warehouses, period: 'Active' },
+      branches: { value: branches, period: 'Active' }
     }
   }
 }
