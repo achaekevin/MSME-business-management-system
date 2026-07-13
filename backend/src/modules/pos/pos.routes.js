@@ -1,8 +1,8 @@
 const router = require('express').Router()
 const controller = require('./pos.controller')
 const { authenticate } = require('../../middleware/auth.middleware')
-const { requirePermission } = require('../../middleware/rbac.middleware')
-const { validateRequest } = require('../../middleware/validator')
+const { requirePermission } = require('../../middleware/permission.middleware')
+const { validate } = require('../../middleware/validation.middleware')
 const validators = require('./pos.validators')
 
 // All POS routes require authentication
@@ -20,7 +20,7 @@ router.use(authenticate)
 router.post(
   '/shifts/open',
   requirePermission('sales.create'),
-  validateRequest(validators.openShift),
+  validate(validators.openShift),
   controller.openShift
 )
 
@@ -32,7 +32,7 @@ router.post(
 router.post(
   '/shifts/:shiftId/close',
   requirePermission('sales.create'),
-  validateRequest(validators.closeShift),
+  validate(validators.closeShift),
   controller.closeShift
 )
 
@@ -69,7 +69,7 @@ router.get(
 router.post(
   '/sales',
   requirePermission('sales.create'),
-  validateRequest(validators.createSale),
+  validate(validators.createSale),
   controller.createPOSSale
 )
 
@@ -101,7 +101,7 @@ router.get(
 router.post(
   '/returns/:saleId',
   requirePermission('sales.create'),
-  validateRequest(validators.processReturn),
+  validate(validators.processReturn),
   controller.processPOSReturn
 )
 
@@ -127,7 +127,7 @@ router.get(
 router.put(
   '/config',
   requirePermission('settings.edit'),
-  validateRequest(validators.updateConfig),
+  validate(validators.updateConfig),
   controller.updatePOSConfig
 )
 
