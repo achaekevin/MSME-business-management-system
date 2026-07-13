@@ -2285,3 +2285,69 @@ model EmployeeDocumentRecord {
 //   payrollSlips          PayrollSlip[]        @relation("PayrollSlips")
 //   performanceReviews    PerformanceReviewRecord[] @relation("PerformanceReviews")
 //   documentRecords       EmployeeDocumentRecord[]  @relation("EmployeeDocuments")
+
+
+// ============================================================================
+// ENTERPRISE FEATURES: API Keys & Webhooks
+// ============================================================================
+
+model ApiKey {
+  id          String    @id @default(uuid())
+  businessId  String
+  name        String
+  keyHash     String    @unique // SHA-256 hash of the API key
+  permissions Json      // Array of permission strings
+  expiresAt   DateTime?
+  ipWhitelist Json?     // Array of allowed IP addresses
+  rateLimit   Int       @default(1000) // Requests per hour
+  isActive    Boolean   @default(true)
+  lastUsedAt  DateTime?
+  usageCount  Int       @default(0)
+  createdBy   String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([businessId])
+  @@index([keyHash])
+  @@map("api_keys")
+}
+
+model Webhook {
+  id         String   @id @default(uuid())
+  businessId String
+  url        String
+  events     Json     // Array of event names
+  secret     String   // For signature verification
+  isActive   Boolean  @default(true)
+  createdBy  String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  business   Business          @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  deliveries WebhookDelivery[]
+
+  @@index([businessId])
+  @@map("webhooks")
+}
+
+model WebhookDelivery {
+  id           String   @id @default(uuid())
+  webhookId    String
+  event        String
+  payload      Json
+  status       String   // pending | success | failed
+  responseCode Int?
+  responseBody String?  @db.Text
+  errorMessage String?  @db.Text
+  duration     Int?     // milliseconds
+  createdAt    DateTime @default(now())
+
+  webhook Webhook @relation(fields: [webhookId], references: [id], onDelete: Cascade)
+
+  @@index([webhookId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("webhook_deliveries")
+}
