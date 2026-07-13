@@ -42,7 +42,7 @@ const ROLE_METADATA = {
 }
 
 async function seedDemoBusinessAndUser() {
-  const existingBusiness = await prisma.business.findFirst({ where: { email: 'demo@msmebms.com' } })
+  const existingBusiness = await prisma.business.findFirst({ where: { email: 'admin@ssme@gmail.com' } })
   if (existingBusiness) {
     console.log('Demo business already exists, skipping...')
     return
@@ -51,9 +51,9 @@ async function seedDemoBusinessAndUser() {
   console.log('Seeding demo business...')
   const business = await prisma.business.create({
     data: {
-      name: 'Demo Business Ltd',
-      slug: 'demo-business-seed',
-      email: 'demo@msmebms.com',
+      name: 'SSME Business',
+      slug: 'ssme-business-main',
+      email: 'admin@ssme@gmail.com',
       phone: '+254700000000',
       currency: 'KES',
       timezone: 'Africa/Nairobi',
@@ -79,7 +79,7 @@ async function seedDemoBusinessAndUser() {
         displayName: metadata.displayName || roleName,
         category: metadata.category,
         isSystem: true,
-        isEnabled: true, // All roles enabled by default
+        isEnabled: true,
         permissions: {
           create: permKeys.filter((k) => permMap[k]).map((k) => ({ permissionId: permMap[k] }))
         }
@@ -92,22 +92,21 @@ async function seedDemoBusinessAndUser() {
     data: { businessId: business.id, name: 'Head Office', code: 'HQ', isHeadquarters: true }
   })
 
-  // Create demo users for core roles only
+  // Create users with new format
   const demoUsers = [
-    { name: 'Demo Owner', email: 'demo@msmebms.com', phone: '+254700000000', role: ENTERPRISE_ROLES.BUSINESS_OWNER, isOwner: true },
-    { name: 'John Manager', email: 'manager@msmebms.com', phone: '+254700000001', role: ENTERPRISE_ROLES.BRANCH_MANAGER },
-    { name: 'Diana Operations', email: 'operations@msmebms.com', phone: '+254700000002', role: ENTERPRISE_ROLES.OPERATIONS_MANAGER },
-    { name: 'Sarah Sales', email: 'sales@msmebms.com', phone: '+254700000003', role: ENTERPRISE_ROLES.SALES_MANAGER },
-    { name: 'Mike Cashier', email: 'cashier@msmebms.com', phone: '+254700000004', role: ENTERPRISE_ROLES.CASHIER },
-    { name: 'Lisa Inventory', email: 'inventory@msmebms.com', phone: '+254700000005', role: ENTERPRISE_ROLES.INVENTORY_OFFICER },
-    { name: 'Alex Procurement', email: 'procurement@msmebms.com', phone: '+254700000006', role: ENTERPRISE_ROLES.PROCUREMENT_OFFICER },
-    { name: 'Nancy Accountant', email: 'accountant@msmebms.com', phone: '+254700000007', role: ENTERPRISE_ROLES.ACCOUNTANT },
-    { name: 'Emma HR', email: 'hr@msmebms.com', phone: '+254700000008', role: ENTERPRISE_ROLES.HR_MANAGER }
+    { name: 'Admin Owner', email: 'admin@ssme@gmail.com', phone: '+254700000000', password: 'admin1', role: ENTERPRISE_ROLES.BUSINESS_OWNER, isOwner: true },
+    { name: 'Operations Manager', email: 'operationmanager@ssme@gmail.com', phone: '+254700000001', password: 'manager123', role: ENTERPRISE_ROLES.OPERATIONS_MANAGER },
+    { name: 'Branch Manager', email: 'branchmanager@ssme@gmail.com', phone: '+254700000002', password: 'manager123', role: ENTERPRISE_ROLES.BRANCH_MANAGER },
+    { name: 'Sales Manager', email: 'salesmanager@ssme@gmail.com', phone: '+254700000003', password: 'manager123', role: ENTERPRISE_ROLES.SALES_MANAGER },
+    { name: 'Cashier', email: 'cashier@ssme@gmail.com', phone: '+254700000004', password: 'cashier123', role: ENTERPRISE_ROLES.CASHIER },
+    { name: 'Inventory Officer', email: 'inventoryofficer@ssme@gmail.com', phone: '+254700000005', password: 'inventory123', role: ENTERPRISE_ROLES.INVENTORY_OFFICER },
+    { name: 'Procurement Officer', email: 'procurementofficer@ssme@gmail.com', phone: '+254700000006', password: 'procurement123', role: ENTERPRISE_ROLES.PROCUREMENT_OFFICER },
+    { name: 'Accountant', email: 'accountant@ssme@gmail.com', phone: '+254700000007', password: 'accountant123', role: ENTERPRISE_ROLES.ACCOUNTANT },
+    { name: 'HR Manager', email: 'hrmanager@ssme@gmail.com', phone: '+254700000008', password: 'hrmanager123', role: ENTERPRISE_ROLES.HR_MANAGER }
   ]
-
-  const defaultPassword = await bcrypt.hash('Demo@1234', 12)
   
   for (const userData of demoUsers) {
+    const passwordHash = await bcrypt.hash(userData.password, 12)
     await prisma.user.create({
       data: {
         businessId: business.id,
@@ -115,7 +114,7 @@ async function seedDemoBusinessAndUser() {
         name: userData.name,
         email: userData.email,
         phone: userData.phone,
-        passwordHash: defaultPassword,
+        passwordHash: passwordHash,
         isOwner: userData.isOwner || false,
         roleId: createdRoles[userData.role].id,
         status: 'active',
@@ -124,7 +123,9 @@ async function seedDemoBusinessAndUser() {
     })
   }
 
-  console.log(`✅ Created ${demoUsers.length} demo users (password: Demo@1234)`)
+  console.log(`✅ Created ${demoUsers.length} users with custom passwords`)
+  console.log('✅ Admin login: admin@ssme@gmail.com / admin1')
+  console.log('✅ Operations Manager login: operationmanager@ssme@gmail.com / manager123')
 
   await prisma.subscription.create({
     data: {
@@ -162,7 +163,7 @@ async function seedDemoBusinessAndUser() {
   // Seed a default warehouse
   await prisma.warehouse.create({ data: { businessId: business.id, name: 'Main Warehouse', isActive: true } })
 
-  console.log('✅ Demo business seeded — Login: demo@msmebms.com / Demo@1234')
+  console.log('✅ SSME business seeded successfully')
   console.log(`✅ Created ${Object.keys(createdRoles).length} core enterprise roles`)
 }
 
