@@ -376,7 +376,7 @@ async function getAccountantDashboard(businessId) {
       _count: true,
       _sum: { balance: true } 
     }),
-    prisma.invoice.count({ where: { businessId, status: 'paid', paidAt: thisMonth } }),
+    prisma.invoice.count({ where: { businessId, status: 'paid', updatedAt: thisMonth } }),
     prisma.expense.aggregate({ where: { businessId, createdAt: thisMonth }, _sum: { amount: true } }),
     prisma.saleOrder.aggregate({ where: { businessId, createdAt: thisMonth }, _sum: { total: true } }),
     prisma.invoice.findMany({
