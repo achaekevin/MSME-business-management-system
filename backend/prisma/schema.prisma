@@ -1138,17 +1138,25 @@ model JournalEntry {
   businessId  String
   entryNumber String
   date        DateTime
+  type        String?  // manual | payroll | sales | purchase | etc
   description String?
   reference   String?
+  totalDebit  Decimal  @default(0) @db.Decimal(14, 2)
+  totalCredit Decimal  @default(0) @db.Decimal(14, 2)
+  status      String   @default("draft") // draft | posted | reversed
+  postedBy    String?
+  postedAt    DateTime?
   createdById String?
   createdAt   DateTime @default(now())
 
-  business  Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  createdBy User?         @relation("JournalCreatedBy", fields: [createdById], references: [id])
-  lines     JournalLine[]
+  business       Business        @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  createdBy      User?           @relation("JournalCreatedBy", fields: [createdById], references: [id])
+  lines          JournalLine[]
+  payrollPeriods PayrollPeriod[]
 
   @@unique([businessId, entryNumber])
   @@index([businessId])
+  @@index([status])
   @@map("journal_entries")
 }
 
@@ -2096,12 +2104,18 @@ model PayrollPeriod {
   processedAt DateTime?
   approvedBy  String?
   approvedAt  DateTime?
+  // Accounting integration
+  accountingStatus String? @default("pending") // pending | posted | reversed
+  journalEntryId   String? @unique
+  postedToAccountingAt DateTime?
+  postedToAccountingBy String?
   notes       String?   @db.Text
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
-  business  Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  payslips  PayrollSlip[]
+  business     Business       @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  payslips     PayrollSlip[]
+  journalEntry JournalEntry?  @relation(fields: [journalEntryId], references: [id])
 
   @@unique([businessId, startDate, endDate])
   @@index([businessId])
@@ -2124,7 +2138,9 @@ model PayrollSlip {
   workDays        Int
   paidDays        Int
   leaveDays       Int     @default(0)
+  absentDays      Int     @default(0)
   overtimeHours   Decimal @default(0) @db.Decimal(5, 2)
+  overtimeAmount  Decimal @default(0) @db.Decimal(12, 2)
   paymentMethod   String? // bank_transfer | cash | cheque
   paymentReference String?
   paidAt          DateTime?
