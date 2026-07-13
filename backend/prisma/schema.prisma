@@ -77,6 +77,18 @@ model Business {
   stockTransfers        StockTransfer[]
   PosShift              PosShift[]
   PosConfiguration      PosConfiguration[]
+  cashAccounts          CashAccount[]
+  taxRates              TaxRate[]
+  taxExemptions         TaxExemption[]
+  taxPayments           TaxPayment[]
+  fixedAssets           FixedAsset[]
+  budgets               Budget[]
+  incomeCategories      IncomeCategory[]
+  incomeRecords         IncomeRecord[]
+  expenseCategories     ExpenseCategory[]
+  expenseRecords        ExpenseRecord[]
+  paymentReconciliations PaymentReconciliation[]
+  financialSnapshots    FinancialSnapshot[]
 
   @@map("businesses")
 }
@@ -1423,3 +1435,464 @@ model PosConfiguration {
   @@unique([businessId, branchId])
   @@map("pos_configurations")
 }
+
+// ============================================================================
+// FINANCE & ACCOUNTING - Comprehensive System
+// ============================================================================
+
+// ----------------------------------------------------------------------------
+// CASH ACCOUNTS & CASH FLOW
+// ----------------------------------------------------------------------------
+
+model CashAccount {
+  id           String   @id @default(uuid())
+  businessId   String
+  branchId     String?
+  name         String
+  accountType  String   @default("cash") // cash | petty_cash | till
+  balance      Decimal  @default(0) @db.Decimal(14, 2)
+  currency     String   @default("USD")
+  isActive     Boolean  @default(true)
+  openingDate  DateTime @default(now())
+  closingDate  DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  business      Business           @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  transactions  CashTransaction[]
+
+  @@index([businessId])
+  @@map("cash_accounts")
+}
+
+model CashTransaction {
+  id              String   @id @default(uuid())
+  cashAccountId   String
+  type            String // receipt | payment
+  category        String // sales | purchases | expenses | investment | loan | other
+  amount          Decimal  @db.Decimal(14, 2)
+  referenceType   String? // sale | purchase | expense | transfer
+  referenceId     String?
+  description     String
+  payee           String?
+  receiptNumber   String?
+  createdById     String?
+  transactionDate DateTime @default(now())
+  createdAt       DateTime @default(now())
+
+  cashAccount CashAccount @relation(fields: [cashAccountId], references: [id], onDelete: Cascade)
+
+  @@index([cashAccountId])
+  @@index([transactionDate])
+  @@map("cash_transactions")
+}
+
+// ----------------------------------------------------------------------------
+// TAX MANAGEMENT
+// ----------------------------------------------------------------------------
+
+model TaxRate {
+  id              String   @id @default(uuid())
+  businessId      String
+  name            String // VAT Standard | VAT Reduced | Sales Tax
+  rate            Decimal  @db.Decimal(5, 2)
+  taxType         String // vat | sales_tax | service_tax | excise | customs
+  isDefault       Boolean  @default(false)
+  isCompound      Boolean  @default(false) // tax on tax
+  applicableOn    String   @default("sale") // sale | purchase | both
+  region          String? // Country, state, or region code
+  startDate       DateTime @default(now())
+  endDate         DateTime?
+  isActive        Boolean  @default(true)
+  description     String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  business       Business        @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  taxComponents  TaxComponent[] // For compound taxes
+  taxExemptions  TaxExemption[]
+  taxPayments    TaxPayment[]
+
+  @@index([businessId])
+  @@index([businessId, isActive])
+  @@map("tax_rates")
+}
+
+model TaxComponent {
+  id        String  @id @default(uuid())
+  taxRateId String
+  name      String
+  rate      Decimal @db.Decimal(5, 2)
+  order     Int     @default(1)
+
+  taxRate TaxRate @relation(fields: [taxRateId], references: [id], onDelete: Cascade)
+
+  @@map("tax_components")
+}
+
+model TaxExemption {
+  id            String    @id @default(uuid())
+  businessId    String
+  taxRateId     String?
+  name          String
+  exemptionType String // product | customer | transaction
+  entityId      String? // Product ID or Customer ID
+  reason        String
+  startDate     DateTime  @default(now())
+  endDate       DateTime?
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+
+  business Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  taxRate  TaxRate?  @relation(fields: [taxRateId], references: [id])
+
+  @@index([businessId])
+  @@map("tax_exemptions")
+}
+
+model TaxPayment {
+  id             String   @id @default(uuid())
+  businessId     String
+  taxRateId      String?
+  paymentNumber  String
+  periodStart    DateTime
+  periodEnd      DateTime
+  taxableAmount  Decimal  @db.Decimal(14, 2)
+  taxAmount      Decimal  @db.Decimal(14, 2)
+  penalty        Decimal  @default(0) @db.Decimal(12, 2)
+  interest       Decimal  @default(0) @db.Decimal(12, 2)
+  totalAmount    Decimal  @db.Decimal(14, 2)
+  paymentDate    DateTime?
+  paymentMethod  String?
+  referenceNumber String?
+  status         String   @default("pending") // pending | paid | overdue
+  notes          String?  @db.Text
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  business Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  taxRate  TaxRate?  @relation(fields: [taxRateId], references: [id])
+
+  @@unique([businessId, paymentNumber])
+  @@index([businessId])
+  @@index([status])
+  @@map("tax_payments")
+}
+
+// ----------------------------------------------------------------------------
+// FIXED ASSETS & DEPRECIATION
+// ----------------------------------------------------------------------------
+
+model FixedAsset {
+  id                  String   @id @default(uuid())
+  businessId          String
+  assetNumber         String
+  name                String
+  description         String?  @db.Text
+  category            String // building | vehicle | equipment | furniture | computer | other
+  purchaseDate        DateTime
+  purchasePrice       Decimal  @db.Decimal(14, 2)
+  residualValue       Decimal  @default(0) @db.Decimal(14, 2)
+  usefulLife          Int // in months or years depending on depreciationPeriod
+  depreciationMethod  String   @default("straight_line") // straight_line | declining_balance | units_of_production
+  depreciationPeriod  String   @default("monthly") // monthly | yearly
+  accumulatedDepr     Decimal  @default(0) @db.Decimal(14, 2)
+  currentValue        Decimal  @db.Decimal(14, 2)
+  accountId           String? // GL Account for asset
+  depreciationAcctId  String? // GL Account for accumulated depreciation
+  location            String?
+  serialNumber        String?
+  supplier            String?
+  warrantyExpiry      DateTime?
+  status              String   @default("active") // active | disposed | sold | under_maintenance
+  disposalDate        DateTime?
+  disposalValue       Decimal? @db.Decimal(14, 2)
+  disposalNotes       String?  @db.Text
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  business            Business             @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  depreciationEntries DepreciationEntry[]
+
+  @@unique([businessId, assetNumber])
+  @@index([businessId])
+  @@index([businessId, status])
+  @@map("fixed_assets")
+}
+
+model DepreciationEntry {
+  id                  String   @id @default(uuid())
+  fixedAssetId        String
+  periodStart         DateTime
+  periodEnd           DateTime
+  openingValue        Decimal  @db.Decimal(14, 2)
+  depreciationAmount  Decimal  @db.Decimal(14, 2)
+  accumulatedDepr     Decimal  @db.Decimal(14, 2)
+  closingValue        Decimal  @db.Decimal(14, 2)
+  journalEntryId      String? // Link to journal entry if posted
+  status              String   @default("calculated") // calculated | posted
+  notes               String?
+  createdAt           DateTime @default(now())
+
+  fixedAsset FixedAsset @relation(fields: [fixedAssetId], references: [id], onDelete: Cascade)
+
+  @@index([fixedAssetId])
+  @@index([periodStart, periodEnd])
+  @@map("depreciation_entries")
+}
+
+// ----------------------------------------------------------------------------
+// BUDGET PLANNING & TRACKING
+// ----------------------------------------------------------------------------
+
+model Budget {
+  id          String   @id @default(uuid())
+  businessId  String
+  name        String
+  description String?  @db.Text
+  budgetType  String // annual | quarterly | monthly | project
+  fiscalYear  String
+  startDate   DateTime
+  endDate     DateTime
+  totalBudget Decimal  @db.Decimal(14, 2)
+  totalActual Decimal  @default(0) @db.Decimal(14, 2)
+  variance    Decimal  @default(0) @db.Decimal(14, 2)
+  status      String   @default("draft") // draft | approved | active | closed
+  approvedBy  String?
+  approvedAt  DateTime?
+  createdById String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  business    Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  items       BudgetItem[]
+
+  @@index([businessId])
+  @@index([businessId, fiscalYear])
+  @@map("budgets")
+}
+
+model BudgetItem {
+  id             String   @id @default(uuid())
+  budgetId       String
+  accountId      String? // GL Account
+  category       String // revenue | expense | capex
+  subcategory    String?
+  description    String
+  budgetedAmount Decimal  @db.Decimal(14, 2)
+  actualAmount   Decimal  @default(0) @db.Decimal(14, 2)
+  variance       Decimal  @default(0) @db.Decimal(14, 2)
+  variancePct    Decimal  @default(0) @db.Decimal(5, 2)
+  period         String? // Q1, Q2, Jan, Feb, etc.
+  notes          String?  @db.Text
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  budget Budget @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+
+  @@index([budgetId])
+  @@map("budget_items")
+}
+
+// ----------------------------------------------------------------------------
+// INCOME TRACKING (Enhanced)
+// ----------------------------------------------------------------------------
+
+model IncomeCategory {
+  id          String   @id @default(uuid())
+  businessId  String
+  name        String
+  description String?
+  accountId   String? // Link to GL Account
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  business Business       @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  incomes  IncomeRecord[]
+
+  @@index([businessId])
+  @@map("income_categories")
+}
+
+model IncomeRecord {
+  id               String   @id @default(uuid())
+  businessId       String
+  categoryId       String
+  incomeNumber     String
+  description      String
+  amount           Decimal  @db.Decimal(14, 2)
+  paymentMethod    String // cash | bank_transfer | card | cheque
+  bankAccountId    String?
+  cashAccountId    String?
+  referenceType    String? // sale | service | rental | interest | other
+  referenceId      String?
+  receiptNumber    String?
+  incomeDate       DateTime @default(now())
+  customer         String?
+  taxAmount        Decimal  @default(0) @db.Decimal(12, 2)
+  notes            String?  @db.Text
+  attachments      Json? // Array of file URLs
+  createdById      String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  business Business         @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  category IncomeCategory   @relation(fields: [categoryId], references: [id])
+
+  @@unique([businessId, incomeNumber])
+  @@index([businessId])
+  @@index([incomeDate])
+  @@map("income_records")
+}
+
+// ----------------------------------------------------------------------------
+// EXPENSE TRACKING (Enhanced - to replace basic Expense model)
+// ----------------------------------------------------------------------------
+
+model ExpenseCategory {
+  id          String   @id @default(uuid())
+  businessId  String
+  name        String
+  description String?
+  accountId   String? // Link to GL Account
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  business Business        @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  expenses ExpenseRecord[]
+
+  @@index([businessId])
+  @@map("expense_categories")
+}
+
+model ExpenseRecord {
+  id               String   @id @default(uuid())
+  businessId       String
+  branchId         String?
+  categoryId       String
+  expenseNumber    String
+  description      String
+  amount           Decimal  @db.Decimal(14, 2)
+  paymentMethod    String // cash | bank_transfer | card | cheque
+  bankAccountId    String?
+  cashAccountId    String?
+  vendor           String?
+  invoiceNumber    String?
+  expenseDate      DateTime @default(now())
+  dueDate          DateTime?
+  paymentDate      DateTime?
+  taxAmount        Decimal  @default(0) @db.Decimal(12, 2)
+  taxDeductible    Boolean  @default(false)
+  status           String   @default("pending") // pending | approved | paid | rejected
+  approvedBy       String?
+  approvedAt       DateTime?
+  notes            String?  @db.Text
+  attachments      Json? // Array of file URLs (receipts)
+  recurring        Boolean  @default(false)
+  recurringPattern String? // monthly | weekly | yearly
+  createdById      String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  business Business          @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  category ExpenseCategory   @relation(fields: [categoryId], references: [id])
+
+  @@unique([businessId, expenseNumber])
+  @@index([businessId])
+  @@index([expenseDate])
+  @@index([status])
+  @@map("expense_records")
+}
+
+// ----------------------------------------------------------------------------
+// PAYMENT RECONCILIATION
+// ----------------------------------------------------------------------------
+
+model PaymentReconciliation {
+  id              String   @id @default(uuid())
+  businessId      String
+  bankAccountId   String?
+  cashAccountId   String?
+  statementDate   DateTime
+  openingBalance  Decimal  @db.Decimal(14, 2)
+  closingBalance  Decimal  @db.Decimal(14, 2)
+  systemBalance   Decimal  @db.Decimal(14, 2)
+  difference      Decimal  @db.Decimal(14, 2)
+  status          String   @default("pending") // pending | reconciled | discrepancy
+  reconciledBy    String?
+  reconciledAt    DateTime?
+  notes           String?  @db.Text
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  business Business                    @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  items    PaymentReconciliationItem[]
+
+  @@index([businessId])
+  @@index([statementDate])
+  @@map("payment_reconciliations")
+}
+
+model PaymentReconciliationItem {
+  id               String   @id @default(uuid())
+  reconciliationId String
+  transactionDate  DateTime
+  description      String
+  referenceNumber  String?
+  debit            Decimal  @default(0) @db.Decimal(14, 2)
+  credit           Decimal  @default(0) @db.Decimal(14, 2)
+  isReconciled     Boolean  @default(false)
+  systemMatchId    String? // ID of matching transaction in system
+  notes            String?
+
+  reconciliation PaymentReconciliation @relation(fields: [reconciliationId], references: [id], onDelete: Cascade)
+
+  @@index([reconciliationId])
+  @@map("payment_reconciliation_items")
+}
+
+// ----------------------------------------------------------------------------
+// FINANCIAL REPORTS SNAPSHOTS (for performance)
+// ----------------------------------------------------------------------------
+
+model FinancialSnapshot {
+  id             String   @id @default(uuid())
+  businessId     String
+  snapshotType   String // trial_balance | balance_sheet | profit_loss | cash_flow
+  periodType     String // daily | weekly | monthly | quarterly | yearly
+  periodStart    DateTime
+  periodEnd      DateTime
+  fiscalYear     String
+  data           Json     @db.Json // Snapshot data
+  totalAssets    Decimal? @db.Decimal(14, 2)
+  totalLiabilities Decimal? @db.Decimal(14, 2)
+  totalEquity    Decimal? @db.Decimal(14, 2)
+  totalRevenue   Decimal? @db.Decimal(14, 2)
+  totalExpenses  Decimal? @db.Decimal(14, 2)
+  netProfit      Decimal? @db.Decimal(14, 2)
+  createdAt      DateTime @default(now())
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([businessId, snapshotType, periodStart, periodEnd])
+  @@index([businessId])
+  @@index([periodStart, periodEnd])
+  @@map("financial_snapshots")
+}
+
+// ============================================================================
+// RELATION UPDATES (Add relations to Business model above)
+// ============================================================================
+// Add these to the Business model relations list:
+//   cashAccounts          CashAccount[]
+//   taxRates              TaxRate[]
+//   taxExemptions         TaxExemption[]
+//   taxPayments           TaxPayment[]
+//   fixedAssets           FixedAsset[]
+//   budgets               Budget[]
+//   incomeCategories      IncomeCategory[]
+//   incomeRecords         IncomeRecord[]
+//   expenseCategories     ExpenseCategory[]
+//   expenseRecords        ExpenseRecord[]
+//   paymentReconciliations PaymentReconciliation[]
+//   financialSnapshots    FinancialSnapshot[]
