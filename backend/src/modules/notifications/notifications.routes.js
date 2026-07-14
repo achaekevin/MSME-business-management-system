@@ -6,6 +6,7 @@ const { prisma } = require('../../config/database')
 const { authenticate } = require('../../middleware/auth.middleware')
 const { tenantContext } = require('../../middleware/tenant.middleware')
 const { parsePagination } = require('../../helpers/pagination')
+const preferencesController = require('./preferences.controller')
 
 router.use(authenticate, tenantContext)
 
@@ -53,5 +54,11 @@ router.delete('/:id', asyncHandler(async (req, res) => {
   await prisma.notification.deleteMany({ where: { id: req.params.id, userId: req.userId } })
   noContent(res)
 }))
+
+// Notification Preferences Routes
+router.get('/preferences', preferencesController.getPreferences)
+router.put('/preferences', preferencesController.updatePreferences)
+router.post('/preferences/reset', preferencesController.resetPreferences)
+router.get('/preferences/defaults', preferencesController.getDefaults)
 
 module.exports = router
