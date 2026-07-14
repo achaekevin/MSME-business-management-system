@@ -41,6 +41,7 @@ const navItems = [
     group: 'Finance', items: [
       { label: 'Finance', path: '/app/finance', icon: 'PiggyBank', permission: 'finance.view' },
       { label: 'Accounting', path: '/app/accounting', icon: 'BookOpen', permission: 'finance.view' },
+      { label: 'Analytics', path: '/app/analytics', icon: 'TrendingUp', permission: 'reports.view' },
       { label: 'Reports', path: '/app/reports', icon: 'BarChart2', permission: 'reports.view' },
       { label: 'Data Export', path: '/app/export', icon: 'Download', permission: 'reports.view' }
     ]
