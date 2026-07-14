@@ -1,6 +1,6 @@
 import { NavLink, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, ChevronLeft, ChevronRight, Building2, LayoutDashboard, ShoppingCart, TrendingUp, ShoppingBag, FileText, CreditCard, Package, Warehouse, Truck, Users, UserCheck, DollarSign, PiggyBank, BookOpen, BarChart2, Building, Settings, Zap } from 'lucide-react'
+import { X, ChevronLeft, ChevronRight, Building2, LayoutDashboard, ShoppingCart, TrendingUp, ShoppingBag, FileText, CreditCard, Package, Warehouse, Truck, Users, UserCheck, DollarSign, PiggyBank, BookOpen, BarChart2, Building, Settings, Zap, Download } from 'lucide-react'
 import { cn } from '@/utils'
 import { useUIStore, useBusinessStore } from '@/store'
 import { usePermission } from '@/hooks'
@@ -9,7 +9,7 @@ import { Avatar } from '@/components/ui'
 const iconMap = {
   LayoutDashboard, ShoppingCart, TrendingUp, ShoppingBag, FileText, CreditCard,
   Package, Warehouse, Truck, Users, UserCheck, DollarSign, PiggyBank, BookOpen,
-  BarChart2, Building2, Settings, Zap
+  BarChart2, Building2, Settings, Zap, Download
 }
 
 const navItems = [
@@ -41,7 +41,8 @@ const navItems = [
     group: 'Finance', items: [
       { label: 'Finance', path: '/app/finance', icon: 'PiggyBank', permission: 'finance.view' },
       { label: 'Accounting', path: '/app/accounting', icon: 'BookOpen', permission: 'finance.view' },
-      { label: 'Reports', path: '/app/reports', icon: 'BarChart2', permission: 'reports.view' }
+      { label: 'Reports', path: '/app/reports', icon: 'BarChart2', permission: 'reports.view' },
+      { label: 'Data Export', path: '/app/export', icon: 'Download', permission: 'reports.view' }
     ]
   },
   {
