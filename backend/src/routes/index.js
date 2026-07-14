@@ -50,5 +50,6 @@ router.use('/security', require('../modules/security/security.routes'))
 router.use('/api-keys', require('../modules/api-keys/api-keys.routes'))
 router.use('/webhooks', require('../modules/webhooks/webhooks.routes'))
 router.use('/activity', require('../modules/activity/activity.routes'))
+router.use('/export', require('../modules/export/export.routes'))
 
 module.exports = router
