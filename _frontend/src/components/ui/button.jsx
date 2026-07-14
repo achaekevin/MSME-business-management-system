@@ -43,6 +43,20 @@ const Button = React.forwardRef(({
   ...props
 }, ref) => {
   const Comp = asChild ? Slot : 'button'
+  
+  // When asChild is true, Slot expects a single React element child
+  if (asChild) {
+    return (
+      <Comp
+        className={cn(buttonVariants({ variant, size, className }))}
+        ref={ref}
+        {...props}
+      >
+        {children}
+      </Comp>
+    )
+  }
+  
   return (
     <Comp
       className={cn(buttonVariants({ variant, size, className }))}
