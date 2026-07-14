@@ -99,7 +99,7 @@ export default function Dashboard() {
 
         {/* Alert cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Link to="/invoices?status=overdue">
+          <Link to="/app/invoices?status=overdue">
             <Card className="hover:shadow-md transition-shadow border-orange-200 bg-orange-50 dark:bg-orange-900/10">
               <CardContent className="p-4 flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-100 dark:bg-orange-900/30">
@@ -112,7 +112,7 @@ export default function Dashboard() {
               </CardContent>
             </Card>
           </Link>
-          <Link to="/inventory/stock?filter=low">
+          <Link to="/app/inventory/stock?filter=low">
             <Card className="hover:shadow-md transition-shadow border-red-200 bg-red-50 dark:bg-red-900/10">
               <CardContent className="p-4 flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-100 dark:bg-red-900/30">
@@ -125,7 +125,7 @@ export default function Dashboard() {
               </CardContent>
             </Card>
           </Link>
-          <Link to="/payments?status=pending">
+          <Link to="/app/payments?status=pending">
             <Card className="hover:shadow-md transition-shadow border-yellow-200 bg-yellow-50 dark:bg-yellow-900/10">
               <CardContent className="p-4 flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-yellow-100 dark:bg-yellow-900/30">
@@ -138,7 +138,7 @@ export default function Dashboard() {
               </CardContent>
             </Card>
           </Link>
-          <Link to="/customers">
+          <Link to="/app/customers">
             <Card className="hover:shadow-md transition-shadow border-blue-200 bg-blue-50 dark:bg-blue-900/10">
               <CardContent className="p-4 flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
@@ -168,7 +168,7 @@ export default function Dashboard() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between py-4">
                 <CardTitle className="text-base">Outstanding invoices</CardTitle>
-                <Link to="/invoices" className="text-xs text-primary hover:underline">View all</Link>
+                <Link to="/app/invoices" className="text-xs text-primary hover:underline">View all</Link>
               </CardHeader>
               <CardContent className="p-0">
                 <div className="divide-y">
@@ -214,7 +214,7 @@ export default function Dashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between py-4">
             <CardTitle className="text-base">Top products this month</CardTitle>
-            <Link to="/reports" className="text-xs text-primary hover:underline">View report</Link>
+            <Link to="/app/reports" className="text-xs text-primary hover:underline">View report</Link>
           </CardHeader>
           <CardContent className="p-0">
             <div className="overflow-x-auto">

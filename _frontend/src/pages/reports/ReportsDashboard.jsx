@@ -5,11 +5,11 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui'
 
 export default function ReportsDashboard() {
   const reports = [
-    { label: 'Sales Reports', desc: 'Revenue analysis, invoice status, and top items sold', to: '/reports/sales', icon: BarChart3, color: 'bg-blue-500' },
-    { label: 'Inventory Reports', desc: 'Stock value assessment and low-stock forecasting', to: '/reports/inventory', icon: Package, color: 'bg-green-500' },
-    { label: 'Financial Reports', desc: 'VAT/Tax calculations, cash book journals, and Trial Balance summaries', to: '/reports/financial', icon: PiggyBank, color: 'bg-indigo-500' },
-    { label: 'Customer Reports', desc: 'Loyalty point registry and overdue statement lists', to: '/reports/customers', icon: Users, color: 'bg-amber-500' },
-    { label: 'Employee Reports', desc: 'Payroll deduction statements and attendance logs summaries', to: '/reports/employees', icon: UserCheck, color: 'bg-teal-500' }
+    { label: 'Sales Reports', desc: 'Revenue analysis, invoice status, and top items sold', to: '/app/reports/sales', icon: BarChart3, color: 'bg-blue-500' },
+    { label: 'Inventory Reports', desc: 'Stock value assessment and low-stock forecasting', to: '/app/reports/inventory', icon: Package, color: 'bg-green-500' },
+    { label: 'Financial Reports', desc: 'VAT/Tax calculations, cash book journals, and Trial Balance summaries', to: '/app/reports/financial', icon: PiggyBank, color: 'bg-indigo-500' },
+    { label: 'Customer Reports', desc: 'Loyalty point registry and overdue statement lists', to: '/app/reports/customers', icon: Users, color: 'bg-amber-500' },
+    { label: 'Employee Reports', desc: 'Payroll deduction statements and attendance logs summaries', to: '/app/reports/employees', icon: UserCheck, color: 'bg-teal-500' }
   ]
 
   return (

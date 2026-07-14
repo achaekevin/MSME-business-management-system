@@ -53,7 +53,7 @@ export default function SalesReport() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="sm" asChild>
-              <Link to="/reports"><ArrowLeft className="h-4 w-4 mr-1" /> Reports</Link>
+              <Link to="/app/reports"><ArrowLeft className="h-4 w-4 mr-1" /> Reports</Link>
             </Button>
             <h1 className="text-xl font-bold">Sales Analysis Reports</h1>
           </div>
