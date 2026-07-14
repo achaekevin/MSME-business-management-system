@@ -17,7 +17,7 @@ export default function Login() {
   const { setAuth, setTwoFactorPending } = useAuthStore()
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
-  const from = location.state?.from?.pathname || '/dashboard'
+  const from = location.state?.from?.pathname || '/app/dashboard'
   const expired = new URLSearchParams(location.search).get('expired')
 
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm({
