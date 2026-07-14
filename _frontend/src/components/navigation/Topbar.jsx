@@ -131,7 +131,7 @@ export function Topbar() {
                   )}
                 </div>
                 <div className="px-4 py-2 border-t">
-                  <Link to="/notifications" className="text-xs text-primary hover:underline" onClick={() => setShowNotifications(false)}>
+                  <Link to="/app/notifications" className="text-xs text-primary hover:underline" onClick={() => setShowNotifications(false)}>
                     View all notifications
                   </Link>
                 </div>
@@ -164,9 +164,9 @@ export function Topbar() {
                   <p className="text-xs text-muted-foreground">{user?.email}</p>
                 </div>
                 {[
-                  { icon: User, label: 'Profile', path: '/profile' },
-                  { icon: Building2, label: 'Business', path: '/business' },
-                  { icon: Settings, label: 'Settings', path: '/settings' }
+                  { icon: User, label: 'Profile', path: '/app/profile' },
+                  { icon: Building2, label: 'Business', path: '/app/business' },
+                  { icon: Settings, label: 'Settings', path: '/app/settings' }
                 ].map(item => (
                   <Link
                     key={item.path}
