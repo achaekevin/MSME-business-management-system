@@ -6,6 +6,7 @@ import { motion } from 'framer-motion'
 import { StatCard, StatCardGrid } from '@/components/cards/StatCard'
 import { RevenueChart, SalesBarChart, PieDonutChart } from '@/components/charts'
 import { Card, CardHeader, CardTitle, CardContent, Badge, Avatar, Skeleton } from '@/components/ui'
+import { ActivityFeed } from '@/components/activity/ActivityFeed'
 import { useAuthStore } from '@/store/authStore'
 import { formatCurrency, formatDate, formatRelativeTime } from '@/utils'
 import { INVOICE_STATUSES, SALE_STATUSES } from '@/constants'
@@ -49,22 +50,12 @@ const mockTopProducts = [
   { name: 'Mechanical Keyboard', sales: 201, revenue: 40200 }
 ]
 
-const mockRecentActivities = [
-  { id: 1, type: 'sale', message: 'New sale #SL-20240629-0023 created', user: 'John Kamau', time: '2 minutes ago' },
-  { id: 2, type: 'invoice', message: 'Invoice #INV-0091 paid by Acme Corp', user: 'System', time: '15 minutes ago' },
-  { id: 3, type: 'stock', message: 'Low stock alert: Laptop Pro 15" (3 units)', user: 'System', time: '1 hour ago' },
-  { id: 4, type: 'customer', message: 'New customer registered: Bright Solutions', user: 'Mary Wanjiku', time: '2 hours ago' },
-  { id: 5, type: 'purchase', message: 'Purchase order #PO-0034 received', user: 'Peter Oduya', time: '3 hours ago' }
-]
-
 const mockOutstandingInvoices = [
   { id: 'INV-0088', customer: 'TechVision Ltd', amount: 15400, dueDate: '2024-07-05', status: 'overdue' },
   { id: 'INV-0089', customer: 'Sunrise Retail', amount: 8900, dueDate: '2024-07-10', status: 'sent' },
   { id: 'INV-0090', customer: 'Global Traders', amount: 22600, dueDate: '2024-07-15', status: 'sent' },
   { id: 'INV-0091', customer: 'Bright Solutions', amount: 5200, dueDate: '2024-07-20', status: 'sent' }
 ]
-
-const activityIcon = { sale: '💰', invoice: '📄', stock: '📦', customer: '👤', purchase: '🛒' }
 
 export default function Dashboard() {
   const { user } = useAuthStore()
@@ -189,25 +180,8 @@ export default function Dashboard() {
             </Card>
           </div>
 
-          {/* Recent activity */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between py-4">
-              <CardTitle className="text-base">Recent activity</CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
-              <div className="divide-y">
-                {mockRecentActivities.map(act => (
-                  <div key={act.id} className="flex gap-3 px-4 py-3">
-                    <span className="text-lg flex-shrink-0">{activityIcon[act.type]}</span>
-                    <div className="min-w-0">
-                      <p className="text-xs leading-snug text-foreground">{act.message}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">{act.user} · {act.time}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+          {/* Recent activity - Real-time feed from backend */}
+          <ActivityFeed limit={10} />
         </div>
 
         {/* Top products */}
