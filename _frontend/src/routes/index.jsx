@@ -96,6 +96,7 @@ const InventoryReport = lazy(() => import('@/pages/reports/InventoryReport'))
 const FinancialReport = lazy(() => import('@/pages/reports/FinancialReport'))
 const CustomerReport = lazy(() => import('@/pages/reports/CustomerReport'))
 const EmployeeReport = lazy(() => import('@/pages/reports/EmployeeReport'))
+const DataExport = lazy(() => import('@/pages/export/DataExport'))
 
 const BusinessProfile = lazy(() => import('@/pages/business/BusinessProfile'))
 const BranchManagement = lazy(() => import('@/pages/business/BranchManagement'))
@@ -201,6 +202,8 @@ const router = createBrowserRouter([
       { path: 'reports/financial', element: wrap(FinancialReport) },
       { path: 'reports/customers', element: wrap(CustomerReport) },
       { path: 'reports/employees', element: wrap(EmployeeReport) },
+      // Data Export
+      { path: 'export', element: wrap(DataExport) },
       // Business
       { path: 'business', element: wrap(BusinessProfile) },
       { path: 'business/branches', element: wrap(BranchManagement) },
