@@ -13,42 +13,42 @@ const iconMap = {
 }
 
 const navItems = [
-  { group: 'Main', items: [{ label: 'Dashboard', path: '/dashboard', icon: 'LayoutDashboard' }] },
+  { group: 'Main', items: [{ label: 'Dashboard', path: '/app/dashboard', icon: 'LayoutDashboard' }] },
   {
     group: 'Operations', items: [
-      { label: 'Point of Sale', path: '/sales/pos', icon: 'ShoppingCart', permission: 'sales.create' },
-      { label: 'Sales', path: '/sales', icon: 'TrendingUp', permission: 'sales.view' },
-      { label: 'Purchases', path: '/purchases', icon: 'ShoppingBag', permission: 'purchases.view' },
-      { label: 'Invoices', path: '/invoices', icon: 'FileText', permission: 'invoices.view' },
-      { label: 'Payments', path: '/payments', icon: 'CreditCard', permission: 'finance.view' }
+      { label: 'Point of Sale', path: '/app/sales/pos', icon: 'ShoppingCart', permission: 'sales.create' },
+      { label: 'Sales', path: '/app/sales', icon: 'TrendingUp', permission: 'sales.view' },
+      { label: 'Purchases', path: '/app/purchases', icon: 'ShoppingBag', permission: 'purchases.view' },
+      { label: 'Invoices', path: '/app/invoices', icon: 'FileText', permission: 'invoices.view' },
+      { label: 'Payments', path: '/app/payments', icon: 'CreditCard', permission: 'finance.view' }
     ]
   },
   {
     group: 'Catalog', items: [
-      { label: 'Products', path: '/products', icon: 'Package', permission: 'products.view' },
-      { label: 'Inventory', path: '/inventory', icon: 'Warehouse', permission: 'inventory.view' },
-      { label: 'Suppliers', path: '/suppliers', icon: 'Truck', permission: 'purchases.view' }
+      { label: 'Products', path: '/app/products', icon: 'Package', permission: 'products.view' },
+      { label: 'Inventory', path: '/app/inventory', icon: 'Warehouse', permission: 'inventory.view' },
+      { label: 'Suppliers', path: '/app/suppliers', icon: 'Truck', permission: 'purchases.view' }
     ]
   },
   {
     group: 'People', items: [
-      { label: 'Customers', path: '/customers', icon: 'Users', permission: 'customers.view' },
-      { label: 'Employees', path: '/employees', icon: 'UserCheck', permission: 'employees.view' },
-      { label: 'Payroll', path: '/payroll', icon: 'DollarSign', permission: 'employees.payroll' }
+      { label: 'Customers', path: '/app/customers', icon: 'Users', permission: 'customers.view' },
+      { label: 'Employees', path: '/app/employees', icon: 'UserCheck', permission: 'employees.view' },
+      { label: 'Payroll', path: '/app/payroll', icon: 'DollarSign', permission: 'employees.payroll' }
     ]
   },
   {
     group: 'Finance', items: [
-      { label: 'Finance', path: '/finance', icon: 'PiggyBank', permission: 'finance.view' },
-      { label: 'Accounting', path: '/accounting', icon: 'BookOpen', permission: 'finance.view' },
-      { label: 'Reports', path: '/reports', icon: 'BarChart2', permission: 'reports.view' }
+      { label: 'Finance', path: '/app/finance', icon: 'PiggyBank', permission: 'finance.view' },
+      { label: 'Accounting', path: '/app/accounting', icon: 'BookOpen', permission: 'finance.view' },
+      { label: 'Reports', path: '/app/reports', icon: 'BarChart2', permission: 'reports.view' }
     ]
   },
   {
     group: 'Business', items: [
-      { label: 'Business', path: '/business', icon: 'Building2', permission: 'settings.view' },
-      { label: 'Settings', path: '/settings', icon: 'Settings', permission: 'settings.view' },
-      { label: 'Subscription', path: '/subscriptions', icon: 'Zap', permission: 'settings.edit' }
+      { label: 'Business', path: '/app/business', icon: 'Building2', permission: 'settings.view' },
+      { label: 'Settings', path: '/app/settings', icon: 'Settings', permission: 'settings.view' },
+      { label: 'Subscription', path: '/app/subscriptions', icon: 'Zap', permission: 'settings.edit' }
     ]
   }
 ]
@@ -61,7 +61,7 @@ function NavItem({ item, collapsed }) {
   return (
     <NavLink
       to={item.path}
-      end={item.path === '/sales'}
+      end={item.path === '/app/sales'}
       className={({ isActive }) => cn(
         'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
         'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
