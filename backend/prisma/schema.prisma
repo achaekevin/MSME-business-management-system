@@ -96,6 +96,7 @@ model Business {
   performanceMetrics    PerformanceMetric[]
   performanceCycles     PerformanceCycle[]
   documentTypes         DocumentType[]
+  activityLogs          ActivityLog[]         @relation("BusinessActivities")
 
   @@map("businesses")
 }
@@ -296,6 +297,7 @@ model User {
   documents             Document[]             @relation("DocumentUploadedBy")
   employeeProfile       Employee?
   PosShift              PosShift[]
+  activityLogs          ActivityLog[]          @relation("UserActivities")
 
   @@unique([businessId, email])
   @@index([businessId])
@@ -2307,4 +2309,27 @@ model AuditLog {
   @@index([severity])
   @@index([createdAt])
   @@map("audit_logs")
+}
+
+
+// ============================================================================
+// ACTIVITY FEED
+// ============================================================================
+
+model ActivityLog {
+  id          String   @id @default(uuid())
+  businessId  String
+  userId      String?
+  type        String // sale.created, invoice.paid, etc.
+  description String
+  metadata    String?  @db.Text // JSON string with additional data
+  createdAt   DateTime @default(now())
+
+  business Business @relation("BusinessActivities", fields: [businessId], references: [id], onDelete: Cascade)
+  user     User?    @relation("UserActivities", fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([businessId])
+  @@index([businessId, createdAt])
+  @@index([type])
+  @@map("activity_logs")
 }
