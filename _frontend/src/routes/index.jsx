@@ -106,6 +106,7 @@ const UserManagement = lazy(() => import('@/pages/settings/UserManagement'))
 const SubscriptionsPage = lazy(() => import('@/pages/subscriptions/SubscriptionsPage'))
 const ProfilePage = lazy(() => import('@/pages/profile/ProfilePage'))
 const NotificationsPage = lazy(() => import('@/pages/notifications/NotificationsPage'))
+const NotificationPreferences = lazy(() => import('@/pages/notifications/NotificationPreferences'))
 
 // Documents & AI
 const DocumentsList = lazy(() => import('@/pages/documents/DocumentsList'))
@@ -219,6 +220,7 @@ const router = createBrowserRouter([
       { path: 'profile', element: wrap(ProfilePage) },
       // Notifications
       { path: 'notifications', element: wrap(NotificationsPage) },
+      { path: 'notifications/preferences', element: wrap(NotificationPreferences) },
       // Documents & AI
       { path: 'documents', element: wrap(DocumentsList) },
       { path: 'ai', element: wrap(AIInsights) },
