@@ -50,7 +50,7 @@ export default function ProfilePage() {
                 <div>
                   <p className="font-semibold">{user?.name}</p>
                   <p className="text-sm text-muted-foreground">{user?.email}</p>
-                  <Badge variant="blue" className="mt-1 capitalize">{user?.role}</Badge>
+                  <Badge variant="blue" className="mt-1 capitalize">{user?.role?.name || user?.role || 'User'}</Badge>
                 </div>
               </div>
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -64,7 +64,7 @@ export default function ProfilePage() {
                     <Input type="email" className="mt-1" {...register('email')} />
                   </div>
                 </div>
-                <Button type="submit" isLoading={isSubmitting} leftIcon={<Save className="h-4 w-4" />}>Save changes</Button>
+                <Button type="submit" isLoading={isSubmitting} leftIcon={!isSubmitting && <Save className="h-4 w-4" />}>Save changes</Button>
               </form>
             </CardContent>
           </Card>
