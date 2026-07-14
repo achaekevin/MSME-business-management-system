@@ -449,76 +449,7 @@ model PasswordReset {
   @@map("password_resets")
 }
 
-model ApiKey {
-  id         String    @id @default(uuid())
-  businessId String
-  name       String
-  keyHash    String    @unique
-  keyPrefix  String // shown to user, e.g. "msme_live_xxx"
-  scopes     Json?
-  lastUsedAt DateTime?
-  expiresAt  DateTime?
-  revokedAt  DateTime?
-  createdAt  DateTime  @default(now())
-
-  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
-
-  @@index([businessId])
-  @@map("api_keys")
-}
-
-model Webhook {
-  id              String    @id @default(uuid())
-  businessId      String
-  url             String
-  events          Json // array of event names e.g. ["sale.created", "invoice.paid"]
-  secret          String
-  isActive        Boolean   @default(true)
-  lastTriggeredAt DateTime?
-  createdAt       DateTime  @default(now())
-
-  business   Business          @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  deliveries WebhookDelivery[]
-
-  @@index([businessId])
-  @@map("webhooks")
-}
-
-model WebhookDelivery {
-  id         String   @id @default(uuid())
-  webhookId  String
-  event      String
-  payload    Json
-  statusCode Int?
-  success    Boolean  @default(false)
-  attempt    Int      @default(1)
-  createdAt  DateTime @default(now())
-
-  webhook Webhook @relation(fields: [webhookId], references: [id], onDelete: Cascade)
-
-  @@index([webhookId])
-  @@map("webhook_deliveries")
-}
-
-model AuditLog {
-  id         String   @id @default(uuid())
-  businessId String
-  userId     String?
-  action     String // e.g. "customer.created", "invoice.deleted"
-  entity     String // e.g. "Customer"
-  entityId   String?
-  ipAddress  String?
-  userAgent  String?
-  metadata   Json?
-  createdAt  DateTime @default(now())
-
-  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  user     User?    @relation(fields: [userId], references: [id])
-
-  @@index([businessId])
-  @@index([entity, entityId])
-  @@map("audit_logs")
-}
+// Note: ApiKey, Webhook, WebhookDelivery, and AuditLog models are defined in ENTERPRISE FEATURES section below
 
 // ----------------------------------------------------------------------------
 // CRM: Customer, Supplier
@@ -2350,4 +2281,30 @@ model WebhookDelivery {
   @@index([status])
   @@index([createdAt])
   @@map("webhook_deliveries")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  businessId String
+  userId     String?
+  action     String // e.g. "auth.login.success", "invoice.created", "permission.granted"
+  resource   String // e.g. "auth", "invoice", "inventory", "user"
+  resourceId String?
+  changes    String?  @db.Text // JSON string of changes made
+  ipAddress  String?
+  userAgent  String?
+  metadata   String?  @db.Text // JSON string of additional metadata
+  severity   String   @default("info") // info | medium | high | critical
+  status     String   @default("success") // success | failed
+  createdAt  DateTime @default(now())
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  user     User?    @relation(fields: [userId], references: [id])
+
+  @@index([businessId])
+  @@index([userId])
+  @@index([resource, resourceId])
+  @@index([severity])
+  @@index([createdAt])
+  @@map("audit_logs")
 }
