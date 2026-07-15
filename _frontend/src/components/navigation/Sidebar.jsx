@@ -1,5 +1,4 @@
 import { NavLink, useLocation } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
 import { X, ChevronLeft, ChevronRight, Building2, LayoutDashboard, ShoppingCart, TrendingUp, ShoppingBag, FileText, CreditCard, Package, Warehouse, Truck, Users, UserCheck, DollarSign, PiggyBank, BookOpen, BarChart2, Building, Settings, Zap, Download } from 'lucide-react'
 import { cn } from '@/utils'
 import { useUIStore, useBusinessStore } from '@/store'
@@ -72,18 +71,11 @@ function NavItem({ item, collapsed }) {
       title={collapsed ? item.label : undefined}
     >
       {Icon && <Icon className="h-4 w-4 flex-shrink-0" />}
-      <AnimatePresence>
-        {!collapsed && (
-          <motion.span
-            initial={{ opacity: 0, width: 0 }}
-            animate={{ opacity: 1, width: 'auto' }}
-            exit={{ opacity: 0, width: 0 }}
-            className="overflow-hidden whitespace-nowrap"
-          >
-            {item.label}
-          </motion.span>
-        )}
-      </AnimatePresence>
+      {!collapsed && (
+        <span className="overflow-hidden whitespace-nowrap">
+          {item.label}
+        </span>
+      )}
     </NavLink>
   )
 }
@@ -95,17 +87,12 @@ export function Sidebar() {
   return (
     <>
       {/* Mobile overlay */}
-      <AnimatePresence>
-        {sidebarMobileOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-40 bg-black/50 lg:hidden"
-            onClick={() => setSidebarMobileOpen(false)}
-          />
-        )}
-      </AnimatePresence>
+      {sidebarMobileOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+          onClick={() => setSidebarMobileOpen(false)}
+        />
+      )}
 
       {/* Sidebar */}
       <aside
