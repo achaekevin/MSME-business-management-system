@@ -2,23 +2,17 @@ import { Outlet } from 'react-router-dom'
 import { Sidebar } from '@/components/navigation/Sidebar'
 import { Topbar } from '@/components/navigation/Topbar'
 import { Toaster } from 'react-hot-toast'
-import { useIdleTimeout } from '@/hooks'
 import { useAuthStore } from '@/store/authStore'
 import { useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
 import { useUIStore } from '@/store'
 
 export function AppLayout() {
-  const navigate = useNavigate()
-  const { clearAuth } = useAuthStore()
   const { initTheme } = useUIStore()
 
-  useEffect(() => { initTheme() }, [initTheme])
-
-  useIdleTimeout(() => {
-    clearAuth()
-    navigate('/auth/login?expired=true')
-  }, 30 * 60 * 1000)
+  useEffect(() => { 
+    initTheme() 
+  }, [initTheme])
 
   return (
     <div className="flex h-screen overflow-hidden bg-background" style={{ position: 'fixed', width: '100%', height: '100vh' }}>
