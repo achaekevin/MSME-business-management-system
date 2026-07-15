@@ -114,6 +114,7 @@ const AIInsights = lazy(() => import('@/pages/ai/AIInsights'))
 
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'))
 const UnauthorizedPage = lazy(() => import('@/pages/UnauthorizedPage'))
+const TestPage = lazy(() => import('@/pages/TestPage'))
 
 const router = createBrowserRouter([
   {
@@ -224,6 +225,8 @@ const router = createBrowserRouter([
       // Documents & AI
       { path: 'documents', element: wrap(DocumentsList) },
       { path: 'ai', element: wrap(AIInsights) },
+      // Test
+      { path: 'test', element: wrap(TestPage) },
       // Errors
       { path: 'unauthorized', element: wrap(UnauthorizedPage) }
     ]
