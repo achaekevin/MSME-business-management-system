@@ -1,4 +1,7 @@
 import { Outlet } from 'react-router-dom'
+import { Sidebar } from '@/components/navigation/Sidebar'
+import { Topbar } from '@/components/navigation/Topbar'
+import { Toaster } from 'react-hot-toast'
 
 export function AppLayout() {
   return (
@@ -14,23 +17,18 @@ export function AppLayout() {
       <div style={{
         gridColumn: '1',
         gridRow: '1 / 3',
-        backgroundColor: '#f8f9fa',
-        borderRight: '1px solid #e0e0e0',
-        padding: '1rem'
+        overflow: 'hidden'
       }}>
-        <div style={{ fontWeight: 'bold', marginBottom: '1rem' }}>MSME BMS</div>
+        <Sidebar />
       </div>
 
       {/* Topbar */}
       <div style={{
         gridColumn: '2',
         gridRow: '1',
-        borderBottom: '1px solid #e0e0e0',
-        padding: '1rem',
-        display: 'flex',
-        alignItems: 'center'
+        overflow: 'hidden'
       }}>
-        <div style={{ fontWeight: 'bold' }}>Dashboard</div>
+        <Topbar />
       </div>
 
       {/* Main content */}
@@ -38,10 +36,13 @@ export function AppLayout() {
         gridColumn: '2',
         gridRow: '2',
         overflow: 'auto',
-        padding: '1.5rem'
+        padding: '1.5rem',
+        backgroundColor: 'hsl(var(--background))'
       }}>
         <Outlet />
       </div>
+      
+      <Toaster position="top-right" />
     </div>
   )
 }
