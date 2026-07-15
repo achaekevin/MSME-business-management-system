@@ -2,24 +2,35 @@ import { Outlet } from 'react-router-dom'
 import { Sidebar } from '@/components/navigation/Sidebar'
 import { Topbar } from '@/components/navigation/Topbar'
 import { Toaster } from 'react-hot-toast'
-import { useAuthStore } from '@/store/authStore'
-import { useNavigate } from 'react-router-dom'
-import { useEffect } from 'react'
-import { useUIStore } from '@/store'
+import { useEffect, useRef } from 'react'
 
 export function AppLayout() {
-  const { initTheme } = useUIStore()
+  const initialized = useRef(false)
 
-  useEffect(() => { 
-    initTheme() 
+  useEffect(() => {
+    if (!initialized.current) {
+      // Initialize theme once on mount
+      const savedTheme = localStorage.getItem('ui-store')
+      if (savedTheme) {
+        try {
+          const parsed = JSON.parse(savedTheme)
+          if (parsed.state?.theme === 'dark') {
+            document.documentElement.classList.add('dark')
+          }
+        } catch (e) {
+          // Ignore parse errors
+        }
+      }
+      initialized.current = true
+    }
   }, [])
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background" style={{ position: 'fixed', width: '100%', height: '100vh' }}>
+    <div className="flex h-screen w-screen overflow-hidden bg-background">
       <Sidebar />
       <div className="flex flex-1 flex-col overflow-hidden min-w-0">
         <Topbar />
-        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 lg:p-6" style={{ scrollbarGutter: 'stable' }}>
+        <main className="flex-1 overflow-y-auto p-4 lg:p-6">
           <Outlet />
         </main>
       </div>

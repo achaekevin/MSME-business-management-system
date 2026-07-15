@@ -5,9 +5,7 @@ import { AppRouter } from './routes'
 import './styles/globals.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <Providers>
-      <AppRouter />
-    </Providers>
-  </React.StrictMode>
+  <Providers>
+    <AppRouter />
+  </Providers>
 )
