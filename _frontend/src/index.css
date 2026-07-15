@@ -63,6 +63,7 @@
   * {
     @apply border-border;
     box-sizing: border-box;
+    transform: translate3d(0, 0, 0);
   }
   body {
     @apply bg-background text-foreground;
@@ -79,9 +80,19 @@
     position: fixed;
     inset: 0;
   }
+  
+  /* Force GPU acceleration and prevent repaints */
   * {
-    transform: translateZ(0);
+    will-change: auto;
     backface-visibility: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  /* Disable ALL transitions and animations globally */
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
   }
 }
 

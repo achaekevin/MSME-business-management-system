@@ -30,7 +30,7 @@ const TwoFactor = lazy(() => import('@/pages/auth/TwoFactor'))
 const SessionExpired = lazy(() => import('@/pages/auth/SessionExpired'))
 
 // App pages
-const Dashboard = lazy(() => import('@/pages/dashboard/Dashboard'))
+const Dashboard = lazy(() => import('@/pages/dashboard/DashboardMinimal'))
 const CustomersList = lazy(() => import('@/pages/customers/CustomersList'))
 const CustomerDetail = lazy(() => import('@/pages/customers/CustomerDetail'))
 const CreateCustomer = lazy(() => import('@/pages/customers/CreateCustomer'))
