@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { Sun, Moon, ChevronDown, LogOut, User, Settings, Building2 } from 'lucide-react'
 import { useUIStore } from '@/store'
@@ -14,6 +14,20 @@ export function Topbar() {
   const user = useAuthStore(state => state.user)
   const clearAuth = useAuthStore(state => state.clearAuth)
   const [showUserMenu, setShowUserMenu] = useState(false)
+  const menuRef = useRef(null)
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setShowUserMenu(false)
+      }
+    }
+    
+    if (showUserMenu) {
+      document.addEventListener('mousedown', handleClickOutside)
+      return () => document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showUserMenu])
 
   const handleLogout = async () => {
     try {
@@ -55,7 +69,7 @@ export function Topbar() {
         </button>
 
         {/* User menu */}
-        <div style={{ position: 'relative', marginLeft: '0.25rem' }}>
+        <div ref={menuRef} style={{ position: 'relative', marginLeft: '0.25rem' }}>
           <button
             style={{
               display: 'flex',
@@ -78,79 +92,73 @@ export function Topbar() {
           </button>
 
           {showUserMenu && (
-            <>
-              <div 
-                style={{ position: 'fixed', inset: 0, zIndex: 40 }}
-                onClick={() => setShowUserMenu(false)}
-              />
+            <div style={{
+              position: 'absolute',
+              right: 0,
+              top: '100%',
+              marginTop: '0.25rem',
+              width: '13rem',
+              backgroundColor: 'hsl(var(--popover))',
+              border: '1px solid hsl(var(--border))',
+              borderRadius: '0.5rem',
+              boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
+              zIndex: 50,
+              padding: '0.25rem 0'
+            }}>
               <div style={{
-                position: 'absolute',
-                right: 0,
-                top: '100%',
-                marginTop: '0.25rem',
-                width: '13rem',
-                backgroundColor: 'hsl(var(--popover))',
-                border: '1px solid hsl(var(--border))',
-                borderRadius: '0.5rem',
-                boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
-                zIndex: 50,
-                padding: '0.25rem 0'
+                padding: '0.5rem 0.75rem',
+                borderBottom: '1px solid hsl(var(--border))'
               }}>
-                <div style={{
-                  padding: '0.5rem 0.75rem',
-                  borderBottom: '1px solid hsl(var(--border))'
-                }}>
-                  <p style={{ fontSize: '0.875rem', fontWeight: 500 }}>{user?.name}</p>
-                  <p style={{ fontSize: '0.75rem', color: 'hsl(var(--muted-foreground))' }}>{user?.email}</p>
-                </div>
-                {[
-                  { icon: User, label: 'Profile', path: '/app/profile' },
-                  { icon: Building2, label: 'Business', path: '/app/business' },
-                  { icon: Settings, label: 'Settings', path: '/app/settings' }
-                ].map(item => (
-                  <Link
-                    key={item.path}
-                    to={item.path}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.5rem',
-                      padding: '0.5rem 0.75rem',
-                      fontSize: '0.875rem',
-                      textDecoration: 'none',
-                      color: 'inherit'
-                    }}
-                    className="hover:bg-accent"
-                    onClick={() => setShowUserMenu(false)}
-                  >
-                    <item.icon className="h-4 w-4 text-muted-foreground" />
-                    {item.label}
-                  </Link>
-                ))}
-                <div style={{ borderTop: '1px solid hsl(var(--border))', marginTop: '0.25rem', paddingTop: '0.25rem' }}>
-                  <button
-                    onClick={handleLogout}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.5rem',
-                      padding: '0.5rem 0.75rem',
-                      fontSize: '0.875rem',
-                      color: 'hsl(var(--destructive))',
-                      width: '100%',
-                      border: 'none',
-                      background: 'transparent',
-                      cursor: 'pointer',
-                      textAlign: 'left'
-                    }}
-                    className="hover:bg-destructive/10"
-                  >
-                    <LogOut className="h-4 w-4" />
-                    Log out
-                  </button>
-                </div>
+                <p style={{ fontSize: '0.875rem', fontWeight: 500 }}>{user?.name}</p>
+                <p style={{ fontSize: '0.75rem', color: 'hsl(var(--muted-foreground))' }}>{user?.email}</p>
               </div>
-            </>
+              {[
+                { icon: User, label: 'Profile', path: '/app/profile' },
+                { icon: Building2, label: 'Business', path: '/app/business' },
+                { icon: Settings, label: 'Settings', path: '/app/settings' }
+              ].map(item => (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    padding: '0.5rem 0.75rem',
+                    fontSize: '0.875rem',
+                    textDecoration: 'none',
+                    color: 'inherit'
+                  }}
+                  className="hover:bg-accent"
+                  onClick={() => setShowUserMenu(false)}
+                >
+                  <item.icon className="h-4 w-4 text-muted-foreground" />
+                  {item.label}
+                </Link>
+              ))}
+              <div style={{ borderTop: '1px solid hsl(var(--border))', marginTop: '0.25rem', paddingTop: '0.25rem' }}>
+                <button
+                  onClick={handleLogout}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    padding: '0.5rem 0.75rem',
+                    fontSize: '0.875rem',
+                    color: 'hsl(var(--destructive))',
+                    width: '100%',
+                    border: 'none',
+                    background: 'transparent',
+                    cursor: 'pointer',
+                    textAlign: 'left'
+                  }}
+                  className="hover:bg-destructive/10"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Log out
+                </button>
+              </div>
+            </div>
           )}
         </div>
       </div>
