@@ -3,7 +3,7 @@
  */
 
 const asyncHandler = require('../../helpers/asyncHandler')
-const ApiResponse = require('../../helpers/ApiResponse')
+const { success } = require('../../helpers/response')
 const { exportData, getExportStats, EXPORT_TYPES, EXPORT_FORMATS } = require('./export.service')
 
 /**
@@ -16,19 +16,19 @@ exports.exportData = asyncHandler(async (req, res) => {
   const businessId = req.user.businessId
 
   if (!type || !Object.values(EXPORT_TYPES).includes(type)) {
-    return res.status(400).json(
-      ApiResponse.error('Invalid export type', 400, {
-        validTypes: Object.values(EXPORT_TYPES)
-      })
-    )
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid export type',
+      data: { validTypes: Object.values(EXPORT_TYPES) }
+    })
   }
 
   if (!Object.values(EXPORT_FORMATS).includes(format)) {
-    return res.status(400).json(
-      ApiResponse.error('Invalid export format', 400, {
-        validFormats: Object.values(EXPORT_FORMATS)
-      })
-    )
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid export format',
+      data: { validFormats: Object.values(EXPORT_FORMATS) }
+    })
   }
 
   const filters = { startDate, endDate, limit }
@@ -44,7 +44,11 @@ exports.exportData = asyncHandler(async (req, res) => {
     
     if (type === 'all') {
       // For "all" type, return JSON with multiple CSV files
-      return res.json(ApiResponse.success(result, 'Data exported successfully'))
+      return res.json({
+        success: true,
+        data: result,
+        message: 'Data exported successfully'
+      })
     } else {
       return res.send(result.data)
     }
@@ -54,7 +58,7 @@ exports.exportData = asyncHandler(async (req, res) => {
     return res.send(result.data)
   } else {
     // Excel format - return JSON for frontend to process
-    return res.json(ApiResponse.success(result, 'Data exported successfully'))
+    return success(res, result, 'Data exported successfully')
   }
 })
 
@@ -68,9 +72,7 @@ exports.getExportStats = asyncHandler(async (req, res) => {
 
   const stats = await getExportStats(businessId)
 
-  res.json(
-    ApiResponse.success(stats, 'Export statistics retrieved successfully')
-  )
+  success(res, stats, 'Export statistics retrieved successfully')
 })
 
 /**
@@ -89,10 +91,5 @@ exports.getExportTypes = asyncHandler(async (req, res) => {
     label: format.toUpperCase()
   }))
 
-  res.json(
-    ApiResponse.success(
-      { types, formats },
-      'Export configuration retrieved successfully'
-    )
-  )
+  success(res, { types, formats }, 'Export configuration retrieved successfully')
 })
