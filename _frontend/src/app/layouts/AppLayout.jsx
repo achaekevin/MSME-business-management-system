@@ -1,35 +1,24 @@
 import { Outlet } from 'react-router-dom'
-import { Sidebar } from '@/components/navigation/Sidebar'
-import { Topbar } from '@/components/navigation/Topbar'
 import { Toaster } from 'react-hot-toast'
-import { useEffect, useRef } from 'react'
-import { RenderTracker } from '@/components/debug/RenderTracker'
 
 export function AppLayout() {
-  const initialized = useRef(false)
-
-  useEffect(() => {
-    if (!initialized.current) {
-      // Initialize theme once on mount
-      const savedTheme = localStorage.getItem('ui-store')
-      if (savedTheme) {
-        try {
-          const parsed = JSON.parse(savedTheme)
-          if (parsed.state?.theme === 'dark') {
-            document.documentElement.classList.add('dark')
-          }
-        } catch (e) {
-          // Ignore parse errors
-        }
-      }
-      initialized.current = true
-    }
-  }, [])
-
   return (
     <>
-      <RenderTracker name="AppLayout" />
-      <Sidebar />
+      {/* Minimal static sidebar */}
+      <div style={{
+        position: 'fixed',
+        left: 0,
+        top: 0,
+        bottom: 0,
+        width: '240px',
+        backgroundColor: '#f8f9fa',
+        borderRight: '1px solid #e0e0e0',
+        zIndex: 50
+      }}>
+        <div style={{ padding: '1rem', fontWeight: 'bold' }}>MSME BMS</div>
+      </div>
+
+      {/* Main content area */}
       <div style={{ 
         position: 'fixed',
         left: '240px',
@@ -38,9 +27,21 @@ export function AppLayout() {
         bottom: 0,
         display: 'flex',
         flexDirection: 'column',
-        backgroundColor: 'hsl(var(--background))'
+        backgroundColor: '#ffffff'
       }}>
-        <Topbar />
+        {/* Minimal static topbar */}
+        <div style={{
+          height: '64px',
+          borderBottom: '1px solid #e0e0e0',
+          padding: '0 1rem',
+          display: 'flex',
+          alignItems: 'center',
+          flexShrink: 0
+        }}>
+          <div style={{ fontWeight: 'bold' }}>Dashboard</div>
+        </div>
+
+        {/* Content */}
         <main style={{
           flex: 1,
           overflow: 'auto',
@@ -49,14 +50,8 @@ export function AppLayout() {
           <Outlet />
         </main>
       </div>
-      <Toaster
-        position="top-right"
-        toastOptions={{
-          style: { background: 'hsl(var(--background))', color: 'hsl(var(--foreground))', border: '1px solid hsl(var(--border))' },
-          success: { iconTheme: { primary: '#10b981', secondary: '#fff' } },
-          error: { iconTheme: { primary: '#ef4444', secondary: '#fff' } }
-        }}
-      />
+      
+      <Toaster position="top-right" />
     </>
   )
 }
