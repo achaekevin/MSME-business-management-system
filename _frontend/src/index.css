@@ -65,17 +65,15 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: system-ui, -apple-system, sans-serif;
   }
-}
-
-/* Prevent layout shift and stabilize page */
-html, body, #root {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  position: fixed;
-  margin: 0;
-  padding: 0;
+  html, body, #root {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
 }
 
 /* Add spinner animation */
@@ -86,16 +84,4 @@ html, body, #root {
   to {
     transform: rotate(360deg);
   }
-}
-
-/* Disable problematic animations but keep spinner */
-*, *::before, *::after {
-  animation-duration: 0s !important;
-  animation-delay: 0s !important;
-  transition-duration: 0s !important;
-}
-
-/* Allow spinner animation */
-[style*="animation: spin"] {
-  animation-duration: 1s !important;
 }

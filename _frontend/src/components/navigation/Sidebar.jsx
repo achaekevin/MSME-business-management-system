@@ -81,8 +81,11 @@ function NavItem({ item, collapsed }) {
 }
 
 export function Sidebar() {
-  const { sidebarCollapsed, sidebarMobileOpen, toggleSidebar, setSidebarMobileOpen } = useUIStore()
-  const { business } = useBusinessStore()
+  const sidebarCollapsed = useUIStore(state => state.sidebarCollapsed)
+  const sidebarMobileOpen = useUIStore(state => state.sidebarMobileOpen)
+  const toggleSidebar = useUIStore(state => state.toggleSidebar)
+  const setSidebarMobileOpen = useUIStore(state => state.setSidebarMobileOpen)
+  const business = useBusinessStore(state => state.business)
 
   return (
     <>

@@ -37,7 +37,10 @@ export function ActivityFeed({ limit = 10, className = '' }) {
       const res = await axiosInstance.get(`/activity?limit=${limit}`)
       return res.data.data
     },
-    refetchInterval: 30000 // Refresh every 30 seconds
+    staleTime: 60000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchInterval: false
   })
 
   if (isLoading) {
