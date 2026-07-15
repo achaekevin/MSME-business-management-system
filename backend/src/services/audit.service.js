@@ -1,8 +1,3 @@
-/**
- * Comprehensive Audit Trail Service
- * Tracks all important system activities for compliance and security
- */
-
 const { prisma } = require('../config/database')
 const logger = require('../config/logger')
 
