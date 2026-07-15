@@ -5,7 +5,7 @@
 const express = require('express')
 const router = express.Router()
 const exportController = require('./export.controller')
-const { authenticate } = require('../../middleware/auth')
+const { authenticate } = require('../../middleware/auth.middleware')
 const { requirePermission } = require('../../middleware/permission.middleware')
 
 // All routes require authentication
