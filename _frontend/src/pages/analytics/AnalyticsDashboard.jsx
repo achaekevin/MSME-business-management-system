@@ -1,6 +1,5 @@
 import { useState } from 'react'
-import { useQuery } from '@tantml:invoke>
-<parameter name="query">
+import { useQuery } from '@tanstack/react-query'
 import { TrendingUp, TrendingDown, DollarSign, ShoppingCart, Users, Package, ArrowUpRight, ArrowDownRight, Calendar } from 'lucide-react'
 import { Helmet } from 'react-helmet-async'
 import { Card, CardHeader, CardTitle, CardContent, Button, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Skeleton, Badge } from '@/components/ui'
