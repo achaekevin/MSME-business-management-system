@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { Menu, Search, Bell, Sun, Moon, ChevronDown, LogOut, User, Settings, Building2 } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/utils'
 import { useUIStore, useBusinessStore, useNotificationStore } from '@/store'
 import { useAuthStore } from '@/store/authStore'
@@ -92,14 +91,8 @@ export function Topbar() {
             )}
           </button>
 
-          <AnimatePresence>
-            {showNotifications && (
-              <motion.div
-                initial={{ opacity: 0, y: -8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                className="absolute right-0 top-full mt-1 w-80 bg-popover border rounded-lg shadow-lg z-50 overflow-hidden"
-              >
+          {showNotifications && (
+            <div className="absolute right-0 top-full mt-1 w-80 bg-popover border rounded-lg shadow-lg z-50 overflow-hidden">
                 <div className="flex items-center justify-between px-4 py-3 border-b">
                   <h3 className="font-semibold text-sm">Notifications</h3>
                   {unreadCount > 0 && (
@@ -135,9 +128,8 @@ export function Topbar() {
                     View all notifications
                   </Link>
                 </div>
-              </motion.div>
+              </div>
             )}
-          </AnimatePresence>
         </div>
 
         {/* User menu */}
@@ -151,14 +143,8 @@ export function Topbar() {
             <ChevronDown className="h-3 w-3 text-muted-foreground hidden sm:block" />
           </button>
 
-          <AnimatePresence>
-            {showUserMenu && (
-              <motion.div
-                initial={{ opacity: 0, y: -8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                className="absolute right-0 top-full mt-1 w-52 bg-popover border rounded-lg shadow-lg z-50 py-1"
-              >
+          {showUserMenu && (
+            <div className="absolute right-0 top-full mt-1 w-52 bg-popover border rounded-lg shadow-lg z-50 py-1">
                 <div className="px-3 py-2 border-b">
                   <p className="text-sm font-medium">{user?.name}</p>
                   <p className="text-xs text-muted-foreground">{user?.email}</p>
@@ -187,9 +173,8 @@ export function Topbar() {
                     Log out
                   </button>
                 </div>
-              </motion.div>
+              </div>
             )}
-          </AnimatePresence>
         </div>
       </div>
     </header>
