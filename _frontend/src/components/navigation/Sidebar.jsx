@@ -101,12 +101,19 @@ export function Sidebar() {
 
       {/* Sidebar */}
       <aside
-        className={cn(
-          'fixed left-0 top-0 z-50 h-full flex flex-col bg-sidebar border-r border-sidebar-border transition-all duration-200',
-          'lg:relative lg:z-auto',
-          !sidebarMobileOpen && 'hidden lg:flex',
-          sidebarCollapsed ? 'w-[60px]' : 'w-[240px]'
-        )}
+        style={{
+          position: 'fixed',
+          left: 0,
+          top: 0,
+          bottom: 0,
+          width: sidebarCollapsed ? '60px' : '240px',
+          zIndex: 50,
+          display: 'flex',
+          flexDirection: 'column',
+          backgroundColor: 'hsl(var(--sidebar))',
+          borderRight: '1px solid hsl(var(--sidebar-border))',
+          transition: 'none'
+        }}
       >
         {/* Logo area */}
         <div className={cn('flex h-16 items-center border-b border-sidebar-border px-3', sidebarCollapsed ? 'justify-center' : 'justify-between')}>

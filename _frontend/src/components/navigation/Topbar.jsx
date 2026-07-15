@@ -38,7 +38,19 @@ export function Topbar() {
   }
 
   return (
-    <header className="h-16 border-b bg-background flex items-center gap-4 px-4 sticky top-0 z-30">
+    <header style={{
+      height: '64px',
+      borderBottom: '1px solid hsl(var(--border))',
+      backgroundColor: 'hsl(var(--background))',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '1rem',
+      padding: '0 1rem',
+      position: 'sticky',
+      top: 0,
+      zIndex: 30,
+      flexShrink: 0
+    }}>
       <RenderTracker name="Topbar" />
       {/* Mobile menu */}
       <button
