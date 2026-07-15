@@ -26,7 +26,7 @@ module.exports = {
   rateLimit: {
     windowMs: 15 * 60 * 1000,
     max: parseInt(process.env.RATE_LIMIT_MAX || '300', 10),
-    authMax: parseInt(process.env.AUTH_RATE_LIMIT_MAX || '10', 10)
+    authMax: parseInt(process.env.AUTH_RATE_LIMIT_MAX || '50', 10) // Increased for dev/testing
   },
 
   account: {
