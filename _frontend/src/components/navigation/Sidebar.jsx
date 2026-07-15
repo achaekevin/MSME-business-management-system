@@ -108,14 +108,13 @@ export function Sidebar() {
       </AnimatePresence>
 
       {/* Sidebar */}
-      <motion.aside
+      <aside
         className={cn(
-          'fixed left-0 top-0 z-50 h-full flex flex-col bg-sidebar border-r border-sidebar-border',
+          'fixed left-0 top-0 z-50 h-full flex flex-col bg-sidebar border-r border-sidebar-border transition-all duration-200',
           'lg:relative lg:z-auto',
-          !sidebarMobileOpen && 'hidden lg:flex'
+          !sidebarMobileOpen && 'hidden lg:flex',
+          sidebarCollapsed ? 'w-[60px]' : 'w-[240px]'
         )}
-        animate={{ width: sidebarCollapsed ? 60 : 240 }}
-        transition={{ duration: 0.2 }}
       >
         {/* Logo area */}
         <div className={cn('flex h-16 items-center border-b border-sidebar-border px-3', sidebarCollapsed ? 'justify-center' : 'justify-between')}>
@@ -161,7 +160,7 @@ export function Sidebar() {
         >
           <X className="h-4 w-4" />
         </button>
-      </motion.aside>
+      </aside>
     </>
   )
 }
