@@ -27,12 +27,25 @@ export function AppLayout() {
   }, [])
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-background">
+    <>
       <RenderTracker name="AppLayout" />
       <Sidebar />
-      <div className="flex flex-1 flex-col overflow-hidden min-w-0">
+      <div style={{ 
+        position: 'fixed',
+        left: '240px',
+        top: 0,
+        right: 0,
+        bottom: 0,
+        display: 'flex',
+        flexDirection: 'column',
+        backgroundColor: 'hsl(var(--background))'
+      }}>
         <Topbar />
-        <main className="flex-1 overflow-y-auto p-4 lg:p-6">
+        <main style={{
+          flex: 1,
+          overflow: 'auto',
+          padding: '1.5rem'
+        }}>
           <Outlet />
         </main>
       </div>
@@ -44,6 +57,6 @@ export function AppLayout() {
           error: { iconTheme: { primary: '#ef4444', secondary: '#fff' } }
         }}
       />
-    </div>
+    </>
   )
 }
