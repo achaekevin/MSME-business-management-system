@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion'
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react'
 import { cn, formatCurrency, formatCompact, formatPercent } from '@/utils'
 import { Card, CardContent } from '@/components/ui'
@@ -43,7 +42,7 @@ export function StatCard({ title, value, change, period, format = 'number', icon
   }
 
   return (
-    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
+    <div>
       <Card className="hover:shadow-md transition-shadow">
         <CardContent className="p-6">
           <div className="flex items-center justify-between mb-4">
@@ -74,7 +73,7 @@ export function StatCard({ title, value, change, period, format = 'number', icon
           )}
         </CardContent>
       </Card>
-    </motion.div>
+    </div>
   )
 }
 

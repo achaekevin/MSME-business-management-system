@@ -12,7 +12,7 @@ export function AppLayout() {
 
   useEffect(() => { 
     initTheme() 
-  }, [initTheme])
+  }, [])
 
   return (
     <div className="flex h-screen overflow-hidden bg-background" style={{ position: 'fixed', width: '100%', height: '100vh' }}>
