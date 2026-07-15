@@ -1,15 +1,12 @@
-import { useQuery } from '@tanstack/react-query'
 import { DollarSign, TrendingUp, ShoppingBag, Users, FileText, Package, AlertTriangle, Clock } from 'lucide-react'
 import { Helmet } from 'react-helmet-async'
 import { Link } from 'react-router-dom'
-import { memo } from 'react'
+import { memo, useMemo } from 'react'
 import { StatCard, StatCardGrid } from '@/components/cards/StatCard'
-import { RevenueChart, SalesBarChart, PieDonutChart } from '@/components/charts'
-import { Card, CardHeader, CardTitle, CardContent, Badge, Avatar, Skeleton } from '@/components/ui'
-import { ActivityFeed } from '@/components/activity/ActivityFeed'
+import { RevenueChart, SalesBarChart } from '@/components/charts'
+import { Card, CardHeader, CardTitle, CardContent, Badge } from '@/components/ui'
 import { useAuthStore } from '@/store/authStore'
-import { formatCurrency, formatDate, formatRelativeTime } from '@/utils'
-import { INVOICE_STATUSES, SALE_STATUSES } from '@/constants'
+import { formatCurrency, formatDate } from '@/utils'
 
 // Mock data for demo
 const mockStats = {
@@ -58,9 +55,11 @@ const mockOutstandingInvoices = [
 ]
 
 const Dashboard = memo(function Dashboard() {
-  const { user } = useAuthStore()
+  const userName = useAuthStore(state => state.user?.name)
   const hour = new Date().getHours()
-  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening'
+  const greeting = useMemo(() => {
+    return hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening'
+  }, [hour])
 
   return (
     <>
@@ -70,7 +69,7 @@ const Dashboard = memo(function Dashboard() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-bold">{greeting}, {user?.name?.split(' ')[0] || 'there'} 👋</h1>
+            <h1 className="text-2xl font-bold">{greeting}, {userName?.split(' ')[0] || 'there'} 👋</h1>
             <p className="text-muted-foreground mt-0.5">Here's what's happening with your business today.</p>
           </div>
           <div className="flex gap-2 text-sm">
@@ -91,7 +90,7 @@ const Dashboard = memo(function Dashboard() {
         {/* Alert cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <Link to="/app/invoices?status=overdue">
-            <Card className="hover:shadow-md transition-shadow border-orange-200 bg-orange-50 dark:bg-orange-900/10">
+            <Card className="hover:shadow-md border-orange-200 bg-orange-50 dark:bg-orange-900/10">
               <CardContent className="p-4 flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-100 dark:bg-orange-900/30">
                   <FileText className="h-5 w-5 text-orange-600" />
@@ -104,7 +103,7 @@ const Dashboard = memo(function Dashboard() {
             </Card>
           </Link>
           <Link to="/app/inventory/stock?filter=low">
-            <Card className="hover:shadow-md transition-shadow border-red-200 bg-red-50 dark:bg-red-900/10">
+            <Card className="hover:shadow-md border-red-200 bg-red-50 dark:bg-red-900/10">
               <CardContent className="p-4 flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-100 dark:bg-red-900/30">
                   <AlertTriangle className="h-5 w-5 text-red-600" />
@@ -117,7 +116,7 @@ const Dashboard = memo(function Dashboard() {
             </Card>
           </Link>
           <Link to="/app/payments?status=pending">
-            <Card className="hover:shadow-md transition-shadow border-yellow-200 bg-yellow-50 dark:bg-yellow-900/10">
+            <Card className="hover:shadow-md border-yellow-200 bg-yellow-50 dark:bg-yellow-900/10">
               <CardContent className="p-4 flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-yellow-100 dark:bg-yellow-900/30">
                   <Clock className="h-5 w-5 text-yellow-600" />
@@ -130,7 +129,7 @@ const Dashboard = memo(function Dashboard() {
             </Card>
           </Link>
           <Link to="/app/customers">
-            <Card className="hover:shadow-md transition-shadow border-blue-200 bg-blue-50 dark:bg-blue-900/10">
+            <Card className="hover:shadow-md border-blue-200 bg-blue-50 dark:bg-blue-900/10">
               <CardContent className="p-4 flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
                   <Users className="h-5 w-5 text-blue-600" />
@@ -180,8 +179,18 @@ const Dashboard = memo(function Dashboard() {
             </Card>
           </div>
 
-          {/* Recent activity - Real-time feed from backend */}
-          <ActivityFeed limit={10} />
+          {/* Activity placeholder */}
+          <Card>
+            <CardHeader className="py-4">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Clock className="h-4 w-4" />
+                Recent Activity
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground text-center py-8">No recent activity</p>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Top products */}
