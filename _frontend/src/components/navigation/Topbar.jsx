@@ -8,6 +8,7 @@ import { Avatar, Badge } from '@/components/ui'
 import { formatRelativeTime } from '@/utils'
 import toast from 'react-hot-toast'
 import { authService } from '@/services/authService'
+import { RenderTracker } from '@/components/debug/RenderTracker'
 
 export function Topbar() {
   const navigate = useNavigate()
@@ -38,6 +39,7 @@ export function Topbar() {
 
   return (
     <header className="h-16 border-b bg-background flex items-center gap-4 px-4 sticky top-0 z-30">
+      <RenderTracker name="Topbar" />
       {/* Mobile menu */}
       <button
         className="lg:hidden p-2 rounded-md hover:bg-accent"

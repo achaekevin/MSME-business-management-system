@@ -3,6 +3,7 @@ import { Sidebar } from '@/components/navigation/Sidebar'
 import { Topbar } from '@/components/navigation/Topbar'
 import { Toaster } from 'react-hot-toast'
 import { useEffect, useRef } from 'react'
+import { RenderTracker } from '@/components/debug/RenderTracker'
 
 export function AppLayout() {
   const initialized = useRef(false)
@@ -27,6 +28,7 @@ export function AppLayout() {
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-background">
+      <RenderTracker name="AppLayout" />
       <Sidebar />
       <div className="flex flex-1 flex-col overflow-hidden min-w-0">
         <Topbar />
