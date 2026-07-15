@@ -25,7 +25,8 @@ export function AppLayout() {
         <main style={{
           flex: 1,
           overflow: 'auto',
-          padding: '1.5rem'
+          padding: '1.5rem',
+          WebkitOverflowScrolling: 'touch'
         }}>
           <Outlet />
         </main>

@@ -87,6 +87,9 @@ export function Sidebar() {
   const toggleSidebar = useUIStore(state => state.toggleSidebar)
   const setSidebarMobileOpen = useUIStore(state => state.setSidebarMobileOpen)
   const business = useBusinessStore(state => state.business)
+  
+  // Fixed width - no dynamic changes
+  const width = '240px'
 
   return (
     <>
@@ -105,34 +108,48 @@ export function Sidebar() {
           left: 0,
           top: 0,
           bottom: 0,
-          width: sidebarCollapsed ? '60px' : '240px',
+          width: width,
           zIndex: 50,
           display: 'flex',
           flexDirection: 'column',
           backgroundColor: 'hsl(var(--sidebar))',
-          borderRight: '1px solid hsl(var(--sidebar-border))',
-          transition: 'none'
+          borderRight: '1px solid hsl(var(--sidebar-border))'
         }}
       >
         {/* Logo area */}
-        <div className={cn('flex h-16 items-center border-b border-sidebar-border px-3', sidebarCollapsed ? 'justify-center' : 'justify-between')}>
-          {!sidebarCollapsed && (
-            <div className="flex items-center gap-2 min-w-0">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground text-xs font-bold flex-shrink-0">
-                {business?.name?.[0] || 'M'}
-              </div>
-              <div className="min-w-0">
-                <p className="text-sm font-semibold truncate">{business?.name || 'My Business'}</p>
-                <p className="text-xs text-sidebar-foreground/50 truncate">Business</p>
-              </div>
+        <div style={{
+          display: 'flex',
+          height: '64px',
+          alignItems: 'center',
+          borderBottom: '1px solid hsl(var(--sidebar-border))',
+          padding: '0 0.75rem',
+          justifyContent: 'space-between'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: 0 }}>
+            <div style={{
+              display: 'flex',
+              height: '32px',
+              width: '32px',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: '0.5rem',
+              backgroundColor: 'hsl(var(--primary))',
+              color: 'hsl(var(--primary-foreground))',
+              fontSize: '0.75rem',
+              fontWeight: 'bold',
+              flexShrink: 0
+            }}>
+              {business?.name?.[0] || 'M'}
             </div>
-          )}
-          <button
-            onClick={() => { toggleSidebar(); setSidebarMobileOpen(false) }}
-            className="flex-shrink-0 rounded p-1 hover:bg-sidebar-accent text-sidebar-foreground/60"
-          >
-            {sidebarCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-          </button>
+            <div style={{ minWidth: 0 }}>
+              <p style={{ fontSize: '0.875rem', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {business?.name || 'My Business'}
+              </p>
+              <p style={{ fontSize: '0.75rem', color: 'hsl(var(--sidebar-foreground) / 0.5)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                Business
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Nav */}
