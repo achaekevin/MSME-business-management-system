@@ -4,7 +4,7 @@ import { cn } from '@/utils'
 import { useUIStore, useBusinessStore } from '@/store'
 import { usePermission } from '@/hooks'
 import { Avatar } from '@/components/ui'
-import { RenderTracker } from '@/components/debug/RenderTracker'
+import { memo } from 'react'
 
 const iconMap = {
   LayoutDashboard, ShoppingCart, TrendingUp, ShoppingBag, FileText, CreditCard,
@@ -90,7 +90,6 @@ export function Sidebar() {
 
   return (
     <>
-      <RenderTracker name="Sidebar" />
       {/* Mobile overlay */}
       {sidebarMobileOpen && (
         <div

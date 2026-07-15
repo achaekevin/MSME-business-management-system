@@ -1,24 +1,16 @@
 import { Outlet } from 'react-router-dom'
+import { Sidebar } from '@/components/navigation/Sidebar'
+import { Topbar } from '@/components/navigation/Topbar'
 import { Toaster } from 'react-hot-toast'
+import { memo } from 'react'
+
+const MemoizedSidebar = memo(Sidebar)
+const MemoizedTopbar = memo(Topbar)
 
 export function AppLayout() {
   return (
     <>
-      {/* Minimal static sidebar */}
-      <div style={{
-        position: 'fixed',
-        left: 0,
-        top: 0,
-        bottom: 0,
-        width: '240px',
-        backgroundColor: '#f8f9fa',
-        borderRight: '1px solid #e0e0e0',
-        zIndex: 50
-      }}>
-        <div style={{ padding: '1rem', fontWeight: 'bold' }}>MSME BMS</div>
-      </div>
-
-      {/* Main content area */}
+      <MemoizedSidebar />
       <div style={{ 
         position: 'fixed',
         left: '240px',
@@ -27,21 +19,9 @@ export function AppLayout() {
         bottom: 0,
         display: 'flex',
         flexDirection: 'column',
-        backgroundColor: '#ffffff'
+        backgroundColor: 'hsl(var(--background))'
       }}>
-        {/* Minimal static topbar */}
-        <div style={{
-          height: '64px',
-          borderBottom: '1px solid #e0e0e0',
-          padding: '0 1rem',
-          display: 'flex',
-          alignItems: 'center',
-          flexShrink: 0
-        }}>
-          <div style={{ fontWeight: 'bold' }}>Dashboard</div>
-        </div>
-
-        {/* Content */}
+        <MemoizedTopbar />
         <main style={{
           flex: 1,
           overflow: 'auto',
@@ -50,8 +30,14 @@ export function AppLayout() {
           <Outlet />
         </main>
       </div>
-      
-      <Toaster position="top-right" />
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          style: { background: 'hsl(var(--background))', color: 'hsl(var(--foreground))', border: '1px solid hsl(var(--border))' },
+          success: { iconTheme: { primary: '#10b981', secondary: '#fff' } },
+          error: { iconTheme: { primary: '#ef4444', secondary: '#fff' } }
+        }}
+      />
     </>
   )
 }

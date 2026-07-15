@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { DollarSign, TrendingUp, ShoppingBag, Users, FileText, Package, AlertTriangle, Clock } from 'lucide-react'
 import { Helmet } from 'react-helmet-async'
 import { Link } from 'react-router-dom'
+import { memo } from 'react'
 import { StatCard, StatCardGrid } from '@/components/cards/StatCard'
 import { RevenueChart, SalesBarChart, PieDonutChart } from '@/components/charts'
 import { Card, CardHeader, CardTitle, CardContent, Badge, Avatar, Skeleton } from '@/components/ui'
@@ -56,7 +57,7 @@ const mockOutstandingInvoices = [
   { id: 'INV-0091', customer: 'Bright Solutions', amount: 5200, dueDate: '2024-07-20', status: 'sent' }
 ]
 
-export default function Dashboard() {
+const Dashboard = memo(function Dashboard() {
   const { user } = useAuthStore()
   const hour = new Date().getHours()
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening'
@@ -217,4 +218,6 @@ export default function Dashboard() {
       </div>
     </>
   )
-}
+})
+
+export default Dashboard

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, memo } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { Menu, Search, Bell, Sun, Moon, ChevronDown, LogOut, User, Settings, Building2 } from 'lucide-react'
 import { cn } from '@/utils'
@@ -8,7 +8,6 @@ import { Avatar, Badge } from '@/components/ui'
 import { formatRelativeTime } from '@/utils'
 import toast from 'react-hot-toast'
 import { authService } from '@/services/authService'
-import { RenderTracker } from '@/components/debug/RenderTracker'
 
 export function Topbar() {
   const navigate = useNavigate()
@@ -51,7 +50,6 @@ export function Topbar() {
       zIndex: 30,
       flexShrink: 0
     }}>
-      <RenderTracker name="Topbar" />
       {/* Mobile menu */}
       <button
         className="lg:hidden p-2 rounded-md hover:bg-accent"
