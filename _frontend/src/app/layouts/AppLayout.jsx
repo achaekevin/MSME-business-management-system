@@ -26,7 +26,9 @@ export function AppLayout() {
       <div style={{
         gridColumn: '2',
         gridRow: '1',
-        overflow: 'hidden'
+        overflow: 'visible',
+        position: 'relative',
+        zIndex: 40
       }}>
         <Topbar />
       </div>

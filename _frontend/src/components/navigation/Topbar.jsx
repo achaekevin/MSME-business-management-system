@@ -102,7 +102,7 @@ export function Topbar() {
               border: '1px solid hsl(var(--border))',
               borderRadius: '0.5rem',
               boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
-              zIndex: 50,
+              zIndex: 9999,
               padding: '0.25rem 0'
             }}>
               <div style={{
