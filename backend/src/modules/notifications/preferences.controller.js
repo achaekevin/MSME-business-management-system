@@ -3,7 +3,7 @@
  */
 
 const asyncHandler = require('../../helpers/asyncHandler')
-const ApiResponse = require('../../helpers/ApiResponse')
+const { success } = require('../../helpers/response')
 const preferencesService = require('./preferences.service')
 
 /**
@@ -14,9 +14,7 @@ const preferencesService = require('./preferences.service')
 exports.getPreferences = asyncHandler(async (req, res) => {
   const preferences = await preferencesService.getUserPreferences(req.user.id)
 
-  res.json(
-    ApiResponse.success(preferences, 'Preferences retrieved successfully')
-  )
+  success(res, preferences, 'Preferences retrieved successfully')
 })
 
 /**
@@ -30,9 +28,7 @@ exports.updatePreferences = asyncHandler(async (req, res) => {
     req.body
   )
 
-  res.json(
-    ApiResponse.success(preferences, 'Preferences updated successfully')
-  )
+  success(res, preferences, 'Preferences updated successfully')
 })
 
 /**
@@ -43,9 +39,7 @@ exports.updatePreferences = asyncHandler(async (req, res) => {
 exports.resetPreferences = asyncHandler(async (req, res) => {
   const preferences = await preferencesService.resetPreferences(req.user.id)
 
-  res.json(
-    ApiResponse.success(preferences, 'Preferences reset to defaults')
-  )
+  success(res, preferences, 'Preferences reset to defaults')
 })
 
 /**
@@ -54,10 +48,5 @@ exports.resetPreferences = asyncHandler(async (req, res) => {
  * @access  Private
  */
 exports.getDefaults = asyncHandler(async (req, res) => {
-  res.json(
-    ApiResponse.success(
-      preferencesService.DEFAULT_PREFERENCES,
-      'Default preferences retrieved'
-    )
-  )
+  success(res, preferencesService.DEFAULT_PREFERENCES, 'Default preferences retrieved')
 })
