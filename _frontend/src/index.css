@@ -78,9 +78,24 @@ html, body, #root {
   padding: 0;
 }
 
-/* Disable all animations globally to prevent shake */
+/* Add spinner animation */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Disable problematic animations but keep spinner */
 *, *::before, *::after {
   animation-duration: 0s !important;
   animation-delay: 0s !important;
   transition-duration: 0s !important;
+}
+
+/* Allow spinner animation */
+[style*="animation: spin"] {
+  animation-duration: 1s !important;
 }
