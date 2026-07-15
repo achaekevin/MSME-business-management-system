@@ -17,7 +17,6 @@ export default function Login() {
   const { setAuth, setTwoFactorPending } = useAuthStore()
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
-  const from = location.state?.from?.pathname || '/app/dashboard'
   const expired = new URLSearchParams(location.search).get('expired')
 
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm({
@@ -36,7 +35,7 @@ export default function Login() {
       }
       setAuth(res.data.user, res.data.token, res.data.refreshToken)
       toast.success(`Welcome back, ${res.data.user.name}!`)
-      navigate(from, { replace: true })
+      navigate('/app/dashboard', { replace: true })
     } catch (err) {
       setError(err.message || 'Invalid email or password')
     }

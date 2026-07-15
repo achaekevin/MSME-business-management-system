@@ -32,7 +32,7 @@ export function Topbar() {
       await authService.logout()
     } finally {
       clearAuth()
-      navigate('/auth/login')
+      window.location.href = '/auth/login'
       toast.success('Logged out')
     }
   }
