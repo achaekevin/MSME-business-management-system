@@ -12,11 +12,9 @@
 .env.example
 **/.env.example
 
-# ── README & Documentation (user's request) ───────────────────────────────────
-README.md
-**/README.md
-*.md
-!CHANGELOG.md
+# ── Documentation ─────────────────────────────────────────────────────────────
+# README.md is tracked
+
 
 # ── Node ─────────────────────────────────────────────────────────────────────
 node_modules/
