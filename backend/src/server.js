@@ -14,26 +14,30 @@ async function boot() {
     await connectDatabase()
     logger.info('Database ready')
 
-    // Redis client connects lazily on first command; verify it here
+    // Redis client connects lazily; verify connection if Redis is running
     let redisAvailable = false
     let redisVersionOk = false
     try {
-      await redisClient.ping()
-      const redisInfo = await redisClient.info('server')
-      const versionMatch = redisInfo.match(/redis_version:(\d+)\.(\d+)\.(\d+)/)
-      if (versionMatch) {
-        const majorVersion = parseInt(versionMatch[1])
-        redisVersionOk = majorVersion >= 5
+      await Promise.race([
+        redisClient.connect().catch(() => {}),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Redis connection timeout')), 1000))
+      ])
+      if (redisClient.status === 'ready' || redisClient.status === 'connect') {
+        const redisInfo = await redisClient.info('server')
+        const versionMatch = redisInfo.match(/redis_version:(\d+)\.(\d+)\.(\d+)/)
+        if (versionMatch) {
+          const majorVersion = parseInt(versionMatch[1], 10)
+          redisVersionOk = majorVersion >= 5
+        }
+        logger.info('✅ Redis ready')
+        redisAvailable = true
+
+        if (!redisVersionOk) {
+          logger.warn('⚠️  Redis version < 5.0.0 detected — BullMQ queue features disabled')
+        }
       }
-      logger.info('Redis ready')
-      redisAvailable = true
-      
-      if (!redisVersionOk) {
-        logger.warn('⚠️  Redis version < 5.0.0 detected — BullMQ queue features will be disabled')
-      }
-    } catch (err) {
-      logger.warn('⚠️  Redis not available — queue features disabled')
-      logger.warn(`Redis error: ${err.message}`)
+    } catch {
+      logger.info('ℹ️  Redis offline — running in in-memory / cache-bypass mode')
     }
 
     // Ensure object-storage bucket exists (creates it if not)
