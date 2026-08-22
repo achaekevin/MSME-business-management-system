@@ -4,8 +4,8 @@ const createProductSchema = z.object({
   name: z.string().min(2, 'Product name must be at least 2 characters'),
   sku: z.string().min(1, 'SKU is required'),
   description: z.string().optional(),
-  categoryId: z.string().uuid().optional().nullable(),
-  unitId: z.string().uuid().optional().nullable(),
+  categoryId: z.string().optional().nullable().transform(v => (v === '' || !v ? null : v)),
+  unitId: z.string().optional().nullable().transform(v => (v === '' || !v ? null : v)),
   costPrice: z.coerce.number().min(0).default(0),
   sellingPrice: z.coerce.number().min(0).default(0),
   barcode: z.string().optional(),
@@ -18,9 +18,9 @@ const updateProductSchema = createProductSchema.partial()
 
 const listProductsQuerySchema = z.object({
   page: z.coerce.number().int().min(1).optional(),
-  limit: z.coerce.number().int().min(1).max(100).optional(),
-  search: z.string().optional(),
-  categoryId: z.string().uuid().optional(),
+  limit: z.coerce.number().int().min(1).max(1000).optional(),
+  search: z.string().optional().transform(v => (v === '' ? undefined : v)),
+  categoryId: z.string().optional().transform(v => (v === '' ? undefined : v)),
   lowStock: z.coerce.boolean().optional(),
   sortBy: z.string().optional(),
   sortOrder: z.enum(['asc', 'desc']).optional()

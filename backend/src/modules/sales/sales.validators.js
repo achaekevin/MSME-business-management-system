@@ -30,13 +30,13 @@ const voidSaleSchema = z.object({
 
 const listSalesQuerySchema = z.object({
   page: z.coerce.number().int().min(1).optional(),
-  limit: z.coerce.number().int().min(1).max(100).optional(),
-  search: z.string().optional(),
-  status: z.string().optional(),
-  customerId: z.string().uuid().optional(),
-  branchId: z.string().uuid().optional(),
-  startDate: z.string().optional(),
-  endDate: z.string().optional(),
+  limit: z.coerce.number().int().min(1).max(1000).optional(),
+  search: z.string().optional().transform(v => (v === '' ? undefined : v)),
+  status: z.string().optional().transform(v => (v === '' ? undefined : v)),
+  customerId: z.string().optional().transform(v => (v === '' ? undefined : v)),
+  branchId: z.string().optional().transform(v => (v === '' ? undefined : v)),
+  startDate: z.string().optional().transform(v => (v === '' ? undefined : v)),
+  endDate: z.string().optional().transform(v => (v === '' ? undefined : v)),
   sortBy: z.string().optional(),
   sortOrder: z.enum(['asc', 'desc']).optional()
 })

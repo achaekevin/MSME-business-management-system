@@ -75,6 +75,6 @@ module.exports = {
 
   pagination: {
     defaultLimit: 25,
-    maxLimit: 100
+    maxLimit: 1000
   }
 }

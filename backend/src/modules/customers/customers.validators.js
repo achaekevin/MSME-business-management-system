@@ -29,10 +29,10 @@ const updateCustomerSchema = createCustomerSchema.partial()
 
 const listCustomersQuerySchema = z.object({
   page: z.coerce.number().int().min(1).optional(),
-  limit: z.coerce.number().int().min(1).max(100).optional(),
-  search: z.string().optional(),
+  limit: z.coerce.number().int().min(1).max(1000).optional(),
+  search: z.string().optional().transform(v => (v === '' ? undefined : v)),
   type: z.enum(['individual', 'business', '']).optional(),
-  groupId: z.string().uuid().optional(),
+  groupId: z.string().optional().transform(v => (v === '' ? undefined : v)),
   sortBy: z.string().optional(),
   sortOrder: z.enum(['asc', 'desc']).optional()
 })
