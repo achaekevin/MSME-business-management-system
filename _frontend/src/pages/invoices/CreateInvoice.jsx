@@ -11,6 +11,7 @@ import { useForm, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { invoiceSchema } from '@/validations'
 import { invoiceService, customerService, productService } from '@/services'
+import { formatCurrency } from '@/utils'
 import toast from 'react-hot-toast'
 import { format } from 'date-fns'
 
@@ -43,7 +44,7 @@ export default function CreateInvoice() {
     onSuccess: (res) => {
       toast.success('Invoice created successfully')
       qc.invalidateQueries({ queryKey: ['invoices'] })
-      navigate(`/invoices/${res.data.data.id}`)
+      navigate(`/app/invoices/${res.data.data.id}`)
     },
     onError: (e) => toast.error(e.response?.data?.message || 'Failed to create invoice')
   })
@@ -56,7 +57,7 @@ export default function CreateInvoice() {
       <Helmet><title>New Invoice — MSME BMS</title></Helmet>
       <div className="space-y-6 max-w-4xl mx-auto">
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="sm" onClick={() => navigate('/invoices')}>
+          <Button variant="ghost" size="sm" onClick={() => navigate('/app/invoices')}>
             <ArrowLeft className="h-4 w-4 mr-1" /> Invoices
           </Button>
           <h1 className="text-2xl font-bold font-heading">Create Invoice</h1>
@@ -106,7 +107,7 @@ export default function CreateInvoice() {
                       }}>
                         <SelectTrigger><SelectValue placeholder="Select Product" /></SelectTrigger>
                         <SelectContent>
-                          {productsList.map(p => <SelectItem key={p.id} value={p.id}>{p.name} (${p.sellingPrice})</SelectItem>)}
+                          {productsList.map(p => <SelectItem key={p.id} value={p.id}>{p.name} ({formatCurrency(p.sellingPrice)})</SelectItem>)}
                         </SelectContent>
                       </Select>
                     </div>
@@ -136,7 +137,7 @@ export default function CreateInvoice() {
 
               <div className="border-t pt-4 flex justify-between items-center text-sm font-semibold">
                 <div>Items: {fields.length}</div>
-                <div className="text-base font-bold text-indigo-600">Total Invoice: ${subtotal.toFixed(2)}</div>
+                <div className="text-base font-bold text-indigo-600">Total Invoice: {formatCurrency(subtotal)}</div>
               </div>
             </CardContent>
           </Card>

@@ -204,7 +204,7 @@ export default function InvoiceDetail() {
             <DialogHeader><DialogTitle>Record Invoice Payment</DialogTitle></DialogHeader>
             <div className="space-y-4 my-2">
               <div className="space-y-2">
-                <Label>Amount ($) *</Label>
+                <Label>Amount (KSh) *</Label>
                 <Input type="number" step="0.01" value={amount} onChange={e => setAmount(Number(e.target.value))} />
               </div>
 

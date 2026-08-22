@@ -8,6 +8,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Badge
 } from '@/components/ui'
 import { productService, supplierService } from '@/services'
+import { formatCurrency } from '@/utils'
 import toast from 'react-hot-toast'
 import { DataTable } from '@/components/tables/DataTable'
 import { format } from 'date-fns'
@@ -45,7 +46,7 @@ export default function PurchaseRequests() {
   const columns = [
     { accessorKey: 'item', header: 'Requested Item' },
     { accessorKey: 'quantity', header: 'Quantity' },
-    { accessorKey: 'expectedCost', header: 'Estimated Cost', cell: ({ row }) => `$${row.original.expectedCost.toLocaleString()}` },
+    { accessorKey: 'expectedCost', header: 'Estimated Cost', cell: ({ row }) => formatCurrency(row.original.expectedCost) },
     { accessorKey: 'status', header: 'Status', cell: ({ row }) => {
       const s = row.original.status
       return (
@@ -72,18 +73,21 @@ export default function PurchaseRequests() {
         </div>
 
         <Card>
-          <CardHeader><CardTitle className="text-base font-semibold">Requests List</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="text-base font-semibold">Requests Ledger</CardTitle></CardHeader>
           <CardContent>
             <DataTable
               columns={columns}
               data={requests}
-              searchable={false}
-              emptyMessage="No purchase requests logged"
+              total={requests.length}
+              page={1}
+              limit={25}
+              onPageChange={() => {}}
+              emptyMessage="No purchase requests submitted yet"
             />
           </CardContent>
         </Card>
 
-        {/* Dialog form */}
+        {/* New Request Modal */}
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogContent className="max-w-md">
             <DialogHeader><DialogTitle>New Purchase Request</DialogTitle></DialogHeader>
@@ -99,7 +103,7 @@ export default function PurchaseRequests() {
                   <Input type="number" min="1" value={form.quantity} onChange={e => setForm(p => ({ ...p, quantity: e.target.value }))} />
                 </div>
                 <div className="space-y-2">
-                  <Label>Estimated Total Cost ($)</Label>
+                  <Label>Estimated Total Cost (KSh)</Label>
                   <Input type="number" step="0.01" value={form.expectedCost} onChange={e => setForm(p => ({ ...p, expectedCost: e.target.value }))} />
                 </div>
               </div>

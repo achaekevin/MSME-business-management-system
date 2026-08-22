@@ -125,7 +125,7 @@ export default function SalesReturns() {
               </div>
 
               <div className="space-y-2">
-                <Label>Refund Amount ($) *</Label>
+                <Label>Refund Amount (KSh) *</Label>
                 <Input type="number" step="0.01" max={selectedSale?.total} value={amount} onChange={e => setAmount(Number(e.target.value))} />
               </div>
             </div>

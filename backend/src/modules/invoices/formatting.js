@@ -3,9 +3,9 @@
  * Kept separate so they can be imported without pulling in the full utils bundle.
  */
 
-function formatCurrency(amount, symbol = '') {
+function formatCurrency(amount, symbol = 'KSh ') {
   const num = Number(amount || 0)
-  return `${symbol}${num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+  return `${symbol}${num.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 }
 
 function formatDate(date) {

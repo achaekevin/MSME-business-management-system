@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Helmet } from 'react-helmet-async'
 import { Bot, Send, Sparkles, TrendingUp, AlertTriangle, ArrowRight, User } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent, Button, Input, Skeleton } from '@/components/ui'
+import { formatCurrency } from '@/utils'
 import api from '@/services/api'
 import toast from 'react-hot-toast'
 
@@ -29,12 +30,12 @@ export default function AIInsights() {
       const query = textToSend.toLowerCase()
 
       if (query.includes('forecast') || query.includes('sales') || query.includes('prediction')) {
-        reply = `Based on your recent sales trend, next month's projected revenue is estimated at **$18,450.00** (a **+4.2%** increase). Growth is primarily driven by your top categories.`
+        reply = `Based on your recent sales trend, next month's projected revenue is estimated at **${formatCurrency(250000)}** (a **+4.2%** increase). Growth is primarily driven by your top categories.`
       } else if (query.includes('stock') || query.includes('inventory') || query.includes('low')) {
         const count = lowStock?.data?.lowStockCount || 0
         reply = `You currently have **${count}** items at or below their reorder threshold. I suggest reviewing your stock levels to prevent out-of-stock scenarios.`
       } else if (query.includes('product') || query.includes('top')) {
-        const topList = (topProd?.data || []).map(p => `• ${p.name} ($${Number(p.revenue).toLocaleString()})`).join('\n')
+        const topList = (topProd?.data || []).map(p => `• ${p.name} (${formatCurrency(p.revenue)})`).join('\n')
         reply = topList ? `Your top-selling products by revenue are:\n${topList}` : "No top products recorded yet."
       } else {
         reply = "I can help you forecast sales, identify inventory risks, or list top-selling items. Try clicking one of the suggested prompts below!"

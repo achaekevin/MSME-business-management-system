@@ -10,7 +10,7 @@ const registerSchema = z.object({
     .min(8, 'Password must be at least 8 characters')
     .regex(/[A-Z]/, 'Include at least one uppercase letter')
     .regex(/[0-9]/, 'Include at least one number'),
-  currency: z.string().length(3).optional().default('USD'),
+  currency: z.string().length(3).optional().default('KES'),
   timezone: z.string().optional().default('UTC')
 })
 
