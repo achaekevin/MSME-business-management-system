@@ -46,7 +46,7 @@ export default function SalesList() {
             <h1 className="text-2xl font-bold">Sales</h1>
             <p className="text-muted-foreground text-sm mt-0.5">{total.toLocaleString()} total orders</p>
           </div>
-          <Button asChild><Link to="/sales/pos"><Plus className="h-4 w-4 mr-1" />New sale (POS)</Link></Button>
+          <Button asChild><Link to="/app/sales/pos"><Plus className="h-4 w-4 mr-1" />New sale (POS)</Link></Button>
         </div>
         <div className="flex gap-2 flex-wrap">
           {[{ value: '', label: 'All' }, ...SALE_STATUSES].map(s => (

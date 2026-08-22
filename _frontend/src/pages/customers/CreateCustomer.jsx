@@ -37,7 +37,7 @@ export default function CreateCustomer() {
     onSuccess: (res) => {
       queryClient.invalidateQueries({ queryKey: ['customers'] })
       toast.success(isEdit ? 'Customer updated' : 'Customer created')
-      navigate(`/customers/${isEdit ? id : res.data.id}`)
+      navigate(`/app/customers`)
     },
     onError: (err) => toast.error(err.message)
   })
@@ -49,7 +49,7 @@ export default function CreateCustomer() {
       <Helmet><title>{isEdit ? 'Edit Customer' : 'New Customer'} — MSME BMS</title></Helmet>
       <div className="max-w-2xl space-y-6">
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" asChild><Link to="/customers"><ArrowLeft className="h-4 w-4" /></Link></Button>
+          <Button variant="ghost" size="icon" asChild><Link to="/app/customers"><ArrowLeft className="h-4 w-4" /></Link></Button>
           <div>
             <h1 className="text-2xl font-bold">{isEdit ? 'Edit customer' : 'Add customer'}</h1>
             <p className="text-muted-foreground text-sm">{isEdit ? 'Update customer details' : 'Create a new customer profile'}</p>
@@ -127,7 +127,7 @@ export default function CreateCustomer() {
           </Card>
 
           <div className="flex gap-3 justify-end">
-            <Button type="button" variant="outline" asChild><Link to="/customers">Cancel</Link></Button>
+            <Button type="button" variant="outline" asChild><Link to="/app/customers">Cancel</Link></Button>
             <Button type="submit" isLoading={isSubmitting} leftIcon={!isSubmitting && <Save className="h-4 w-4" />}>
               {isEdit ? 'Save changes' : 'Create customer'}
             </Button>

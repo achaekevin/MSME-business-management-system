@@ -52,7 +52,7 @@ export default function ProductsList() {
             </div>
           )}
           <div>
-            <Link to={`/products/${row.original.id}`} className="font-medium hover:text-primary">{row.original.name}</Link>
+            <Link to={`/app/products/${row.original.id}`} className="font-medium hover:text-primary">{row.original.name}</Link>
             <p className="text-xs text-muted-foreground">SKU: {row.original.sku}</p>
           </div>
         </div>
@@ -65,8 +65,8 @@ export default function ProductsList() {
       header: 'Stock',
       accessorKey: 'currentStock',
       cell: ({ row }) => {
-        const stock = row.original.currentStock
-        const reorder = row.original.reorderPoint
+        const stock = row.original.currentStock || 0
+        const reorder = row.original.reorderPoint || 5
         return (
           <span className={stock <= reorder ? 'text-red-600 font-medium' : ''}>
             {stock.toLocaleString()} {stock <= reorder && '⚠️'}
@@ -83,8 +83,8 @@ export default function ProductsList() {
       id: 'actions', header: '',
       cell: ({ row }) => (
         <div className="flex gap-1 justify-end">
-          <Button variant="ghost" size="icon" className="h-8 w-8" asChild><Link to={`/products/${row.original.id}`}><Eye className="h-3.5 w-3.5" /></Link></Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8" asChild><Link to={`/products/${row.original.id}/edit`}><Edit className="h-3.5 w-3.5" /></Link></Button>
+          <Button variant="ghost" size="icon" className="h-8 w-8" asChild><Link to={`/app/products/${row.original.id}`}><Eye className="h-3.5 w-3.5" /></Link></Button>
+          <Button variant="ghost" size="icon" className="h-8 w-8" asChild><Link to={`/app/products/${row.original.id}/edit`}><Edit className="h-3.5 w-3.5" /></Link></Button>
           <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => { if (confirm('Delete this product?')) deleteMutation.mutate(row.original.id) }}>
             <Trash2 className="h-3.5 w-3.5" />
           </Button>
@@ -102,7 +102,7 @@ export default function ProductsList() {
             <h1 className="text-2xl font-bold">Products</h1>
             <p className="text-muted-foreground text-sm mt-0.5">{total.toLocaleString()} total products</p>
           </div>
-          <Button asChild><Link to="/products/new"><Plus className="h-4 w-4 mr-1" />Add product</Link></Button>
+          <Button asChild><Link to="/app/products/new"><Plus className="h-4 w-4 mr-1" />Add product</Link></Button>
         </div>
 
         <div className="flex gap-2 flex-wrap">

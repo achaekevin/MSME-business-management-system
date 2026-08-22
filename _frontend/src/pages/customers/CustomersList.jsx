@@ -129,7 +129,7 @@ export default function CustomersList() {
               <Download className="h-4 w-4 mr-1" /> Export
             </Button>
             <Button asChild>
-              <Link to="/customers/new"><Plus className="h-4 w-4 mr-1" /> Add customer</Link>
+              <Link to="/app/customers/new"><Plus className="h-4 w-4 mr-1" /> Add customer</Link>
             </Button>
           </div>
         </div>

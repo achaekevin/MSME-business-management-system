@@ -51,7 +51,7 @@ export default function InvoicesList() {
             <h1 className="text-2xl font-bold">Invoices</h1>
             <p className="text-muted-foreground text-sm">{total.toLocaleString()} total invoices</p>
           </div>
-          <Button asChild><Link to="/invoices/new"><Plus className="h-4 w-4 mr-1" />New invoice</Link></Button>
+          <Button asChild><Link to="/app/invoices/new"><Plus className="h-4 w-4 mr-1" />New invoice</Link></Button>
         </div>
         <div className="flex gap-2 flex-wrap">
           {[{ value: '', label: 'All' }, ...INVOICE_STATUSES].map(s => (

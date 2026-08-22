@@ -141,7 +141,6 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <Navigate to="/app/dashboard" replace /> },
       { path: 'dashboard', element: wrap(Dashboard) },
-      { path: '*', element: <Navigate to="/app/dashboard" replace /> },
       // Customers
       { path: 'customers', element: wrap(CustomersList) },
       { path: 'customers/new', element: wrap(CreateCustomer) },
@@ -228,9 +227,33 @@ const router = createBrowserRouter([
       // Test
       { path: 'test', element: wrap(TestPage) },
       // Errors
-      { path: 'unauthorized', element: wrap(UnauthorizedPage) }
+      { path: 'unauthorized', element: wrap(UnauthorizedPage) },
+      { path: '*', element: <Navigate to="/app/dashboard" replace /> }
     ]
   },
+  // Root level redirect aliases for direct module access
+  { path: 'dashboard', element: <Navigate to="/app/dashboard" replace /> },
+  { path: 'products', element: <Navigate to="/app/products" replace /> },
+  { path: 'products/new', element: <Navigate to="/app/products/new" replace /> },
+  { path: 'products/:id', element: <Navigate to="/app/products" replace /> },
+  { path: 'inventory', element: <Navigate to="/app/inventory" replace /> },
+  { path: 'inventory/stock', element: <Navigate to="/app/inventory/stock" replace /> },
+  { path: 'inventory/adjust', element: <Navigate to="/app/inventory/adjust" replace /> },
+  { path: 'inventory/transfer', element: <Navigate to="/app/inventory/transfer" replace /> },
+  { path: 'sales', element: <Navigate to="/app/sales" replace /> },
+  { path: 'sales/pos', element: <Navigate to="/app/sales/pos" replace /> },
+  { path: 'customers', element: <Navigate to="/app/customers" replace /> },
+  { path: 'customers/new', element: <Navigate to="/app/customers/new" replace /> },
+  { path: 'invoices', element: <Navigate to="/app/invoices" replace /> },
+  { path: 'invoices/new', element: <Navigate to="/app/invoices/new" replace /> },
+  { path: 'purchases', element: <Navigate to="/app/purchases" replace /> },
+  { path: 'finance', element: <Navigate to="/app/finance" replace /> },
+  { path: 'accounting', element: <Navigate to="/app/accounting" replace /> },
+  { path: 'payroll', element: <Navigate to="/app/payroll" replace /> },
+  { path: 'reports', element: <Navigate to="/app/reports" replace /> },
+  { path: 'analytics', element: <Navigate to="/app/analytics" replace /> },
+  { path: 'settings', element: <Navigate to="/app/settings" replace /> },
+  { path: 'profile', element: <Navigate to="/app/profile" replace /> },
   { path: '*', element: wrap(NotFoundPage) }
 ], {
   future: {

@@ -43,7 +43,7 @@ export default function CreateProduct() {
     onSuccess: (res) => {
       queryClient.invalidateQueries({ queryKey: ['products'] })
       toast.success(isEdit ? 'Product updated' : 'Product created')
-      navigate(`/products/${isEdit ? id : res.data.id}`)
+      navigate(`/app/products`)
     },
     onError: (err) => toast.error(err.message)
   })
@@ -55,7 +55,7 @@ export default function CreateProduct() {
       <Helmet><title>{isEdit ? 'Edit Product' : 'New Product'} — MSME BMS</title></Helmet>
       <div className="max-w-2xl space-y-6">
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" asChild><Link to="/products"><ArrowLeft className="h-4 w-4" /></Link></Button>
+          <Button variant="ghost" size="icon" asChild><Link to="/app/products"><ArrowLeft className="h-4 w-4" /></Link></Button>
           <h1 className="text-2xl font-bold">{isEdit ? 'Edit product' : 'Add product'}</h1>
         </div>
 
@@ -136,7 +136,7 @@ export default function CreateProduct() {
           </Card>
 
           <div className="flex gap-3 justify-end">
-            <Button type="button" variant="outline" asChild><Link to="/products">Cancel</Link></Button>
+            <Button type="button" variant="outline" asChild><Link to="/app/products">Cancel</Link></Button>
             <Button type="submit" isLoading={isSubmitting} leftIcon={!isSubmitting && <Save className="h-4 w-4" />}>
               {isEdit ? 'Save changes' : 'Create product'}
             </Button>
