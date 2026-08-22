@@ -2,7 +2,7 @@ import { io } from 'socket.io-client'
 import { storage } from '@/utils'
 import { AUTH_TOKEN_KEY } from '@/constants'
 
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'wss://api.msmebms.com'
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:4000'
 
 let socket = null
 

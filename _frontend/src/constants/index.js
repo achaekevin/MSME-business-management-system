@@ -1,7 +1,7 @@
 export const APP_NAME = 'MSME BMS'
 export const APP_VERSION = '1.0.0'
 
-export const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://api.msmebms.com/v1'
+export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api'
 
 export const AUTH_TOKEN_KEY = 'msme_auth_token'
 export const REFRESH_TOKEN_KEY = 'msme_refresh_token'
