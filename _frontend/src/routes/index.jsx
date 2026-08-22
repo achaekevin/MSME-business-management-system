@@ -232,8 +232,13 @@ const router = createBrowserRouter([
     ]
   },
   { path: '*', element: wrap(NotFoundPage) }
-])
+], {
+  future: {
+    v7_startTransition: true,
+    v7_relativeSplatPath: true
+  }
+})
 
 export function AppRouter() {
-  return <RouterProvider router={router} />
+  return <RouterProvider router={router} future={{ v7_startTransition: true }} />
 }
