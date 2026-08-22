@@ -7,14 +7,10 @@ export function cn(...inputs) {
   return twMerge(clsx(inputs))
 }
 
-// Currency formatting
-export function formatCurrency(amount, currency = 'USD', locale = 'en-US') {
-  return new Intl.NumberFormat(locale, {
-    style: 'currency',
-    currency,
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  }).format(amount || 0)
+// Currency formatting (Kenyan Shillings)
+export function formatCurrency(amount, currency = 'KES', locale = 'en-KE') {
+  const num = Number(amount || 0)
+  return `KSh ${num.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 }
 
 // Number formatting

@@ -179,7 +179,7 @@ export const NAV_ITEMS = [
     items: [
       { label: 'Customers', path: '/customers', icon: 'Users', permission: 'customers.view' },
       { label: 'Employees', path: '/employees', icon: 'UserCheck', permission: 'employees.view' },
-      { label: 'Payroll', path: '/payroll', icon: 'DollarSign', permission: 'employees.payroll' }
+      { label: 'Payroll', path: '/payroll', icon: 'Banknote', permission: 'employees.payroll' }
     ]
   },
   {

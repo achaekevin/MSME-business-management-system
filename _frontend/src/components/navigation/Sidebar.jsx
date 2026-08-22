@@ -1,12 +1,12 @@
 import { NavLink } from 'react-router-dom'
-import { Building2, LayoutDashboard, ShoppingCart, TrendingUp, ShoppingBag, FileText, CreditCard, Package, Warehouse, Truck, Users, UserCheck, DollarSign, PiggyBank, BookOpen, BarChart2, Settings, Zap, Download } from 'lucide-react'
+import { Building2, LayoutDashboard, ShoppingCart, TrendingUp, ShoppingBag, FileText, CreditCard, Package, Warehouse, Truck, Users, UserCheck, Banknote, PiggyBank, BookOpen, BarChart2, Settings, Zap, Download } from 'lucide-react'
 import { cn } from '@/utils'
 import { useBusinessStore } from '@/store'
 import { usePermission } from '@/hooks'
 
 const iconMap = {
   LayoutDashboard, ShoppingCart, TrendingUp, ShoppingBag, FileText, CreditCard,
-  Package, Warehouse, Truck, Users, UserCheck, DollarSign, PiggyBank, BookOpen,
+  Package, Warehouse, Truck, Users, UserCheck, Banknote, PiggyBank, BookOpen,
   BarChart2, Building2, Settings, Zap, Download
 }
 
@@ -32,7 +32,7 @@ const navItems = [
     group: 'People', items: [
       { label: 'Customers', path: '/app/customers', icon: 'Users', permission: 'customers.view' },
       { label: 'Employees', path: '/app/employees', icon: 'UserCheck', permission: 'employees.view' },
-      { label: 'Payroll', path: '/app/payroll', icon: 'DollarSign', permission: 'employees.payroll' }
+      { label: 'Payroll', path: '/app/payroll', icon: 'Banknote', permission: 'employees.payroll' }
     ]
   },
   {

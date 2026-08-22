@@ -10,7 +10,7 @@ import {
   RefreshCw, 
   Layers, 
   CheckCircle2, 
-  DollarSign, 
+  Banknote, 
   FileText, 
   TrendingUp, 
   CreditCard,
@@ -19,7 +19,7 @@ import {
 import {
   Card, CardHeader, CardTitle, CardContent,
   Button, Input, Label, Select, SelectTrigger, SelectValue, SelectContent, SelectItem,
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Skeleton, Badge
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Skeleton, Badge, Spinner
 } from '@/components/ui'
 import { accountingService } from '@/services'
 import toast from 'react-hot-toast'
@@ -32,25 +32,14 @@ const accountSchema = z.object({
   description: z.string().optional()
 })
 
-const sampleAccounts = [
-  { id: '1', code: '1000', name: 'Cash & Till On Hand', type: 'asset', balance: 215900, description: 'Cash register till drawers and petty cash' },
-  { id: '2', code: '1010', name: 'M-Pesa Business Till Float', type: 'asset', balance: 345000, description: 'Paybill and Buy Goods merchant float' },
-  { id: '3', code: '1200', name: 'Merchandise Inventory Stock', type: 'asset', balance: 4890500, description: 'Warehouse physical products valuation' },
-  { id: '4', code: '2000', name: 'Accounts Payable (Suppliers)', type: 'liability', balance: 512330, description: 'Outstanding purchase invoices' },
-  { id: '5', code: '2200', name: 'VAT Output Tax Payable (16%)', type: 'liability', balance: 51276, description: 'KRA domestic VAT payable' },
-  { id: '6', code: '3000', name: "Owner's Capital Equity", type: 'equity', balance: 4500000, description: 'Initial paid-up enterprise capital' },
-  { id: '7', code: '4000', name: 'Commercial Sales Revenue', type: 'revenue', balance: 845670, description: 'Net sales from POS and wholesale orders' },
-  { id: '8', code: '5000', name: 'Salaries & Staff Compensation', type: 'expense', balance: 645000, description: 'Monthly payroll expense' }
-]
-
 export default function AccountingPage() {
   const [open, setOpen] = useState(false)
   const qc = useQueryClient()
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ['chart-of-accounts'],
-    queryFn: () => accountingService.getChartOfAccounts().then(r => r.data).catch(() => ({ data: [] })),
-    staleTime: 60_000
+    queryFn: () => accountingService.getChartOfAccounts().then(r => r.data?.data || r.data || []).catch(() => []),
+    staleTime: 30_000
   })
 
   const { register, handleSubmit, setValue, reset, formState: { errors } } = useForm({
@@ -68,7 +57,7 @@ export default function AccountingPage() {
     onError: (e) => toast.error(e.response?.data?.message || 'Failed to create account')
   })
 
-  const accounts = data?.data?.length ? data.data : sampleAccounts
+  const accounts = Array.isArray(data) ? data : (data?.accounts || [])
 
   return (
     <>
@@ -79,7 +68,7 @@ export default function AccountingPage() {
           <div>
             <div className="flex items-center gap-2 text-xs font-semibold text-primary mb-1">
               <BookOpen className="w-3.5 h-3.5" />
-              <span>Strict Double-Entry General Ledger (100% Balanced DR = CR)</span>
+              <span>Double-Entry General Ledger (Currency: KSh)</span>
             </div>
             <h1 className="text-2xl font-bold text-foreground tracking-tight">Chart of Accounts & Ledger</h1>
             <p className="text-sm text-muted-foreground mt-0.5">Master classification of assets, liabilities, equity, revenues, and operating expenses.</p>
@@ -98,11 +87,11 @@ export default function AccountingPage() {
         {/* 5 Account Classification Badges */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
           {[
-            { label: 'Assets (1000s)', count: accounts.filter(a => a.type === 'asset').length || 3, icon: DollarSign, color: 'text-blue-600 dark:text-blue-400' },
-            { label: 'Liabilities (2000s)', count: accounts.filter(a => a.type === 'liability').length || 2, icon: FileText, color: 'text-amber-600 dark:text-amber-400' },
-            { label: "Equity (3000s)", count: accounts.filter(a => a.type === 'equity').length || 1, icon: Layers, color: 'text-indigo-600 dark:text-indigo-400' },
-            { label: 'Revenues (4000s)', count: accounts.filter(a => a.type === 'revenue').length || 1, icon: TrendingUp, color: 'text-emerald-600 dark:text-emerald-400' },
-            { label: 'Expenses (5000s)', count: accounts.filter(a => a.type === 'expense').length || 1, icon: CreditCard, color: 'text-red-600 dark:text-red-400' }
+            { label: 'Assets (1000s)', count: accounts.filter(a => a.type === 'asset').length, icon: Banknote, color: 'text-blue-600 dark:text-blue-400' },
+            { label: 'Liabilities (2000s)', count: accounts.filter(a => a.type === 'liability').length, icon: FileText, color: 'text-amber-600 dark:text-amber-400' },
+            { label: "Equity (3000s)", count: accounts.filter(a => a.type === 'equity').length, icon: Layers, color: 'text-indigo-600 dark:text-indigo-400' },
+            { label: 'Revenues (4000s)', count: accounts.filter(a => a.type === 'revenue').length, icon: TrendingUp, color: 'text-emerald-600 dark:text-emerald-400' },
+            { label: 'Expenses (5000s)', count: accounts.filter(a => a.type === 'expense').length, icon: CreditCard, color: 'text-red-600 dark:text-red-400' }
           ].map((cat) => {
             const Icon = cat.icon
             return (
@@ -122,7 +111,7 @@ export default function AccountingPage() {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-base font-semibold text-foreground">General Ledger Accounts</h3>
-              <p className="text-xs text-muted-foreground">Current balance status and classification</p>
+              <p className="text-xs text-muted-foreground">Live accounts registered in database</p>
             </div>
             <div className="flex items-center gap-2 text-xs px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-semibold">
               <CheckCircle2 className="w-3.5 h-3.5" />
@@ -130,45 +119,57 @@ export default function AccountingPage() {
             </div>
           </div>
 
-          <div className="rounded-xl border border-border bg-card overflow-hidden">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-muted/50 text-muted-foreground border-b border-border">
-                <tr>
-                  <th className="py-3 px-4 font-semibold">Account Code</th>
-                  <th className="py-3 px-4 font-semibold">Account Name</th>
-                  <th className="py-3 px-4 font-semibold">Classification</th>
-                  <th className="py-3 px-4 font-semibold">Description</th>
-                  <th className="py-3 px-4 font-semibold text-right">Current Balance</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border text-foreground">
-                {accounts.map((acc) => {
-                  const badgeClasses = {
-                    asset: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
-                    liability: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
-                    equity: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400',
-                    revenue: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
-                    expense: 'bg-red-500/10 text-red-600 dark:text-red-400'
-                  }
-                  return (
-                    <tr key={acc.code} className="hover:bg-muted/30 transition-colors">
-                      <td className="py-3 px-4 font-mono font-bold text-foreground">{acc.code}</td>
-                      <td className="py-3 px-4 font-medium text-foreground">{acc.name}</td>
-                      <td className="py-3 px-4">
-                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider ${badgeClasses[acc.type] || 'bg-muted text-muted-foreground'}`}>
-                          {acc.type}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 text-muted-foreground">{acc.description || '—'}</td>
-                      <td className="py-3 px-4 font-mono font-bold text-foreground text-right">
-                        {formatCurrency(acc.balance || 0)}
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
+          {isLoading ? (
+            <div className="flex justify-center py-8"><Spinner /></div>
+          ) : accounts.length === 0 ? (
+            <div className="p-8 text-center border border-dashed border-border rounded-xl text-muted-foreground text-xs">
+              <BookOpen className="w-8 h-8 mx-auto mb-2 opacity-30" />
+              <p>No ledger accounts registered yet.</p>
+              <Button onClick={() => setOpen(true)} variant="outline" size="sm" className="mt-3 text-xs">
+                + Create First Account
+              </Button>
+            </div>
+          ) : (
+            <div className="rounded-xl border border-border bg-card overflow-hidden">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-muted/50 text-muted-foreground border-b border-border">
+                  <tr>
+                    <th className="py-3 px-4 font-semibold">Account Code</th>
+                    <th className="py-3 px-4 font-semibold">Account Name</th>
+                    <th className="py-3 px-4 font-semibold">Classification</th>
+                    <th className="py-3 px-4 font-semibold">Description</th>
+                    <th className="py-3 px-4 font-semibold text-right">Current Balance</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border text-foreground">
+                  {accounts.map((acc) => {
+                    const badgeClasses = {
+                      asset: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
+                      liability: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
+                      equity: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400',
+                      revenue: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
+                      expense: 'bg-red-500/10 text-red-600 dark:text-red-400'
+                    }
+                    return (
+                      <tr key={acc.code} className="hover:bg-muted/30 transition-colors">
+                        <td className="py-3 px-4 font-mono font-bold text-foreground">{acc.code}</td>
+                        <td className="py-3 px-4 font-medium text-foreground">{acc.name}</td>
+                        <td className="py-3 px-4">
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider ${badgeClasses[acc.type] || 'bg-muted text-muted-foreground'}`}>
+                            {acc.type}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 text-muted-foreground">{acc.description || '—'}</td>
+                        <td className="py-3 px-4 font-mono font-bold text-foreground text-right">
+                          {formatCurrency(acc.balance || 0)}
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
 

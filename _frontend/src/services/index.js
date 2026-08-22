@@ -236,3 +236,10 @@ export const documentService = {
   },
   delete: (id) => api.delete(`/documents/${id}`)
 }
+
+// Dashboard
+export const dashboardService = {
+  getRoleDashboard: () => api.get('/dashboard'),
+  getWidgets: (params) => api.get('/dashboard/widgets', { params }),
+  getWidget: (widgetId, params) => api.get(`/dashboard/widgets/${widgetId}`, { params })
+}

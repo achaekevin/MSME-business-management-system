@@ -8,7 +8,7 @@ import {
   ShoppingCart, 
   X, 
   CreditCard, 
-  DollarSign, 
+  Banknote, 
   User, 
   Smartphone, 
   Barcode, 
@@ -229,7 +229,7 @@ function CartPanel({ onCheckout, isSubmitting }) {
                 : 'bg-background border-input text-muted-foreground hover:text-foreground'
             }`}
           >
-            <DollarSign className="w-3.5 h-3.5" />
+            <Banknote className="w-3.5 h-3.5" />
             <span>Cash</span>
           </button>
         </div>
