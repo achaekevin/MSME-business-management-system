@@ -1,10 +1,25 @@
 import { useState } from 'react'
 import { useQuery, useMutation } from '@tanstack/react-query'
-import { Search, Plus, Minus, Trash2, ShoppingCart, X, CreditCard, DollarSign, User } from 'lucide-react'
+import { 
+  Search, 
+  Plus, 
+  Minus, 
+  Trash2, 
+  ShoppingCart, 
+  X, 
+  CreditCard, 
+  DollarSign, 
+  User, 
+  Smartphone, 
+  Barcode, 
+  CheckCircle2, 
+  Package, 
+  RotateCcw 
+} from 'lucide-react'
 import { Helmet } from 'react-helmet-async'
 import toast from 'react-hot-toast'
 import { motion, AnimatePresence } from 'framer-motion'
-import { productService, salesService, customerService } from '@/services'
+import { productService, salesService } from '@/services'
 import { useCartStore } from '@/store'
 import { Button } from '@/components/ui/button'
 import { Input, Badge, Spinner } from '@/components/ui'
@@ -20,35 +35,53 @@ function ProductGrid({ onAdd }) {
   const products = data?.data?.data || []
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="p-3 border-b">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Search products or scan barcode..." className="pl-9" value={search} onChange={e => setSearch(e.target.value)} />
+    <div className="flex flex-col h-full bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+      <div className="p-4 border-b border-slate-800 bg-slate-950/80 flex items-center justify-between gap-3">
+        <div className="relative flex-1">
+          <Barcode className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          <Input 
+            placeholder="Scan barcode or search catalog items..." 
+            className="pl-9 bg-slate-900 border-slate-800 text-white placeholder:text-slate-500 h-10 rounded-xl" 
+            value={search} 
+            onChange={e => setSearch(e.target.value)} 
+          />
         </div>
       </div>
-      <div className="flex-1 overflow-y-auto p-3">
+
+      <div className="flex-1 overflow-y-auto p-4">
         {isLoading ? (
-          <div className="flex justify-center py-8"><Spinner /></div>
+          <div className="flex justify-center py-12"><Spinner /></div>
+        ) : products.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 text-slate-400">
+            <Package className="h-10 w-10 mb-2 opacity-30 text-slate-500" />
+            <p className="text-sm">No catalog products found</p>
+          </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-3">
             {products.map(product => (
               <button
                 key={product.id}
                 onClick={() => onAdd(product)}
-                className="p-3 border rounded-lg text-left hover:border-primary hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-all group"
+                className="p-3.5 border border-slate-800 rounded-xl bg-slate-950/70 text-left hover:border-blue-500/50 hover:bg-slate-900 transition-all group flex flex-col justify-between"
               >
-                <div className="aspect-square mb-2 bg-muted rounded flex items-center justify-center text-2xl">
-                  {product.images?.[0] ? (
-                    <img src={product.images[0]} alt={product.name} className="h-full w-full object-cover rounded" />
-                  ) : '📦'}
+                <div>
+                  <div className="aspect-video mb-2.5 bg-slate-900 border border-slate-800 rounded-lg flex items-center justify-center text-slate-400 overflow-hidden">
+                    {product.images?.[0] ? (
+                      <img src={product.images[0]} alt={product.name} className="h-full w-full object-cover" />
+                    ) : (
+                      <Package className="w-6 h-6 text-slate-500" />
+                    )}
+                  </div>
+                  <p className="text-xs font-semibold text-white leading-snug line-clamp-2">{product.name}</p>
+                  <p className="text-[11px] text-slate-500 font-mono mt-0.5">{product.sku}</p>
                 </div>
-                <p className="text-xs font-medium leading-tight line-clamp-2">{product.name}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">{product.sku}</p>
-                <p className="text-sm font-bold text-primary mt-1">{formatCurrency(product.sellingPrice)}</p>
-                <p className={`text-xs ${product.currentStock <= product.reorderPoint ? 'text-red-500' : 'text-muted-foreground'}`}>
-                  Stock: {product.currentStock}
-                </p>
+                
+                <div className="mt-3 pt-2 border-t border-slate-800/80 flex items-center justify-between">
+                  <span className="text-xs font-bold text-blue-400">{formatCurrency(product.sellingPrice)}</span>
+                  <span className={`text-[10px] px-1.5 py-0.5 rounded font-mono ${product.currentStock <= product.reorderPoint ? 'bg-red-500/10 text-red-400' : 'bg-emerald-500/10 text-emerald-400'}`}>
+                    {product.currentStock} in stock
+                  </span>
+                </div>
               </button>
             ))}
           </div>
@@ -58,66 +91,80 @@ function ProductGrid({ onAdd }) {
   )
 }
 
-function CartPanel({ onCheckout }) {
-  const { items, customer, discount, discountType, addItem, removeItem, updateItem, setCustomer, setDiscount, clearCart, getSubtotal, getTotal } = useCartStore()
-  const [paymentMethod, setPaymentMethod] = useState('cash')
+function CartPanel({ onCheckout, isSubmitting }) {
+  const { items, customer, discount, discountType, addItem, removeItem, updateItem, setDiscount, clearCart, getSubtotal, getTotal } = useCartStore()
+  const [paymentMethod, setPaymentMethod] = useState('mpesa')
+  const [customerPhone, setCustomerPhone] = useState('')
   const [amountTendered, setAmountTendered] = useState('')
+
   const subtotal = getSubtotal()
+  const vat = Math.round(subtotal * 0.16)
   const total = getTotal()
   const change = amountTendered ? Math.max(0, Number(amountTendered) - total) : 0
 
   return (
-    <div className="flex flex-col h-full bg-background border-l">
-      <div className="p-4 border-b flex items-center justify-between">
-        <h2 className="font-bold flex items-center gap-2"><ShoppingCart className="h-4 w-4" />Cart ({items.length})</h2>
-        {items.length > 0 && <Button variant="ghost" size="sm" onClick={clearCart} className="text-destructive h-7 px-2"><Trash2 className="h-3.5 w-3.5" /></Button>}
+    <div className="flex flex-col h-full bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+      {/* Header */}
+      <div className="p-4 border-b border-slate-800 bg-slate-950/80 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
+            <ShoppingCart className="h-4 w-4" />
+          </div>
+          <div>
+            <h2 className="text-sm font-bold text-white">Current Order (ODR-4519)</h2>
+            <p className="text-[11px] text-slate-400">{items.length} items in cart</p>
+          </div>
+        </div>
+        {items.length > 0 && (
+          <Button variant="ghost" size="sm" onClick={clearCart} className="text-slate-400 hover:text-red-400 h-8 px-2">
+            <RotateCcw className="h-3.5 w-3.5 mr-1" />
+            Clear
+          </Button>
+        )}
       </div>
 
-      {/* Customer */}
-      <div className="p-3 border-b">
-        <button className="w-full flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground p-2 rounded border border-dashed hover:border-primary transition-colors">
-          <User className="h-4 w-4" />
-          {customer ? customer.name : 'Walk-in customer (click to assign)'}
-        </button>
-      </div>
-
-      {/* Items */}
-      <div className="flex-1 overflow-y-auto p-3 space-y-2">
+      {/* Items List */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-2.5">
         <AnimatePresence>
           {items.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-              <ShoppingCart className="h-12 w-12 mb-3 opacity-20" />
-              <p className="text-sm">Cart is empty</p>
-              <p className="text-xs mt-1">Click products to add them</p>
+            <div className="flex flex-col items-center justify-center py-16 text-slate-500">
+              <ShoppingCart className="h-10 w-10 mb-2 opacity-20" />
+              <p className="text-sm font-medium text-slate-400">Cart is empty</p>
+              <p className="text-xs text-slate-500 mt-0.5">Click products from the catalog to add them</p>
             </div>
           ) : (
             items.map(item => (
               <motion.div
                 key={item.productId}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                className="bg-muted/30 rounded-lg p-3"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="bg-slate-950/80 border border-slate-800/80 rounded-xl p-3 flex flex-col gap-2"
               >
                 <div className="flex items-start justify-between gap-2">
-                  <p className="text-sm font-medium flex-1 leading-tight">{item.name}</p>
-                  <button onClick={() => removeItem(item.productId)} className="text-muted-foreground hover:text-destructive">
-                    <X className="h-3.5 w-3.5" />
+                  <div>
+                    <p className="text-xs font-semibold text-white leading-tight">{item.name}</p>
+                    <p className="text-[10px] font-mono text-slate-500 mt-0.5">{item.sku}</p>
+                  </div>
+                  <button onClick={() => removeItem(item.productId)} className="text-slate-500 hover:text-red-400 p-1">
+                    <Trash2 className="h-3.5 w-3.5" />
                   </button>
                 </div>
-                <div className="flex items-center justify-between mt-2">
-                  <div className="flex items-center border rounded-md">
-                    <button onClick={() => updateItem(item.productId, { quantity: Math.max(0.5, item.quantity - 1) })} className="px-2 py-1 hover:bg-muted rounded-l-md">
+
+                <div className="flex items-center justify-between pt-2 border-t border-slate-800/60">
+                  <div className="flex items-center border border-slate-800 bg-slate-900 rounded-lg">
+                    <button onClick={() => updateItem(item.productId, { quantity: Math.max(1, item.quantity - 1) })} className="px-2 py-1 text-slate-400 hover:text-white">
                       <Minus className="h-3 w-3" />
                     </button>
-                    <span className="px-3 py-1 text-sm font-medium min-w-[40px] text-center">{item.quantity}</span>
-                    <button onClick={() => updateItem(item.productId, { quantity: item.quantity + 1 })} className="px-2 py-1 hover:bg-muted rounded-r-md">
+                    <span className="px-2.5 py-0.5 text-xs font-bold text-white min-w-[28px] text-center">{item.quantity}</span>
+                    <button onClick={() => updateItem(item.productId, { quantity: item.quantity + 1 })} className="px-2 py-1 text-slate-400 hover:text-white">
                       <Plus className="h-3 w-3" />
                     </button>
                   </div>
+
                   <div className="text-right">
-                    <p className="text-sm font-bold">{formatCurrency(item.unitPrice * item.quantity)}</p>
-                    <p className="text-xs text-muted-foreground">{formatCurrency(item.unitPrice)} each</p>
+                    <p className="text-xs font-bold text-white font-mono">{formatCurrency(item.unitPrice * item.quantity)}</p>
+                    <p className="text-[10px] text-slate-400">{formatCurrency(item.unitPrice)} each</p>
                   </div>
                 </div>
               </motion.div>
@@ -126,76 +173,96 @@ function CartPanel({ onCheckout }) {
         </AnimatePresence>
       </div>
 
-      {/* Discount */}
-      {items.length > 0 && (
-        <div className="p-3 border-t border-b">
-          <div className="flex gap-2">
-            <Input
-              type="number"
-              placeholder="Discount"
-              value={discount || ''}
-              onChange={e => setDiscount(Number(e.target.value), discountType)}
-              className="flex-1 h-8 text-sm"
-            />
-            <select
-              value={discountType}
-              onChange={e => setDiscount(discount, e.target.value)}
-              className="border rounded-md px-2 text-sm bg-background h-8"
-            >
-              <option value="amount">KSh</option>
-              <option value="percent">%</option>
-            </select>
-          </div>
+      {/* Order Summary & Totals */}
+      <div className="p-4 border-t border-slate-800 bg-slate-950/60 space-y-2 text-xs">
+        <div className="flex justify-between text-slate-400">
+          <span>Subtotal</span>
+          <span className="font-mono text-white">{formatCurrency(subtotal)}</span>
         </div>
-      )}
-
-      {/* Totals */}
-      <div className="p-4 border-t space-y-2 text-sm">
-        <div className="flex justify-between text-muted-foreground">
-          <span>Subtotal</span><span>{formatCurrency(subtotal)}</span>
+        <div className="flex justify-between text-slate-400">
+          <span>VAT (16.00%)</span>
+          <span className="font-mono text-white">{formatCurrency(vat)}</span>
         </div>
-        {discount > 0 && (
-          <div className="flex justify-between text-green-600">
-            <span>Discount</span><span>-{formatCurrency(discountType === 'percent' ? subtotal * (discount / 100) : discount)}</span>
-          </div>
-        )}
-        <div className="flex justify-between font-bold text-base border-t pt-2">
-          <span>Total</span><span>{formatCurrency(total)}</span>
+        <div className="h-px bg-slate-800 my-2" />
+        <div className="flex justify-between text-sm font-bold text-white">
+          <span>Total Amount</span>
+          <span className="font-mono text-emerald-400 text-base">{formatCurrency(total)}</span>
         </div>
       </div>
 
-      {/* Payment */}
-      <div className="p-4 space-y-3">
-        <div className="grid grid-cols-3 gap-1">
-          {['cash', 'card', 'mobile_money'].map(m => (
-            <button
-              key={m}
-              onClick={() => setPaymentMethod(m)}
-              className={`py-2 text-xs rounded-md border transition-colors ${paymentMethod === m ? 'bg-primary text-primary-foreground border-primary' : 'hover:bg-muted'}`}
-            >
-              {m === 'cash' ? '💵 Cash' : m === 'card' ? '💳 Card' : '📱 Mobile'}
-            </button>
-          ))}
+      {/* Payment Selection & Pay Button */}
+      <div className="p-4 border-t border-slate-800 bg-slate-950 space-y-3">
+        <div className="text-xs font-semibold text-slate-400 mb-1">Payment Method:</div>
+        <div className="grid grid-cols-3 gap-2 text-xs">
+          <button
+            type="button"
+            onClick={() => setPaymentMethod('mpesa')}
+            className={`py-2 px-2 rounded-xl border flex items-center justify-center gap-1.5 font-medium transition-all ${
+              paymentMethod === 'mpesa' 
+                ? 'bg-emerald-600 border-emerald-500 text-white shadow-md' 
+                : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
+            }`}
+          >
+            <Smartphone className="w-3.5 h-3.5" />
+            <span>M-PESA</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setPaymentMethod('card')}
+            className={`py-2 px-2 rounded-xl border flex items-center justify-center gap-1.5 font-medium transition-all ${
+              paymentMethod === 'card' 
+                ? 'bg-blue-600 border-blue-500 text-white shadow-md' 
+                : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
+            }`}
+          >
+            <CreditCard className="w-3.5 h-3.5" />
+            <span>Card</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setPaymentMethod('cash')}
+            className={`py-2 px-2 rounded-xl border flex items-center justify-center gap-1.5 font-medium transition-all ${
+              paymentMethod === 'cash' 
+                ? 'bg-blue-600 border-blue-500 text-white shadow-md' 
+                : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
+            }`}
+          >
+            <DollarSign className="w-3.5 h-3.5" />
+            <span>Cash</span>
+          </button>
         </div>
+
+        {paymentMethod === 'mpesa' && (
+          <Input
+            placeholder="Customer Phone / M-Pesa ID (e.g. 0712345678)"
+            value={customerPhone}
+            onChange={e => setCustomerPhone(e.target.value)}
+            className="text-xs bg-slate-900 border-slate-800 text-white placeholder:text-slate-500 h-9 rounded-xl"
+          />
+        )}
+
         {paymentMethod === 'cash' && (
-          <div>
+          <div className="space-y-1">
             <Input
               type="number"
               placeholder="Amount tendered"
               value={amountTendered}
               onChange={e => setAmountTendered(e.target.value)}
-              className="text-sm"
+              className="text-xs bg-slate-900 border-slate-800 text-white placeholder:text-slate-500 h-9 rounded-xl"
             />
-            {amountTendered && <p className="text-sm mt-1 text-green-600 font-medium">Change: {formatCurrency(change)}</p>}
+            {amountTendered && <p className="text-xs text-emerald-400 font-medium">Change: {formatCurrency(change)}</p>}
           </div>
         )}
+
         <Button
-          className="w-full"
-          disabled={items.length === 0}
-          onClick={() => onCheckout({ paymentMethod, amountTendered: Number(amountTendered), change })}
+          className="w-full h-11 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm rounded-xl shadow-lg shadow-emerald-600/20"
+          disabled={items.length === 0 || isSubmitting}
+          onClick={() => onCheckout({ paymentMethod, customerPhone, amountTendered: Number(amountTendered) || total, change })}
         >
-          <CreditCard className="h-4 w-4 mr-2" />
-          Charge {formatCurrency(total)}
+          <CheckCircle2 className="h-4 w-4 mr-2" />
+          Pay {formatCurrency(total)}
         </Button>
       </div>
     </div>
@@ -214,22 +281,32 @@ export default function POSPage() {
     }),
     onSuccess: () => {
       clearCart()
-      toast.success('Sale completed!')
+      toast.success('Sale processed & receipt generated!')
     },
-    onError: (err) => toast.error(err.message)
+    onError: (err) => toast.error(err.message || 'Sale processing failed')
   })
 
   return (
     <>
       <Helmet><title>Point of Sale — MSME BMS</title></Helmet>
-      <div className="fixed inset-0 top-16 flex bg-background">
-        {/* Products */}
-        <div className="flex-1 min-w-0 overflow-hidden">
-          <ProductGrid onAdd={addItem} />
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-bold text-white tracking-tight">Point of Sale Terminal</h1>
+            <p className="text-xs text-slate-400">Cashier Till Session #01 · Fast Checkout & Barcode Scanner</p>
+          </div>
         </div>
-        {/* Cart */}
-        <div className="w-80 xl:w-96 flex-shrink-0">
-          <CartPanel onCheckout={checkoutMutation.mutate} />
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 h-[calc(100vh-190px)] min-h-[600px]">
+          {/* Products Grid */}
+          <div className="lg:col-span-7 xl:col-span-8 h-full">
+            <ProductGrid onAdd={addItem} />
+          </div>
+
+          {/* Checkout Cart */}
+          <div className="lg:col-span-5 xl:col-span-4 h-full">
+            <CartPanel onCheckout={checkoutMutation.mutate} isSubmitting={checkoutMutation.isPending} />
+          </div>
         </div>
       </div>
     </>

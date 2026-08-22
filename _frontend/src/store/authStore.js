@@ -41,7 +41,8 @@ export const useAuthStore = create(
         hasPermission: (permission) => {
           const { user } = get()
           if (!user) return false
-          if (user.role === 'owner' || user.role === 'admin') return true
+          const roleName = typeof user.role === 'object' ? (user.role?.name || user.role?.displayName) : user.role
+          if (roleName === 'owner' || roleName === 'admin' || roleName === 'Administrator' || roleName === 'Business Owner') return true
           return user.permissions?.includes(permission) ?? false
         },
 
@@ -49,7 +50,8 @@ export const useAuthStore = create(
           const { user } = get()
           if (!user) return false
           const roleArray = Array.isArray(roles) ? roles : [roles]
-          return roleArray.includes(user.role)
+          const roleName = typeof user.role === 'object' ? (user.role?.name || user.role?.displayName) : user.role
+          return roleArray.includes(roleName)
         }
       }),
       {
