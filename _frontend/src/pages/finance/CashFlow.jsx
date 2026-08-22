@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async'
 import { DollarSign, ArrowUpRight, ArrowDownRight, RefreshCw, Landmark } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent, Button, Skeleton } from '@/components/ui'
 import { financeService } from '@/services'
+import { formatCurrency } from '@/utils'
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
 import { format } from 'date-fns'
 
@@ -21,7 +22,7 @@ export default function CashFlow() {
 
   const fmt = (n) => {
     if (!n && n !== 0) return '—'
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(n)
+    return formatCurrency(n)
   }
 
   return (

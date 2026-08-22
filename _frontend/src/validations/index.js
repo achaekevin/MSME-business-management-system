@@ -170,7 +170,7 @@ export const bankAccountSchema = z.object({
   bankName: z.string().min(2, 'Bank name must be at least 2 characters'),
   accountNumber: z.string().min(5, 'Account number must be at least 5 characters'),
   balance: z.number().min(0, 'Initial balance cannot be negative').optional(),
-  currency: z.string().default('USD')
+  currency: z.string().default('KES')
 })
 
 // Journal Entry schema

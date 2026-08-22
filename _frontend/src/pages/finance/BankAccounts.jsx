@@ -13,6 +13,7 @@ import { financeService } from '@/services'
 import { bankAccountSchema } from '@/validations'
 import toast from 'react-hot-toast'
 import { CURRENCIES } from '@/constants'
+import { formatCurrency } from '@/utils'
 
 export default function BankAccounts() {
   const [open, setOpen] = useState(false)
@@ -24,9 +25,9 @@ export default function BankAccounts() {
     staleTime: 60_000
   })
 
-  const { register, handleSubmit, setValue, reset, formState: { errors } } = useForm({
+  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm({
     resolver: zodResolver(bankAccountSchema),
-    defaultValues: { balance: 0, currency: 'USD' }
+    defaultValues: { balance: 0, currency: 'KES' }
   })
 
   const createMutation = useMutation({
@@ -35,7 +36,7 @@ export default function BankAccounts() {
       toast.success('Bank account added successfully')
       qc.invalidateQueries({ queryKey: ['bank-accounts'] })
       qc.invalidateQueries({ queryKey: ['finance-dashboard'] })
-      reset({ balance: 0, currency: 'USD' })
+      reset({ balance: 0, currency: 'KES' })
       setOpen(false)
     },
     onError: (e) => toast.error(e.response?.data?.message || 'Failed to add bank account')
@@ -43,8 +44,8 @@ export default function BankAccounts() {
 
   const accounts = data?.data || []
 
-  const fmt = (n, cur = 'USD') => {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: cur }).format(n || 0)
+  const fmt = (n, cur = 'KES') => {
+    return formatCurrency(n, cur)
   }
 
   return (
@@ -135,7 +136,7 @@ export default function BankAccounts() {
                 </div>
                 <div className="space-y-2">
                   <Label>Currency *</Label>
-                  <Select defaultValue="USD" onValueChange={v => setValue('currency', v)}>
+                  <Select defaultValue="KES" onValueChange={v => setValue('currency', v)}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       {CURRENCIES.map(c => <SelectItem key={c.code} value={c.code}>{c.code} ({c.symbol})</SelectItem>)}

@@ -7,6 +7,7 @@ import { Card, CardHeader, CardTitle, CardContent, Button, Skeleton, Input } fro
 import { reportService } from '@/services'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import toast from 'react-hot-toast'
+import { formatCurrency } from '@/utils'
 
 export default function SalesReport() {
   const [startDate, setStartDate] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0])
@@ -43,7 +44,7 @@ export default function SalesReport() {
 
   const fmt = (n) => {
     if (!n && n !== 0) return '—'
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n)
+    return formatCurrency(n)
   }
 
   return (

@@ -2,8 +2,9 @@ import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Helmet } from 'react-helmet-async'
 import { RefreshCw } from 'lucide-react'
-import { Card, CardHeader, CardTitle, CardContent, Button, Skeleton } from '@/components/ui'
+import { Card, CardHeader, CardTitle, CardContent, Button, Skeleton, Input } from '@/components/ui'
 import { accountingService } from '@/services'
+import { formatCurrency } from '@/utils'
 
 export default function ProfitLoss() {
   const [startDate, setStartDate] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0])
@@ -21,9 +22,7 @@ export default function ProfitLoss() {
   const totalExpense = data?.totalExpense || 0
   const netIncome = data?.netIncome || 0
 
-  const fmt = (n) => {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n || 0)
-  }
+  const fmt = (n) => formatCurrency(n)
 
   return (
     <>

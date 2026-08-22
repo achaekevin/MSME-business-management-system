@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async'
 import { ArrowLeft, RefreshCw, Package, Tag, Layers, DollarSign, Settings } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent, Button, Skeleton, Badge } from '@/components/ui'
 import { productService } from '@/services'
+import { formatCurrency } from '@/utils'
 
 export default function ProductDetail() {
   const { id } = useParams()
@@ -17,9 +18,7 @@ export default function ProductDetail() {
 
   const prod = data?.data || {}
 
-  const fmt = (n) => {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n || 0)
-  }
+  const fmt = (n) => formatCurrency(n)
 
   return (
     <>

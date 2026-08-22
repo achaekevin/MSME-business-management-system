@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom'
 import { ArrowLeft, RefreshCw, Download, FileSpreadsheet, FileIcon } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent, Button, Skeleton, Input } from '@/components/ui'
 import { reportService } from '@/services'
+import { formatCurrency } from '@/utils'
 import toast from 'react-hot-toast'
 
 export default function EmployeeReport() {
@@ -24,7 +25,7 @@ export default function EmployeeReport() {
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = `Employees_Deductions_Report.${ext}`
+      a.download = `Employee_Payroll_Report.${ext}`
       document.body.appendChild(a)
       a.click()
       a.remove()
@@ -37,9 +38,7 @@ export default function EmployeeReport() {
   const items = data?.data || []
   const summary = data?.summary || {}
 
-  const fmt = (n) => {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n || 0)
-  }
+  const fmt = (n) => formatCurrency(n)
 
   return (
     <>

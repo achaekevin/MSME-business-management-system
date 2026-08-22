@@ -2,8 +2,9 @@ import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Helmet } from 'react-helmet-async'
 import { RefreshCw } from 'lucide-react'
-import { Card, CardHeader, CardTitle, CardContent, Button, Skeleton } from '@/components/ui'
+import { Card, CardHeader, CardTitle, CardContent, Button, Skeleton, Input } from '@/components/ui'
 import { accountingService } from '@/services'
+import { formatCurrency } from '@/utils'
 
 export default function BalanceSheet() {
   const [asOfDate, setAsOfDate] = useState(new Date().toISOString().split('T')[0])
@@ -21,9 +22,7 @@ export default function BalanceSheet() {
   const totalLiabilities = data?.totalLiabilities || 0
   const totalEquity = data?.totalEquity || 0
 
-  const fmt = (n) => {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n || 0)
-  }
+  const fmt = (n) => formatCurrency(n)
 
   return (
     <>

@@ -34,7 +34,7 @@ export default function BusinessProfile() {
         name: biz.name,
         email: biz.email || '',
         phone: biz.phone || '',
-        currency: biz.currency || 'USD',
+        currency: biz.currency || 'KES',
         timezone: biz.timezone || 'UTC',
         address: {
           street: biz.address?.street || '',

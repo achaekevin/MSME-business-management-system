@@ -6,6 +6,7 @@ import { TrendingUp, TrendingDown, DollarSign, CreditCard, ArrowUpRight, ArrowDo
 import { Card, CardHeader, CardTitle, CardContent, Badge, Button, Skeleton } from '@/components/ui'
 import { financeService } from '@/services'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
+import { formatCurrency } from '@/utils'
 import { format } from 'date-fns'
 
 function KpiCard({ label, value, subtext, trend, isLoading }) {
@@ -23,10 +24,14 @@ function KpiCard({ label, value, subtext, trend, isLoading }) {
             <p className="text-sm text-muted-foreground">{label}</p>
             <p className="text-2xl font-bold mt-1">{value}</p>
             {subtext && (
-              <div className={`flex items-center gap-1 text-xs mt-1 ${trend >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                {trend >= 0 ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
+              <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                {trend && (
+                  <span className={trend > 0 ? 'text-green-600' : 'text-red-600'}>
+                    {trend > 0 ? '↑' : '↓'} {Math.abs(trend)}%
+                  </span>
+                )}
                 {subtext}
-              </div>
+              </p>
             )}
           </>
         )}
@@ -47,7 +52,7 @@ export default function FinanceDashboard() {
 
   const fmt = (n) => {
     if (!n && n !== 0) return '—'
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(n)
+    return formatCurrency(n)
   }
 
   return (

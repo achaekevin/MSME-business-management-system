@@ -5,6 +5,7 @@ import { Helmet } from 'react-helmet-async'
 import { ArrowLeft, RefreshCw, Truck, Mail, Phone, Calendar } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent, Button, Tabs, TabsList, TabsTrigger, TabsContent, Skeleton } from '@/components/ui'
 import { supplierService } from '@/services'
+import { formatCurrency } from '@/utils'
 import { format } from 'date-fns'
 
 export default function SupplierDetail() {
@@ -33,9 +34,7 @@ export default function SupplierDetail() {
   const purchases = historyData?.data || []
   const statement = statementData?.data || []
 
-  const fmt = (n) => {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n || 0)
-  }
+  const fmt = (n) => formatCurrency(n)
 
   return (
     <>
