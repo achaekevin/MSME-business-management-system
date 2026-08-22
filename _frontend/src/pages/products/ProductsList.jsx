@@ -85,7 +85,7 @@ export default function ProductsList() {
         <div className="flex gap-1 justify-end">
           <Button variant="ghost" size="icon" className="h-8 w-8" asChild><Link to={`/app/products/${row.original.id}`}><Eye className="h-3.5 w-3.5" /></Link></Button>
           <Button variant="ghost" size="icon" className="h-8 w-8" asChild><Link to={`/app/products/${row.original.id}/edit`}><Edit className="h-3.5 w-3.5" /></Link></Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => { if (confirm('Delete this product?')) deleteMutation.mutate(row.original.id) }}>
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => deleteMutation.mutate(row.original.id)}>
             <Trash2 className="h-3.5 w-3.5" />
           </Button>
         </div>

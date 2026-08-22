@@ -135,7 +135,7 @@ export default function BranchManagement() {
             <DataTable
               columns={columns(
                 b => handleOpen(b),
-                id => { if (confirm('Are you sure you want to delete this branch?')) deleteMutation.mutate(id) }
+                id => deleteMutation.mutate(id)
               )}
               data={branches}
               isLoading={isLoading}

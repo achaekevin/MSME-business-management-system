@@ -144,11 +144,7 @@ export default function EmployeesList() {
           <CardHeader><CardTitle className="text-base font-semibold">Employees Directory</CardTitle></CardHeader>
           <CardContent>
             <DataTable
-              columns={columns(id => {
-                if (confirm('Are you sure you want to delete this employee? This will purge payroll history.')) {
-                  deleteMutation.mutate(id)
-                }
-              })}
+              columns={columns(id => deleteMutation.mutate(id))}
               data={employees}
               isLoading={isLoading}
               total={total}

@@ -88,7 +88,7 @@ export default function UserManagement() {
     { header: 'Status', accessorKey: 'status', cell: ({ getValue }) => <Badge variant={getValue() === 'active' ? 'success' : 'warning'}>{getValue() || 'pending'}</Badge> },
     { header: 'Joined', accessorKey: 'createdAt', cell: ({ getValue }) => formatDate(getValue()) },
     { id: 'actions', header: '', cell: ({ row }) => (
-      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => { if (confirm('Remove this user?')) removeMutation.mutate(row.original.id) }}>
+      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => removeMutation.mutate(row.original.id)}>
         <Trash2 className="h-3.5 w-3.5" />
       </Button>
     )}

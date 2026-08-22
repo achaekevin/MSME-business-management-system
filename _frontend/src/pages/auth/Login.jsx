@@ -14,7 +14,7 @@ import { Input, Label, Alert } from '@/components/ui'
 export default function Login() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { setAuth, setTwoFactorPending } = useAuthStore()
+  const { user, isAuthenticated, setAuth, setTwoFactorPending } = useAuthStore()
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const expired = new URLSearchParams(location.search).get('expired')
@@ -48,6 +48,15 @@ export default function Login() {
       <div>
         <h1 className="text-2xl font-bold mb-1">Welcome back</h1>
         <p className="text-muted-foreground mb-6">Log in to your account to continue</p>
+
+        {isAuthenticated && user && !expired && (
+          <div className="mb-4 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20 text-xs text-blue-400 flex items-center justify-between">
+            <span>Currently logged in as <strong>{user.name || user.email}</strong></span>
+            <Link to="/app/dashboard" className="underline font-medium hover:text-blue-300 ml-2">
+              Go to Dashboard →
+            </Link>
+          </div>
+        )}
 
         {expired && (
           <Alert variant="warning" className="mb-4">

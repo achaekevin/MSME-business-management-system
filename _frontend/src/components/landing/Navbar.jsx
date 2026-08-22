@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Link, useNavigate } from 'react-router-dom'
+import { useAuthStore } from '@/store/authStore'
 import { 
   Menu, X, Search, Sun, Moon, ChevronDown,
-  Box, ShoppingCart, DollarSign, Users, FileText, TrendingUp
+  Box, ShoppingCart, DollarSign, Users, FileText, TrendingUp,
+  LayoutDashboard
 } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
@@ -36,6 +38,7 @@ export default function Navbar() {
   const [isDarkMode, setIsDarkMode] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const navigate = useNavigate()
+  const { isAuthenticated } = useAuthStore()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -200,6 +203,19 @@ export default function Navbar() {
               {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </motion.button>
 
+            {/* Dashboard / Auth Buttons */}
+            {isAuthenticated ? (
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => navigate('/app/dashboard')}
+                className="px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg text-sm font-semibold shadow-lg hover:shadow-xl transition-all hidden md:flex items-center gap-1.5"
+              >
+                <LayoutDashboard className="w-4 h-4" />
+                <span>Dashboard</span>
+              </motion.button>
+            ) : null}
+
             {/* Login Button */}
             <motion.button
               whileHover={{ scale: 1.05 }}
@@ -212,18 +228,20 @@ export default function Navbar() {
                   : 'text-white hover:bg-white/10'
               )}
             >
-              Login
+              {isAuthenticated ? 'Sign In' : 'Login'}
             </motion.button>
 
             {/* Get Started Button */}
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => navigate('/auth/register')}
-              className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg text-sm font-semibold shadow-lg hover:shadow-xl transition-all hidden md:block"
-            >
-              Get Started
-            </motion.button>
+            {!isAuthenticated && (
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => navigate('/auth/register')}
+                className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg text-sm font-semibold shadow-lg hover:shadow-xl transition-all hidden md:block"
+              >
+                Get Started
+              </motion.button>
+            )}
 
             {/* Mobile Menu Button */}
             <motion.button
@@ -304,18 +322,29 @@ export default function Navbar() {
               ))}
               
               <div className="pt-4 space-y-2">
+                {isAuthenticated && (
+                  <button
+                    onClick={() => navigate('/app/dashboard')}
+                    className="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg font-medium shadow-lg flex items-center justify-center gap-2"
+                  >
+                    <LayoutDashboard className="w-4 h-4" />
+                    <span>Go to Dashboard</span>
+                  </button>
+                )}
                 <button
                   onClick={() => navigate('/auth/login')}
                   className="w-full px-4 py-3 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-700 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-800"
                 >
-                  Login
+                  {isAuthenticated ? 'Sign in with another account' : 'Login'}
                 </button>
-                <button
-                  onClick={() => navigate('/auth/register')}
-                  className="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg font-medium shadow-lg"
-                >
-                  Get Started
-                </button>
+                {!isAuthenticated && (
+                  <button
+                    onClick={() => navigate('/auth/register')}
+                    className="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg font-medium shadow-lg"
+                  >
+                    Get Started
+                  </button>
+                )}
               </div>
             </div>
           </motion.div>

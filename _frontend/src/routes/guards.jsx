@@ -9,8 +9,6 @@ export function PrivateRoute({ children }) {
 }
 
 export function PublicRoute({ children }) {
-  const { isAuthenticated } = useAuthStore()
-  if (isAuthenticated) return <Navigate to="/app/dashboard" replace />
   return children
 }
 

@@ -104,9 +104,7 @@ export default function CustomersList() {
           </Button>
           <Button
             variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive"
-            onClick={() => {
-              if (confirm('Delete this customer?')) deleteMutation.mutate(row.original.id)
-            }}
+            onClick={() => deleteMutation.mutate(row.original.id)}
           >
             <Trash2 className="h-3.5 w-3.5" />
           </Button>

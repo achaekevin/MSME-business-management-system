@@ -109,11 +109,7 @@ export default function SuppliersList() {
           <CardHeader><CardTitle className="text-base font-semibold">All Suppliers</CardTitle></CardHeader>
           <CardContent>
             <DataTable
-              columns={columns(id => {
-                if (confirm('Are you sure you want to delete this supplier?')) {
-                  deleteMutation.mutate(id)
-                }
-              })}
+              columns={columns(id => deleteMutation.mutate(id))}
               data={suppliers}
               isLoading={isLoading}
               total={total}

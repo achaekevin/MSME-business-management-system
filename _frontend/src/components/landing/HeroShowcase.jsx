@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
+import { useAuthStore } from '@/store/authStore'
 import { 
   Building2, 
   ArrowRight, 
@@ -13,13 +14,16 @@ import {
   CheckCircle2,
   ShieldCheck,
   Zap,
-  BarChart3
+  BarChart3,
+  LayoutDashboard
 } from 'lucide-react'
 
 export default function HeroShowcase() {
   const navigate = useNavigate()
   const [isDarkMode, setIsDarkMode] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
+
+  const { isAuthenticated } = useAuthStore()
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20)
@@ -41,32 +45,35 @@ export default function HeroShowcase() {
     {
       icon: Package,
       title: 'Multi-Warehouse Inventory',
-      description: 'Real-time stock valuation using FIFO costing, batch tracking, and reorder alerts.'
+      description: 'Stock batch movements, bin transfers, automated reorder thresholds, and valuation.'
     },
     {
       icon: BookOpen,
-      title: 'Double-Entry Accounting',
-      description: 'Automated journal vouchers, trial balance, P&L reports, and standard 16% VAT filing.'
+      title: 'Double-Entry General Ledger',
+      description: 'Automated trial balance, balance sheets, and tax invoices complying with KRA standards.'
     },
     {
       icon: Users,
-      title: 'HR & Automated Payroll',
-      description: '10 enterprise role permissions, employee attendance logging, and statutory deduction processing.'
+      title: 'HR & Payroll Processing',
+      description: 'Automatic PAYE, NHIF, NSSF statutory tax deductions, and itemized pay slip generations.'
     }
   ]
 
   return (
-    <div className="relative min-h-[90vh] flex flex-col justify-between bg-slate-950 text-slate-100 font-sans selection:bg-blue-600 selection:text-white">
-      {/* Top Navigation */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-200 ${isScrolled ? 'bg-slate-950/95 backdrop-blur-md border-b border-slate-800' : 'bg-transparent'}`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-sm">
+    <div className="relative min-h-[92vh] flex flex-col justify-between overflow-hidden bg-slate-950">
+      {/* Background Accent Gradients */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[450px] bg-gradient-to-b from-blue-600/10 via-indigo-600/5 to-transparent blur-3xl pointer-events-none" />
+
+      {/* Hero Navigation Bar */}
+      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-200 ${
+        isScrolled ? 'bg-slate-950/80 backdrop-blur-md border-b border-slate-800/80 py-3.5' : 'bg-transparent py-5'
+      }`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+          <div className="flex items-center space-x-3 cursor-pointer" onClick={() => navigate('/')}>
+            <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-md">
               <Building2 className="w-5 h-5" />
             </div>
-            <span className="text-xl font-bold tracking-tight text-white">
-              MSME BMS
-            </span>
+            <span className="text-xl font-bold tracking-tight text-white">MSME BMS</span>
           </div>
 
           <div className="flex items-center space-x-3">
@@ -77,19 +84,30 @@ export default function HeroShowcase() {
             >
               {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
+            {isAuthenticated ? (
+              <button
+                onClick={() => navigate('/app/dashboard')}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium transition-all"
+              >
+                <LayoutDashboard className="w-4 h-4" />
+                <span>Dashboard</span>
+              </button>
+            ) : null}
             <button
               onClick={() => navigate('/auth/login')}
               className="px-4 py-2 rounded-lg border border-slate-800 text-sm font-medium text-slate-200 hover:text-white hover:bg-slate-900 transition-all"
             >
               Sign In
             </button>
-            <button
-              onClick={() => navigate('/auth/register')}
-              className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium transition-all"
-            >
-              <span>Sign Up</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
+            {!isAuthenticated && (
+              <button
+                onClick={() => navigate('/auth/register')}
+                className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium transition-all"
+              >
+                <span>Sign Up</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            )}
           </div>
         </div>
       </nav>
@@ -115,18 +133,29 @@ export default function HeroShowcase() {
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-4 mb-16">
+            {isAuthenticated ? (
+              <button
+                onClick={() => navigate('/app/dashboard')}
+                className="px-7 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-medium text-base flex items-center gap-2 transition-all shadow-md hover:scale-[1.02] active:scale-[0.98]"
+              >
+                <LayoutDashboard className="w-5 h-5" />
+                <span>Go to Dashboard</span>
+                <ArrowRight className="w-5 h-5" />
+              </button>
+            ) : (
+              <button
+                onClick={() => navigate('/auth/login')}
+                className="px-7 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-medium text-base flex items-center gap-2 transition-all shadow-md hover:scale-[1.02] active:scale-[0.98]"
+              >
+                <span>Get Started</span>
+                <ArrowRight className="w-5 h-5" />
+              </button>
+            )}
             <button
-              onClick={() => navigate('/auth/login')}
-              className="px-7 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-medium text-base flex items-center gap-2 transition-all shadow-md hover:scale-[1.02] active:scale-[0.98]"
-            >
-              <span>Get Started</span>
-              <ArrowRight className="w-5 h-5" />
-            </button>
-            <button
-              onClick={() => navigate('/auth/register')}
+              onClick={() => navigate(isAuthenticated ? '/auth/login' : '/auth/register')}
               className="px-6 py-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 font-medium text-base transition-colors"
             >
-              Create Account
+              {isAuthenticated ? 'Switch Account / Sign In' : 'Create Account'}
             </button>
           </div>
         </motion.div>

@@ -103,11 +103,7 @@ export default function Expenses() {
           <CardHeader><CardTitle className="text-base">All Expenses</CardTitle></CardHeader>
           <CardContent>
             <DataTable
-              columns={columns(id => {
-                if (confirm('Are you sure you want to delete this expense?')) {
-                  deleteMutation.mutate(id)
-                }
-              })}
+              columns={columns(id => deleteMutation.mutate(id))}
               data={expenses}
               isLoading={isLoading}
               total={total}

@@ -8,7 +8,7 @@ const createProductSchema = z.object({
   unitId: z.string().optional().nullable().transform(v => (v === '' || !v ? null : v)),
   costPrice: z.coerce.number().min(0).default(0),
   sellingPrice: z.coerce.number().min(0).default(0),
-  barcode: z.string().optional(),
+  barcode: z.string().optional().nullable().transform(v => (v === '' || !v ? null : v.trim())),
   trackInventory: z.coerce.boolean().default(true),
   reorderPoint: z.coerce.number().int().min(0).default(5),
   businessId: z.string().optional()

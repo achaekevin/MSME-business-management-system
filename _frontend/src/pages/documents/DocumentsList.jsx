@@ -114,7 +114,7 @@ export default function DocumentsList() {
             <DataTable
               columns={columns(
                 id => handleView(id),
-                id => { if (confirm('Delete this document permanently?')) deleteMutation.mutate(id) }
+                id => deleteMutation.mutate(id)
               )}
               data={docs}
               isLoading={isLoading}

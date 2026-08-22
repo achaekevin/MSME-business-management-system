@@ -5,6 +5,8 @@ const { parsePagination } = require('../../helpers/pagination')
 const { invalidateTenantCache, cacheGet, cacheSet, cacheKey } = require('../../config/redis')
 const { uploadBuffer } = require('../../storage/storage.service')
 
+const { prisma } = require('../../config/database')
+
 async function listProducts(businessId, query) {
   const { page, limit, skip, take, orderBy } = parsePagination(query)
   const [rawItems, total] = await repo.findMany(businessId, {
@@ -19,14 +21,14 @@ async function listProducts(businessId, query) {
 
 async function getProduct(businessId, id) {
   const key = cacheKey(businessId, 'product', id)
-  const cached = await cacheGet(key)
+  const cached = await cacheGet(key).catch(() => null)
   if (cached) return cached
 
   const product = await repo.findById(businessId, id)
   if (!product) throw ApiError.notFound('Product not found')
 
   const result = { ...product, currentStock: repo.totalStock(product) }
-  await cacheSet(key, result, 120)
+  await cacheSet(key, result, 120).catch(() => {})
   return result
 }
 
@@ -37,17 +39,44 @@ async function findByCode(businessId, code) {
 }
 
 async function createProduct(businessId, data, req) {
-  const existing = await repo.findBySkuOrBarcode(businessId, data.sku)
-  if (existing) throw ApiError.conflict('A product with this SKU already exists')
+  // Check if SKU already exists in this business
+  if (data.sku) {
+    const existingSku = await prisma.product.findFirst({
+      where: { businessId, sku: data.sku }
+    })
+    if (existingSku) throw ApiError.conflict('A product with this SKU already exists')
+  }
+
+  // Check if Barcode already exists in this business (if provided)
+  if (data.barcode && data.barcode.trim()) {
+    const existingBarcode = await prisma.product.findFirst({
+      where: { businessId, barcode: data.barcode.trim() }
+    })
+    if (existingBarcode) throw ApiError.conflict('A product with this barcode already exists')
+  }
 
   const product = await repo.create(businessId, data)
 
   // Generate a QR code encoding the product ID for quick scanning in POS/inventory
-  const qrBuffer = await QRCode.toBuffer(JSON.stringify({ productId: product.id, sku: product.sku }), { width: 300 })
-  const qrUrl = await uploadBuffer(`products/${businessId}/${product.id}-qr.png`, qrBuffer, 'image/png')
-  await repo.update(businessId, product.id, { qrCode: qrUrl })
+  // Gracefully fallback to base64 DataURL if storage upload is unavailable
+  try {
+    let qrUrl = null
+    try {
+      const qrBuffer = await QRCode.toBuffer(JSON.stringify({ productId: product.id, sku: product.sku }), { width: 300 })
+      qrUrl = await uploadBuffer(`products/${businessId}/${product.id}-qr.png`, qrBuffer, 'image/png')
+    } catch (storageErr) {
+      // MinIO / storage service offline or error - use base64 data URL
+      qrUrl = await QRCode.toDataURL(JSON.stringify({ productId: product.id, sku: product.sku }), { width: 300 })
+    }
 
-  await invalidateTenantCache(businessId, 'product')
+    if (qrUrl) {
+      await repo.update(businessId, product.id, { qrCode: qrUrl })
+    }
+  } catch (qrErr) {
+    // If QR code generation fails entirely, do not fail product creation
+  }
+
+  await invalidateTenantCache(businessId, 'product').catch(() => {})
   req?.audit?.('product.created', 'Product', product.id, { name: product.name, sku: product.sku })
 
   return repo.findById(businessId, product.id)
@@ -57,8 +86,22 @@ async function updateProduct(businessId, id, data, req) {
   const existing = await repo.findById(businessId, id)
   if (!existing) throw ApiError.notFound('Product not found')
 
+  if (data.sku && data.sku !== existing.sku) {
+    const skuExists = await prisma.product.findFirst({
+      where: { businessId, sku: data.sku, NOT: { id } }
+    })
+    if (skuExists) throw ApiError.conflict('A product with this SKU already exists')
+  }
+
+  if (data.barcode && data.barcode.trim() && data.barcode.trim() !== existing.barcode) {
+    const barcodeExists = await prisma.product.findFirst({
+      where: { businessId, barcode: data.barcode.trim(), NOT: { id } }
+    })
+    if (barcodeExists) throw ApiError.conflict('A product with this barcode already exists')
+  }
+
   await repo.update(businessId, id, data)
-  await invalidateTenantCache(businessId, 'product')
+  await invalidateTenantCache(businessId, 'product').catch(() => {})
   req?.audit?.('product.updated', 'Product', id, { changes: data })
 
   return repo.findById(businessId, id)
@@ -69,7 +112,7 @@ async function deleteProduct(businessId, id, req) {
   if (!existing) throw ApiError.notFound('Product not found')
 
   await repo.remove(businessId, id)
-  await invalidateTenantCache(businessId, 'product')
+  await invalidateTenantCache(businessId, 'product').catch(() => {})
   req?.audit?.('product.deleted', 'Product', id)
   return { deleted: true }
 }
