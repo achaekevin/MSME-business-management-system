@@ -136,10 +136,10 @@ export default function HeroShowcase() {
               Sign In
             </button>
             <button
-              onClick={() => navigate('/auth/login')}
+              onClick={() => navigate('/auth/register')}
               className="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-sm font-semibold shadow-lg shadow-blue-600/30 transition-all hover:scale-[1.02] active:scale-[0.98]"
             >
-              <span>Launch Dashboard</span>
+              <span>Sign Up</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -190,7 +190,7 @@ export default function HeroShowcase() {
               onClick={() => navigate('/auth/login')}
               className="px-7 py-3.5 rounded-2xl bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold text-base shadow-xl shadow-blue-600/30 flex items-center gap-2 transition-all hover:scale-[1.03] active:scale-[0.97]"
             >
-              <span>Access System</span>
+              <span>Get Started</span>
               <ArrowRight className="w-5 h-5" />
             </button>
             <a

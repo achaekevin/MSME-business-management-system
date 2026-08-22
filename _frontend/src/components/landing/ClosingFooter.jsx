@@ -56,7 +56,7 @@ export default function ClosingFooter() {
                 onClick={() => navigate('/auth/login')}
                 className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-base shadow-xl shadow-blue-600/30 flex items-center justify-center gap-2 transition-all hover:scale-[1.02] active:scale-[0.98]"
               >
-                <span>Launch System Login</span>
+                <span>Get Started</span>
                 <ArrowRight className="w-5 h-5" />
               </button>
               <div className="text-center">
