@@ -61,28 +61,30 @@ const Dashboard = memo(function Dashboard() {
     return hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening'
   }, [hour])
 
+  const userRole = typeof user?.role === 'object' ? (user?.role?.displayName || user?.role?.name) : (user?.role || 'Administrator')
+
   return (
     <>
       <Helmet><title>Dashboard — MSME BMS</title></Helmet>
 
       <div className="space-y-6">
         {/* Executive Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl bg-gradient-to-r from-slate-900 via-slate-900 to-slate-950 border border-slate-800 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl bg-card border border-border text-card-foreground shadow-sm">
           <div>
-            <div className="flex items-center gap-2 text-xs font-semibold text-blue-400 mb-1">
+            <div className="flex items-center gap-2 text-xs font-semibold text-primary mb-1">
               <Building2 className="w-3.5 h-3.5" />
-              <span>Head Office Branch · {typeof user?.role === 'object' ? (user?.role?.displayName || user?.role?.name) : (user?.role || 'Administrator')}</span>
+              <span>Head Office Branch · {userRole}</span>
             </div>
-            <h1 className="text-2xl font-bold text-white tracking-tight">{greeting}, {user?.name || 'Administrator'} 👋</h1>
-            <p className="text-sm text-slate-400 mt-0.5">Enterprise financial overview and real-time operations summary.</p>
+            <h1 className="text-2xl font-bold text-foreground tracking-tight">{greeting}, {user?.name || 'Administrator'} 👋</h1>
+            <p className="text-sm text-muted-foreground mt-0.5">Enterprise financial overview and real-time operations summary.</p>
           </div>
 
           <div className="flex items-center gap-2.5">
-            <Button onClick={() => navigate('/app/sales/pos')} className="bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs h-9 px-4 rounded-xl shadow-md">
+            <Button onClick={() => navigate('/app/sales/pos')} className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium text-xs h-9 px-4 rounded-xl shadow-md">
               <ShoppingBag className="w-4 h-4 mr-1.5" />
               Open POS Till
             </Button>
-            <Button onClick={() => navigate('/app/inventory')} variant="outline" className="border-slate-700 text-slate-300 hover:text-white hover:bg-slate-800 text-xs h-9 px-4 rounded-xl">
+            <Button onClick={() => navigate('/app/inventory')} variant="outline" className="border-border text-foreground hover:bg-muted text-xs h-9 px-4 rounded-xl">
               <Package className="w-4 h-4 mr-1.5" />
               Stock Ledger
             </Button>
@@ -92,67 +94,67 @@ const Dashboard = memo(function Dashboard() {
         {/* Top 4 Key Metric Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Total Revenue */}
-          <div className="p-5 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-sm hover:border-slate-700 transition-colors">
+          <div className="p-5 rounded-2xl bg-card border border-border text-card-foreground shadow-sm hover:border-border/80 transition-colors">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-slate-400">Total Revenue</span>
-              <div className="w-8 h-8 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
+              <span className="text-xs font-medium text-muted-foreground">Total Revenue</span>
+              <div className="w-8 h-8 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-600 dark:text-blue-400">
                 <DollarSign className="w-4 h-4" />
               </div>
             </div>
-            <div className="text-2xl font-bold text-white mt-2 tracking-tight">
+            <div className="text-2xl font-bold text-foreground mt-2 tracking-tight">
               {formatCurrency(mockStats.revenue.value)}
             </div>
-            <div className="flex items-center gap-1.5 text-xs text-emerald-400 font-medium mt-2">
+            <div className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400 font-medium mt-2">
               <ArrowUpRight className="w-3.5 h-3.5" />
               <span>+{mockStats.revenue.change}% {mockStats.revenue.period}</span>
             </div>
           </div>
 
           {/* Total Expenses */}
-          <div className="p-5 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-sm hover:border-slate-700 transition-colors">
+          <div className="p-5 rounded-2xl bg-card border border-border text-card-foreground shadow-sm hover:border-border/80 transition-colors">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-slate-400">Total Expenses</span>
-              <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+              <span className="text-xs font-medium text-muted-foreground">Total Expenses</span>
+              <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-600 dark:text-amber-400">
                 <ShoppingBag className="w-4 h-4" />
               </div>
             </div>
-            <div className="text-2xl font-bold text-white mt-2 tracking-tight">
+            <div className="text-2xl font-bold text-foreground mt-2 tracking-tight">
               {formatCurrency(mockStats.expenses.value)}
             </div>
-            <div className="flex items-center gap-1.5 text-xs text-slate-400 font-medium mt-2">
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium mt-2">
               <span>+{mockStats.expenses.change}% {mockStats.expenses.period}</span>
             </div>
           </div>
 
           {/* Net Income */}
-          <div className="p-5 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-sm hover:border-slate-700 transition-colors">
+          <div className="p-5 rounded-2xl bg-card border border-border text-card-foreground shadow-sm hover:border-border/80 transition-colors">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-slate-400">Net Operating Income</span>
-              <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+              <span className="text-xs font-medium text-muted-foreground">Net Operating Income</span>
+              <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
                 <TrendingUp className="w-4 h-4" />
               </div>
             </div>
-            <div className="text-2xl font-bold text-emerald-400 mt-2 tracking-tight">
+            <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-2 tracking-tight">
               {formatCurrency(mockStats.netIncome.value)}
             </div>
-            <div className="flex items-center gap-1.5 text-xs text-emerald-400 font-medium mt-2">
+            <div className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400 font-medium mt-2">
               <ArrowUpRight className="w-3.5 h-3.5" />
               <span>+{mockStats.netIncome.change}% Profit Margin</span>
             </div>
           </div>
 
           {/* Cash & Bank Balance */}
-          <div className="p-5 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-sm hover:border-slate-700 transition-colors">
+          <div className="p-5 rounded-2xl bg-card border border-border text-card-foreground shadow-sm hover:border-border/80 transition-colors">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-slate-400">Cash & Bank Liquidity</span>
-              <div className="w-8 h-8 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
+              <span className="text-xs font-medium text-muted-foreground">Cash & Bank Liquidity</span>
+              <div className="w-8 h-8 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
                 <CreditCard className="w-4 h-4" />
               </div>
             </div>
-            <div className="text-2xl font-bold text-white mt-2 tracking-tight">
+            <div className="text-2xl font-bold text-foreground mt-2 tracking-tight">
               {formatCurrency(mockStats.cashBalance.value)}
             </div>
-            <div className="flex items-center gap-1.5 text-xs text-slate-400 font-medium mt-2">
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium mt-2">
               <span>All Till Drawers & MPesa Float</span>
             </div>
           </div>
@@ -160,24 +162,24 @@ const Dashboard = memo(function Dashboard() {
 
         {/* Financial Revenue Trend & Weekly Volume Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 p-5 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-sm">
+          <div className="lg:col-span-2 p-5 rounded-2xl bg-card border border-border text-card-foreground shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-base font-semibold text-white">Revenue vs Operating Expenses</h3>
-                <p className="text-xs text-slate-400">Monthly fiscal trend comparison (FIFO accrual basis)</p>
+                <h3 className="text-base font-semibold text-foreground">Revenue vs Operating Expenses</h3>
+                <p className="text-xs text-muted-foreground">Monthly fiscal trend comparison (FIFO accrual basis)</p>
               </div>
-              <span className="text-xs px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 font-medium">
+              <span className="text-xs px-2.5 py-1 rounded-lg bg-muted text-muted-foreground font-medium">
                 2026 Fiscal Year
               </span>
             </div>
             <RevenueChart data={mockRevenueData} />
           </div>
 
-          <div className="p-5 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-sm">
+          <div className="p-5 rounded-2xl bg-card border border-border text-card-foreground shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-base font-semibold text-white">Weekly POS Volume</h3>
-                <p className="text-xs text-slate-400">Daily gross turnover & gross profit</p>
+                <h3 className="text-base font-semibold text-foreground">Weekly POS Volume</h3>
+                <p className="text-xs text-muted-foreground">Daily gross turnover & gross profit</p>
               </div>
             </div>
             <SalesBarChart data={mockSalesData} />
@@ -187,32 +189,32 @@ const Dashboard = memo(function Dashboard() {
         {/* Bottom Split: Recent Journal Vouchers & Top Selling Catalog Products */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Recent Journal Vouchers */}
-          <div className="lg:col-span-6 p-5 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-sm">
+          <div className="lg:col-span-6 p-5 rounded-2xl bg-card border border-border text-card-foreground shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-base font-semibold text-white">Recent Journal Vouchers</h3>
-                <p className="text-xs text-slate-400">Automated double-entry general ledger postings</p>
+                <h3 className="text-base font-semibold text-foreground">Recent Journal Vouchers</h3>
+                <p className="text-xs text-muted-foreground">Automated double-entry general ledger postings</p>
               </div>
-              <Link to="/app/accounting/journal-entries" className="text-xs text-blue-400 hover:text-blue-300 font-medium">
+              <Link to="/app/accounting/journal-entries" className="text-xs text-primary hover:underline font-medium">
                 View Ledger →
               </Link>
             </div>
 
             <div className="space-y-2.5">
               {mockRecentVouchers.map((jv) => (
-                <div key={jv.id} className="p-3 rounded-xl bg-slate-950/80 border border-slate-800 flex items-center justify-between hover:border-slate-700 transition-colors">
+                <div key={jv.id} className="p-3 rounded-xl bg-muted/40 border border-border flex items-center justify-between hover:bg-muted/70 transition-colors">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 text-xs font-bold font-mono">
+                    <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary text-xs font-bold font-mono">
                       JV
                     </div>
                     <div>
-                      <div className="text-xs font-semibold text-white">{jv.id} · {jv.type}</div>
-                      <div className="text-[11px] text-slate-400 mt-0.5">{jv.desc} · {jv.date}</div>
+                      <div className="text-xs font-semibold text-foreground">{jv.id} · {jv.type}</div>
+                      <div className="text-[11px] text-muted-foreground mt-0.5">{jv.desc} · {jv.date}</div>
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-xs font-bold font-mono text-white">{formatCurrency(jv.amount)}</div>
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 font-semibold">
+                    <div className="text-xs font-bold font-mono text-foreground">{formatCurrency(jv.amount)}</div>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold">
                       {jv.status}
                     </span>
                   </div>
@@ -222,30 +224,30 @@ const Dashboard = memo(function Dashboard() {
           </div>
 
           {/* Top Products */}
-          <div className="lg:col-span-6 p-5 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-sm">
+          <div className="lg:col-span-6 p-5 rounded-2xl bg-card border border-border text-card-foreground shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-base font-semibold text-white">Top Performing Products</h3>
-                <p className="text-xs text-slate-400">High velocity inventory items by turnover</p>
+                <h3 className="text-base font-semibold text-foreground">Top Performing Products</h3>
+                <p className="text-xs text-muted-foreground">High velocity inventory items by turnover</p>
               </div>
-              <Link to="/app/products" className="text-xs text-blue-400 hover:text-blue-300 font-medium">
+              <Link to="/app/products" className="text-xs text-primary hover:underline font-medium">
                 View Catalog →
               </Link>
             </div>
 
             <div className="space-y-2.5">
               {mockTopProducts.map((prod, idx) => (
-                <div key={prod.sku} className="p-3 rounded-xl bg-slate-950/80 border border-slate-800 flex items-center justify-between hover:border-slate-700 transition-colors">
+                <div key={prod.sku} className="p-3 rounded-xl bg-muted/40 border border-border flex items-center justify-between hover:bg-muted/70 transition-colors">
                   <div className="flex items-center gap-3">
-                    <span className="text-xs font-bold text-slate-500 w-4 text-center">#{idx + 1}</span>
+                    <span className="text-xs font-bold text-muted-foreground w-4 text-center">#{idx + 1}</span>
                     <div>
-                      <div className="text-xs font-semibold text-white truncate max-w-[200px] sm:max-w-xs">{prod.name}</div>
-                      <div className="text-[11px] text-slate-400 font-mono mt-0.5">{prod.sku} · <span className="text-emerald-400">{prod.stock}</span></div>
+                      <div className="text-xs font-semibold text-foreground truncate max-w-[200px] sm:max-w-xs">{prod.name}</div>
+                      <div className="text-[11px] text-muted-foreground font-mono mt-0.5">{prod.sku} · <span className="text-emerald-600 dark:text-emerald-400">{prod.stock}</span></div>
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-xs font-bold font-mono text-white">{formatCurrency(prod.revenue)}</div>
-                    <div className="text-[10px] text-slate-400">{prod.sales} sold</div>
+                    <div className="text-xs font-bold font-mono text-foreground">{formatCurrency(prod.revenue)}</div>
+                    <div className="text-[10px] text-muted-foreground">{prod.sales} sold</div>
                   </div>
                 </div>
               ))}

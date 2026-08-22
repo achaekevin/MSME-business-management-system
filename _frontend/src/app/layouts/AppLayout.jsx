@@ -11,7 +11,8 @@ export function AppLayout() {
       display: 'grid',
       gridTemplateColumns: '240px 1fr',
       gridTemplateRows: '64px 1fr',
-      backgroundColor: '#ffffff'
+      backgroundColor: 'hsl(var(--background))',
+      color: 'hsl(var(--foreground))'
     }}>
       {/* Sidebar */}
       <div style={{
@@ -39,7 +40,8 @@ export function AppLayout() {
         gridRow: '2',
         overflow: 'auto',
         padding: '1.5rem',
-        backgroundColor: 'hsl(var(--background))'
+        backgroundColor: 'hsl(var(--background))',
+        color: 'hsl(var(--foreground))'
       }}>
         <Outlet />
       </div>
