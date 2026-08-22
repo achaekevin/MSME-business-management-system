@@ -11,6 +11,7 @@ import {
 } from '@/components/ui'
 import { accountingService } from '@/services'
 import { journalEntrySchema } from '@/validations'
+import { formatCurrency } from '@/utils'
 import toast from 'react-hot-toast'
 import { format } from 'date-fns'
 import { DataTable } from '@/components/tables/DataTable'
@@ -26,7 +27,7 @@ const columns = [
     // Total Debits
     const lines = row.original.lines || []
     const totalDebits = lines.reduce((sum, line) => sum + (Number(line.debit) || 0), 0)
-    return <span className="font-semibold">${totalDebits.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+    return <span className="font-semibold">{formatCurrency(totalDebits)}</span>
   }},
   { accessorKey: 'createdBy.name', header: 'Created By', cell: ({ row }) => row.original.createdBy?.name || '—' }
 ]
@@ -196,10 +197,10 @@ export default function JournalEntries() {
 
                 {/* Balances summary */}
                 <div className="flex justify-between items-center border-t pt-3 mt-3 text-sm font-semibold">
-                  <div>Difference: <span className={isBalanced ? 'text-green-600' : 'text-red-600'}>${difference.toFixed(2)}</span></div>
+                  <div>Difference: <span className={isBalanced ? 'text-green-600' : 'text-red-600'}>{formatCurrency(difference)}</span></div>
                   <div className="flex gap-4">
-                    <div>Total Debits: ${totalDebits.toFixed(2)}</div>
-                    <div>Total Credits: ${totalCredits.toFixed(2)}</div>
+                    <div>Total Debits: {formatCurrency(totalDebits)}</div>
+                    <div>Total Credits: {formatCurrency(totalCredits)}</div>
                   </div>
                 </div>
               </div>

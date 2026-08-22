@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom'
 import { ArrowLeft, RefreshCw, Download, FileSpreadsheet, FileIcon } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent, Button, Skeleton, Input } from '@/components/ui'
 import { reportService } from '@/services'
+import { formatCurrency } from '@/utils'
 import toast from 'react-hot-toast'
 
 export default function InventoryReport() {
@@ -115,8 +116,8 @@ export default function InventoryReport() {
                         <span className="block text-xs text-muted-foreground">{item.sku}</span>
                       </td>
                       <td className="px-4 py-3 text-right">{item.quantity}</td>
-                      <td className="px-4 py-3 text-right">${Number(item.costPrice).toFixed(2)}</td>
-                      <td className="px-4 py-3 text-right font-semibold">${(Number(item.quantity) * Number(item.costPrice)).toFixed(2)}</td>
+                      <td className="px-4 py-3 text-right">{formatCurrency(item.costPrice)}</td>
+                      <td className="px-4 py-3 text-right font-semibold">{formatCurrency(Number(item.quantity) * Number(item.costPrice))}</td>
                     </tr>
                   ))}
                   {items.length === 0 && (

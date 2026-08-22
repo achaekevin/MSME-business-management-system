@@ -5,12 +5,13 @@ import { Link } from 'react-router-dom'
 import { RefreshCw, ArrowUpRight } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent, Button, Badge } from '@/components/ui'
 import { financeService } from '@/services'
+import { formatCurrency } from '@/utils'
 import { DataTable } from '@/components/tables/DataTable'
 import { format } from 'date-fns'
 
 const columns = [
   { accessorKey: 'invoiceNumber', header: 'Invoice', cell: ({ row }) => (
-    <Link to={`/invoices/${row.original.id}`} className="font-semibold text-primary hover:underline">
+    <Link to={`/app/invoices/${row.original.id}`} className="font-semibold text-primary hover:underline">
       {row.original.invoiceNumber || `INV-${row.original.id.substring(0, 8)}`}
     </Link>
   )},
@@ -19,10 +20,10 @@ const columns = [
     try { return format(new Date(row.original.dueDate), 'MMM dd, yyyy') } catch { return '—' }
   }},
   { accessorKey: 'total', header: 'Invoice Total', cell: ({ row }) => {
-    return <span>${row.original.total.toLocaleString()}</span>
+    return <span>{formatCurrency(row.original.total)}</span>
   }},
   { accessorKey: 'balance', header: 'Outstanding Balance', cell: ({ row }) => {
-    return <span className="font-semibold text-amber-600">${row.original.balance.toLocaleString()}</span>
+    return <span className="font-semibold text-amber-600">{formatCurrency(row.original.balance)}</span>
   }},
   { accessorKey: 'status', header: 'Status', cell: ({ row }) => {
     const isOverdue = new Date(row.original.dueDate) < new Date() && row.original.balance > 0
@@ -67,7 +68,7 @@ export default function Receivables() {
             <CardContent className="p-6 flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Total Receivables</p>
-                <p className="text-3xl font-bold mt-1 text-amber-600">${totalOutstanding.toLocaleString()}</p>
+                <p className="text-3xl font-bold mt-1 text-amber-600">{formatCurrency(totalOutstanding)}</p>
               </div>
               <div className="p-3 rounded-full bg-amber-100 dark:bg-amber-900/20">
                 <ArrowUpRight className="h-6 w-6 text-amber-600" />

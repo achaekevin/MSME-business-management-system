@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Helmet } from 'react-helmet-async'
-import { RefreshCw, CreditCard, Landmark, DollarSign } from 'lucide-react'
+import { RefreshCw, CreditCard, Landmark, Banknote } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent, Button, Skeleton, Badge } from '@/components/ui'
 import { paymentService } from '@/services'
 import { DataTable } from '@/components/tables/DataTable'
+import { formatCurrency } from '@/utils'
 import { format } from 'date-fns'
 
 const columns = [
@@ -22,7 +23,7 @@ const columns = [
     return val ? val.replace('_', ' ').toUpperCase() : '—'
   }},
   { accessorKey: 'amount', header: 'Amount Received', cell: ({ row }) => (
-    <span className="font-bold text-green-600">${Number(row.original.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+    <span className="font-bold text-green-600">{formatCurrency(row.original.amount)}</span>
   )},
   { accessorKey: 'status', header: 'Status', cell: () => <Badge variant="success">SUCCESS</Badge> }
 ]
@@ -61,10 +62,10 @@ export default function PaymentsList() {
             <CardContent className="p-6 flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Total Cash Collected (This Page)</p>
-                <p className="text-3xl font-bold mt-1 text-green-600">${totalCollected.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+                <p className="text-3xl font-bold mt-1 text-green-600">{formatCurrency(totalCollected)}</p>
               </div>
               <div className="p-3 rounded-full bg-green-100 dark:bg-green-900/20">
-                <DollarSign className="h-6 w-6 text-green-600" />
+                <Landmark className="h-6 w-6 text-green-600" />
               </div>
             </CardContent>
           </Card>

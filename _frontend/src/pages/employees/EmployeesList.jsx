@@ -12,16 +12,17 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { employeeSchema } from '@/validations'
 import { employeeService } from '@/services'
+import { formatCurrency } from '@/utils'
 import toast from 'react-hot-toast'
 import { DataTable } from '@/components/tables/DataTable'
 import { format } from 'date-fns'
 
 const columns = (onDelete) => [
   { accessorKey: 'name', header: 'Name', cell: ({ row }) => (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-2">
       <Avatar name={row.original.name} size="sm" />
       <div>
-        <Link to={`/employees/${row.original.id}`} className="font-semibold text-primary hover:underline">
+        <Link to={`/app/employees/${row.original.id}`} className="font-semibold text-primary hover:underline">
           {row.original.name}
         </Link>
         <div className="text-xs text-muted-foreground">{row.original.email}</div>
@@ -31,7 +32,7 @@ const columns = (onDelete) => [
   { accessorKey: 'department.name', header: 'Department', cell: ({ row }) => row.original.department?.name || '—' },
   { accessorKey: 'position.name', header: 'Position', cell: ({ row }) => row.original.position?.name || '—' },
   { accessorKey: 'salary', header: 'Salary', cell: ({ row }) => (
-    <span>${row.original.salary.toLocaleString()} / {row.original.salaryType}</span>
+    <span>{formatCurrency(row.original.salary)} / {row.original.salaryType}</span>
   )},
   { accessorKey: 'joinDate', header: 'Joined', cell: ({ row }) => {
     try { return format(new Date(row.original.joinDate), 'MMM dd, yyyy') } catch { return '—' }

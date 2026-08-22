@@ -9,6 +9,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Skeleton, Badge
 } from '@/components/ui'
 import { salesService } from '@/services'
+import { formatCurrency } from '@/utils'
 import toast from 'react-hot-toast'
 import { format } from 'date-fns'
 
@@ -110,24 +111,24 @@ export default function SaleDetail() {
                             <span className="block text-xs text-muted-foreground">{item.product?.sku}</span>
                           </td>
                           <td className="px-4 py-3 text-right">{item.quantity}</td>
-                          <td className="px-4 py-3 text-right">${Number(item.unitPrice).toLocaleString()}</td>
-                          <td className="px-4 py-3 text-right text-red-600">-${Number(item.discount || 0).toLocaleString()}</td>
-                          <td className="px-4 py-3 text-right font-semibold">${Number(item.total).toLocaleString()}</td>
+                          <td className="px-4 py-3 text-right">{formatCurrency(item.unitPrice)}</td>
+                          <td className="px-4 py-3 text-right text-red-600">-{formatCurrency(item.discount || 0)}</td>
+                          <td className="px-4 py-3 text-right font-semibold">{formatCurrency(item.total)}</td>
                         </tr>
                       ))}
                       <tr className="font-bold bg-muted/20">
                         <td colSpan={4} className="px-4 py-3 text-right">Subtotal</td>
-                        <td className="px-4 py-3 text-right">${Number(sale.subtotal).toLocaleString()}</td>
+                        <td className="px-4 py-3 text-right">{formatCurrency(sale.subtotal)}</td>
                       </tr>
                       {Number(sale.discountAmount) > 0 && (
                         <tr className="font-semibold text-red-600">
                           <td colSpan={4} className="px-4 py-3 text-right">Order Discount</td>
-                          <td className="px-4 py-3 text-right">-${Number(sale.discountAmount).toLocaleString()}</td>
+                          <td className="px-4 py-3 text-right">-{formatCurrency(sale.discountAmount)}</td>
                         </tr>
                       )}
                       <tr className="font-bold border-b-2">
                         <td colSpan={4} className="px-4 py-3 text-right text-base">Grand Total</td>
-                        <td className="px-4 py-3 text-right text-base">${Number(sale.total).toLocaleString()}</td>
+                        <td className="px-4 py-3 text-right text-base">{formatCurrency(sale.total)}</td>
                       </tr>
                     </tbody>
                   </table>

@@ -2,8 +2,9 @@ import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Helmet } from 'react-helmet-async'
 import { RefreshCw, Download } from 'lucide-react'
-import { Card, CardHeader, CardTitle, CardContent, Button, Skeleton } from '@/components/ui'
+import { Card, CardHeader, CardTitle, CardContent, Button, Skeleton, Input } from '@/components/ui'
 import { accountingService } from '@/services'
+import { formatCurrency } from '@/utils'
 
 export default function TrialBalance() {
   const [asOfDate, setAsOfDate] = useState(new Date().toISOString().split('T')[0])
@@ -17,11 +18,6 @@ export default function TrialBalance() {
   const rows = data?.rows || []
   const totalDebit = data?.totalDebit || 0
   const totalCredit = data?.totalCredit || 0
-
-  const fmt = (n) => {
-    if (!n && n !== 0) return '—'
-    return n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-  }
 
   return (
     <>
@@ -66,8 +62,8 @@ export default function TrialBalance() {
                       <tr key={idx} className="border-b hover:bg-muted/20">
                         <td className="px-6 py-3 font-mono text-muted-foreground">{row.code}</td>
                         <td className="px-6 py-3 font-medium">{row.name}</td>
-                        <td className="px-6 py-3 text-right text-green-600">{row.debit ? `$${fmt(row.debit)}` : '—'}</td>
-                        <td className="px-6 py-3 text-right text-red-600">{row.credit ? `$${fmt(row.credit)}` : '—'}</td>
+                        <td className="px-6 py-3 text-right text-green-600">{row.debit ? formatCurrency(row.debit) : '—'}</td>
+                        <td className="px-6 py-3 text-right text-red-600">{row.credit ? formatCurrency(row.credit) : '—'}</td>
                       </tr>
                     ))}
                     {rows.length === 0 && (
@@ -80,8 +76,8 @@ export default function TrialBalance() {
                     {rows.length > 0 && (
                       <tr className="bg-muted/30 font-bold border-t-2 border-b-4">
                         <td colSpan={2} className="px-6 py-4">Total</td>
-                        <td className="px-6 py-4 text-right text-green-700">${fmt(totalDebit)}</td>
-                        <td className="px-6 py-4 text-right text-red-700">${fmt(totalCredit)}</td>
+                        <td className="px-6 py-4 text-right text-green-700">{formatCurrency(totalDebit)}</td>
+                        <td className="px-6 py-4 text-right text-red-700">{formatCurrency(totalCredit)}</td>
                       </tr>
                     )}
                   </tbody>

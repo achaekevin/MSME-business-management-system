@@ -9,6 +9,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Skeleton, Badge
 } from '@/components/ui'
 import { invoiceService } from '@/services'
+import { formatCurrency } from '@/utils'
 import toast from 'react-hot-toast'
 import { format } from 'date-fns'
 
@@ -114,9 +115,9 @@ export default function InvoiceDetail() {
                     </div>
                     <div className="text-right">
                       <p className="text-xs text-muted-foreground">Total Invoice</p>
-                      <p className="text-2xl font-bold text-indigo-600">${Number(inv.total).toLocaleString()}</p>
+                      <p className="text-2xl font-bold text-indigo-600">{formatCurrency(inv.total)}</p>
                       <p className="text-xs text-muted-foreground mt-2">Balance Due</p>
-                      <p className="text-lg font-semibold text-amber-600">${Number(inv.balance).toLocaleString()}</p>
+                      <p className="text-lg font-semibold text-amber-600">{formatCurrency(inv.balance)}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -143,8 +144,8 @@ export default function InvoiceDetail() {
                             <span className="block text-xs text-muted-foreground">{item.product?.sku}</span>
                           </td>
                           <td className="px-4 py-3 text-right">{item.quantity}</td>
-                          <td className="px-4 py-3 text-right">${Number(item.unitPrice).toLocaleString()}</td>
-                          <td className="px-4 py-3 text-right font-semibold">${Number(item.total).toLocaleString()}</td>
+                          <td className="px-4 py-3 text-right">{formatCurrency(item.unitPrice)}</td>
+                          <td className="px-4 py-3 text-right font-semibold">{formatCurrency(item.total)}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -163,7 +164,7 @@ export default function InvoiceDetail() {
                         <p className="text-xs text-muted-foreground">Recorded on {format(new Date(p.createdAt), 'MMM dd, yyyy')}</p>
                         {p.notes && <p className="text-xs text-muted-foreground mt-1">Notes: {p.notes}</p>}
                       </div>
-                      <span className="font-semibold text-green-600">${Number(p.amount).toLocaleString()}</span>
+                      <span className="font-semibold text-green-600">{formatCurrency(p.amount)}</span>
                     </div>
                   ))}
                   {payments.length === 0 && (

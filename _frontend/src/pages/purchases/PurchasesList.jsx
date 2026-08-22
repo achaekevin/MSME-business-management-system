@@ -12,14 +12,15 @@ import { useForm, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { purchaseSchema } from '@/validations'
 import { purchaseService, supplierService, productService } from '@/services'
+import { formatCurrency } from '@/utils'
 import toast from 'react-hot-toast'
 import { DataTable } from '@/components/tables/DataTable'
 import { format } from 'date-fns'
 
 const columns = [
-  { accessorKey: 'purchaseNumber', header: 'PO #', cell: ({ row }) => (
-    <Link to={`/purchases/${row.original.id}`} className="font-semibold text-primary hover:underline">
-      {row.original.purchaseNumber || `PO-${row.original.id.substring(0, 8)}`}
+  { accessorKey: 'poNumber', header: 'PO Number', cell: ({ row }) => (
+    <Link to={`/app/purchases/${row.original.id}`} className="font-mono font-semibold text-primary hover:underline">
+      {row.original.poNumber}
     </Link>
   )},
   { accessorKey: 'supplier.name', header: 'Supplier', cell: ({ row }) => row.original.supplier?.name || '—' },
@@ -35,7 +36,7 @@ const columns = [
     return <Badge variant={s.color}>{s.label.toUpperCase()}</Badge>
   }},
   { accessorKey: 'total', header: 'Total Amount', cell: ({ row }) => (
-    <span>${row.original.total.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+    <span>{formatCurrency(row.original.total)}</span>
   )},
   { accessorKey: 'createdAt', header: 'Order Date', cell: ({ row }) => {
     try { return format(new Date(row.original.createdAt), 'MMM dd, yyyy') } catch { return '—' }

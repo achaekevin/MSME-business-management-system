@@ -8,6 +8,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Skeleton, Badge
 } from '@/components/ui'
 import { salesService } from '@/services'
+import { formatCurrency } from '@/utils'
 import toast from 'react-hot-toast'
 import { DataTable } from '@/components/tables/DataTable'
 import { format } from 'date-fns'
@@ -18,7 +19,7 @@ const columns = (onReturn) => [
   )},
   { accessorKey: 'customer.name', header: 'Customer', cell: ({ row }) => row.original.customer?.name || 'Walk-in Customer' },
   { accessorKey: 'total', header: 'Total Value', cell: ({ row }) => (
-    <span>${Number(row.original.total).toLocaleString()}</span>
+    <span>{formatCurrency(row.original.total)}</span>
   )},
   { accessorKey: 'status', header: 'Status', cell: ({ row }) => {
     const s = row.original.status

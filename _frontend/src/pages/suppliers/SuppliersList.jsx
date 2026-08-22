@@ -12,16 +12,15 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { supplierSchema } from '@/validations'
 import { supplierService } from '@/services'
+import { formatCurrency } from '@/utils'
 import toast from 'react-hot-toast'
 import { DataTable } from '@/components/tables/DataTable'
 
 const columns = (onDelete) => [
   { accessorKey: 'name', header: 'Supplier Name', cell: ({ row }) => (
     <div>
-      <Link to={`/suppliers/${row.original.id}`} className="font-semibold text-primary hover:underline">
-        {row.original.name}
-      </Link>
-      {row.original.taxNumber && <div className="text-xs text-muted-foreground">VAT: {row.original.taxNumber}</div>}
+      <p className="font-semibold text-foreground">{row.original.name}</p>
+      {row.original.taxNumber && <p className="text-xs text-muted-foreground font-mono">PIN: {row.original.taxNumber}</p>}
     </div>
   )},
   { accessorKey: 'email', header: 'Contact Email', cell: ({ row }) => row.original.email || '—' },
@@ -30,7 +29,7 @@ const columns = (onDelete) => [
     <span>{row.original.paymentTerms} Days</span>
   )},
   { accessorKey: 'balance', header: 'Outstanding Balance', cell: ({ row }) => (
-    <span className="font-semibold text-red-600">${Number(row.original.balance).toLocaleString()}</span>
+    <span className="font-semibold text-red-600">{formatCurrency(row.original.balance)}</span>
   )},
   { id: 'actions', header: 'Actions', cell: ({ row }) => (
     <div className="flex gap-2">

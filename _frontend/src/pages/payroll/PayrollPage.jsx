@@ -8,6 +8,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Skeleton, Badge
 } from '@/components/ui'
 import { payrollService } from '@/services'
+import { formatCurrency } from '@/utils'
 import toast from 'react-hot-toast'
 import { format } from 'date-fns'
 import { DataTable } from '@/components/tables/DataTable'
@@ -17,7 +18,7 @@ const columns = (onView, onApprove, onDisburse) => [
     <span className="font-semibold">{row.original.period}</span>
   )},
   { accessorKey: 'totalAmount', header: 'Total Amount', cell: ({ row }) => (
-    <span>${Number(row.original.totalAmount).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+    <span>{formatCurrency(row.original.totalAmount)}</span>
   )},
   { accessorKey: 'status', header: 'Status', cell: ({ row }) => {
     const statuses = {
@@ -188,9 +189,9 @@ export default function PayrollPage() {
                       {(runDetail?.data?.payslips || []).map(slip => (
                         <tr key={slip.id} className="border-b">
                           <td className="px-4 py-2 font-medium">{slip.employee?.name}</td>
-                          <td className="px-4 py-2 text-right">${Number(slip.grossSalary).toLocaleString()}</td>
-                          <td className="px-4 py-2 text-right text-red-600">${Number(slip.deductions).toLocaleString()}</td>
-                          <td className="px-4 py-2 text-right text-green-600 font-bold">${Number(slip.netSalary).toLocaleString()}</td>
+                          <td className="px-4 py-2 text-right">{formatCurrency(slip.grossSalary)}</td>
+                          <td className="px-4 py-2 text-right text-red-600">-{formatCurrency(slip.deductions)}</td>
+                          <td className="px-4 py-2 text-right text-green-600 font-bold">{formatCurrency(slip.netSalary)}</td>
                           <td className="px-4 py-2 text-center">
                             <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => handleDownloadSlip(viewRun.id, slip.employeeId, slip.employee?.name)}>
                               <Download className="h-4 w-4" />

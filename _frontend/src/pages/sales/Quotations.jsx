@@ -11,6 +11,7 @@ import { useForm, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { saleSchema } from '@/validations'
 import { salesService, customerService, productService, businessService } from '@/services'
+import { formatCurrency } from '@/utils'
 import toast from 'react-hot-toast'
 import { DataTable } from '@/components/tables/DataTable'
 import { format } from 'date-fns'
@@ -31,7 +32,7 @@ const columns = (onConvert) => [
     return <Badge variant={s.color}>{s.label.toUpperCase()}</Badge>
   }},
   { accessorKey: 'total', header: 'Total Value', cell: ({ row }) => (
-    <span>${Number(row.original.total).toLocaleString()}</span>
+    <span>{formatCurrency(row.original.total)}</span>
   )},
   { accessorKey: 'createdAt', header: 'Created At', cell: ({ row }) => {
     try { return format(new Date(row.original.createdAt), 'MMM dd, yyyy') } catch { return '—' }
