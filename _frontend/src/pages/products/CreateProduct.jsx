@@ -35,17 +35,34 @@ export default function CreateProduct() {
   })
 
   useEffect(() => {
-    if (productData?.data) reset(productData.data)
+    if (productData) {
+      const p = productData?.data?.data || productData?.data || productData
+      if (p && p.name) {
+        reset({
+          name: p.name || '',
+          sku: p.sku || '',
+          barcode: p.barcode || '',
+          categoryId: p.categoryId || '',
+          unitId: p.unitId || '',
+          description: p.description || '',
+          costPrice: Number(p.costPrice || 0),
+          sellingPrice: Number(p.sellingPrice || 0),
+          trackInventory: p.trackInventory !== false,
+          reorderPoint: Number(p.reorderPoint || 5)
+        })
+      }
+    }
   }, [productData, reset])
 
   const mutation = useMutation({
     mutationFn: (data) => isEdit ? productService.update(id, data) : productService.create(data),
-    onSuccess: (res) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] })
-      toast.success(isEdit ? 'Product updated' : 'Product created')
-      navigate(`/app/products`)
+      queryClient.invalidateQueries({ queryKey: ['product', id] })
+      toast.success(isEdit ? 'Product updated successfully' : 'Product created successfully')
+      navigate('/app/products')
     },
-    onError: (err) => toast.error(err.message)
+    onError: (err) => toast.error(err.response?.data?.message || err.message || 'Failed to save product')
   })
 
   if (isEdit && loadingProduct) return <div className="flex justify-center py-12"><Spinner size="lg" /></div>

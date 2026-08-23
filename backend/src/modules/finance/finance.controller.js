@@ -119,9 +119,14 @@ exports.markReconciled = asyncHandler(async (req, res) => {
   successResponse(res, reconciliation, 'Marked as reconciled')
 })
 
-// Reports
+// Reports & Dashboard
 exports.getCashFlowReport = asyncHandler(async (req, res) => {
   const { startDate, endDate } = req.query
   const report = await financeService.getCashFlowReport(req.businessId, startDate, endDate)
   successResponse(res, report)
+})
+
+exports.getDashboard = asyncHandler(async (req, res) => {
+  const dashboard = await financeService.getFinanceDashboard(req.businessId)
+  successResponse(res, dashboard)
 })

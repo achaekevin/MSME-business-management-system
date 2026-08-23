@@ -204,17 +204,17 @@ async function getLowStock(businessId, query = {}) {
   const products = await prisma.product.findMany({
     where: {
       businessId,
-      status: 'active'
+      isActive: true
     },
     include: {
       category: { select: { id: true, name: true } },
-      stocks: true
+      inventoryStocks: true
     },
     take: limit
   })
   return products.filter(p => {
-    const totalQty = p.stocks?.reduce((s, st) => s + Number(st.quantity), 0) ?? 0
-    return totalQty <= (p.reorderPoint || p.reorderLevel || 10)
+    const totalQty = p.inventoryStocks?.reduce((s, st) => s + Number(st.quantity), 0) ?? 0
+    return totalQty <= (p.reorderPoint || 5)
   })
 }
 

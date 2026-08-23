@@ -1,9 +1,10 @@
 const { prisma } = require('../../config/database')
 const { buildSearchClause } = require('../../helpers/pagination')
 
-function findMany(businessId, { skip, take, orderBy, search, categoryId }) {
+function findMany(businessId, { skip, take, orderBy, search, categoryId, includeInactive }) {
   const where = {
     businessId,
+    ...(includeInactive ? {} : { isActive: true }),
     ...(categoryId ? { categoryId } : {}),
     ...(search ? buildSearchClause(search, ['name', 'sku', 'barcode']) : {})
   }

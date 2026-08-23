@@ -24,6 +24,11 @@ const terminate = asyncHandler(async (req, res) => {
   success(res, await service.terminateEmployee(req.businessId, req.params.id, req.body.reason, req))
 })
 
+const remove = asyncHandler(async (req, res) => {
+  await service.deleteEmployee(req.businessId, req.params.id, req)
+  noContent(res)
+})
+
 const uploadDoc = asyncHandler(async (req, res) => {
   if (!req.file) throw require('../../helpers/response').ApiError.badRequest('No file uploaded')
   created(res, await service.uploadDocument(req.businessId, req.params.id, req.file, req.body.type || 'other', req))
@@ -94,7 +99,7 @@ const analytics = asyncHandler(async (req, res) => {
 })
 
 module.exports = {
-  list, getOne, create, update, terminate, uploadDoc, addReview,
+  list, getOne, create, update, terminate, remove, uploadDoc, addReview,
   listDepts, createDept, updateDept, deleteDept,
   listPositions, createPosition,
   listAttendance, recordAttendance,

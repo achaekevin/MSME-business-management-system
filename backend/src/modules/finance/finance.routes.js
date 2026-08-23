@@ -37,7 +37,8 @@ router.get('/reconciliations', requirePermission('finance.view'), controller.get
 router.post('/reconciliations/:id/items', requirePermission('finance.create'), controller.addReconciliationItem)
 router.post('/reconciliations/:id/mark-reconciled', requirePermission('finance.approve'), controller.markReconciled)
 
-// Reports
+// Reports & Dashboard
+router.get('/dashboard', requirePermission('finance.view'), controller.getDashboard)
 router.get('/reports/cash-flow', requirePermission('finance.view'), controller.getCashFlowReport)
 
 module.exports = router

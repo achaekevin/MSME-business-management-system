@@ -111,7 +111,33 @@ async function deleteProduct(businessId, id, req) {
   const existing = await repo.findById(businessId, id)
   if (!existing) throw ApiError.notFound('Product not found')
 
-  await repo.remove(businessId, id)
+  const { prisma } = require('../../config/database')
+  
+  // Check if product has sales or invoice history
+  const [salesCount, invoiceCount, purchaseCount] = await Promise.all([
+    prisma.saleOrderItem.count({ where: { productId: id } }).catch(() => 0),
+    prisma.invoiceItem.count({ where: { productId: id } }).catch(() => 0),
+    prisma.purchaseOrderItem.count({ where: { productId: id } }).catch(() => 0)
+  ])
+
+  if (salesCount > 0 || invoiceCount > 0 || purchaseCount > 0) {
+    // If linked to financial/order history, soft-deactivate so past records remain intact
+    await prisma.product.updateMany({
+      where: { id, businessId },
+      data: { isActive: false }
+    })
+  } else {
+    // Clean up dependent inventory stocks, variants, transactions, etc., then delete
+    await prisma.$transaction([
+      prisma.inventoryStock.deleteMany({ where: { productId: id } }),
+      prisma.inventoryTransaction.deleteMany({ where: { productId: id } }),
+      prisma.productVariant.deleteMany({ where: { productId: id } }),
+      prisma.stockTransferItem.deleteMany({ where: { productId: id } }),
+      prisma.quotationItem.deleteMany({ where: { productId: id } }),
+      prisma.product.deleteMany({ where: { id, businessId } })
+    ])
+  }
+
   await invalidateTenantCache(businessId, 'product').catch(() => {})
   req?.audit?.('product.deleted', 'Product', id)
   return { deleted: true }

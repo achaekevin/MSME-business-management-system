@@ -152,6 +152,24 @@ async function terminateEmployee(businessId, id, reason, req) {
   return updated
 }
 
+async function deleteEmployee(businessId, id, req) {
+  const emp = await repo.findEmployeeById(businessId, id)
+  if (!emp) throw ApiError.notFound('Employee not found')
+
+  const { prisma } = require('../../config/database')
+  await prisma.$transaction([
+    prisma.leaveRequest.deleteMany({ where: { employeeId: id } }).catch(() => {}),
+    prisma.attendance.deleteMany({ where: { employeeId: id } }).catch(() => {}),
+    prisma.employeeDocument.deleteMany({ where: { employeeId: id } }).catch(() => {}),
+    prisma.performanceReview.deleteMany({ where: { employeeId: id } }).catch(() => {}),
+    prisma.payrollItem.deleteMany({ where: { employeeId: id } }).catch(() => {}),
+    prisma.employee.deleteMany({ where: { id, businessId } })
+  ])
+
+  req?.audit?.('employee.deleted', 'Employee', id)
+  return { deleted: true }
+}
+
 async function uploadDocument(businessId, employeeId, file, type, req) {
   const emp = await repo.findEmployeeById(businessId, employeeId)
   if (!emp) throw ApiError.notFound('Employee not found')
@@ -344,7 +362,7 @@ async function getEmployeeAnalytics(businessId) {
 }
 
 module.exports = {
-  listEmployees, getEmployee, createEmployee, updateEmployee, terminateEmployee, uploadDocument,
+  listEmployees, getEmployee, createEmployee, updateEmployee, terminateEmployee, deleteEmployee, uploadDocument,
   listDepartments, createDepartment, updateDepartment, deleteDepartment,
   listPositions, createPosition,
   getAttendance, recordAttendance,

@@ -29,9 +29,12 @@ export default function ProductsList() {
   })
 
   const deleteMutation = useMutation({
-    mutationFn: productService.delete,
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['products'] }); toast.success('Product deleted') },
-    onError: (err) => toast.error(err.message)
+    mutationFn: (id) => productService.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] })
+      toast.success('Product deleted successfully')
+    },
+    onError: (err) => toast.error(err.response?.data?.message || err.message || 'Failed to delete product')
   })
 
   const products = data?.data?.data || []
