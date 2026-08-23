@@ -43,6 +43,7 @@ const warehouseSchema = z.object({
 
 router.get('/dashboard', requirePermission(PERMISSIONS.INVENTORY_VIEW), controller.dashboard)
 router.get('/stock', requirePermission(PERMISSIONS.INVENTORY_VIEW), controller.stockLevels)
+router.get('/low-stock', requirePermission(PERMISSIONS.INVENTORY_VIEW), controller.lowStock)
 router.get('/transactions', requirePermission(PERMISSIONS.INVENTORY_VIEW), controller.transactions)
 router.get('/warehouses', requirePermission(PERMISSIONS.INVENTORY_VIEW), controller.listWarehouses)
 router.post('/warehouses', requirePermission(PERMISSIONS.INVENTORY_ADJUST), validate(warehouseSchema), controller.createWarehouse)

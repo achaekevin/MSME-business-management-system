@@ -39,9 +39,24 @@ const authenticate = asyncHandler(async (req, res, next) => {
   req.userId = user.id
   req.businessId = user.businessId
   req.branchId = payload.branchId || user.branchId || null
-  req.permissions = user.isOwner
-    ? null // owners bypass permission checks entirely (null = wildcard)
-    : (user.role?.permissions || []).map((rp) => rp.permission.key)
+
+  const roleName = user.role?.displayName || user.role?.name || ''
+  const isOwnerOrAdmin = user.isOwner || 
+    roleName === 'Business Owner' || 
+    roleName === 'Super Administrator' || 
+    roleName === 'Administrator' || 
+    roleName === 'Owner' || 
+    roleName === 'owner' || 
+    roleName === 'admin'
+
+  if (isOwnerOrAdmin) {
+    req.permissions = null // wildcard bypass
+  } else {
+    const { ENTERPRISE_ROLE_PERMISSIONS } = require('../constants/permissions')
+    const dbPermissions = (user.role?.permissions || []).map((rp) => rp.permission?.key).filter(Boolean)
+    const enterprisePermissions = ENTERPRISE_ROLE_PERMISSIONS[roleName] || ENTERPRISE_ROLE_PERMISSIONS[user.role?.name] || []
+    req.permissions = Array.from(new Set([...dbPermissions, ...enterprisePermissions]))
+  }
 
   next()
 })

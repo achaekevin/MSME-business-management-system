@@ -199,7 +199,26 @@ async function createWarehouse(businessId, data) {
   return prisma.warehouse.create({ data: { ...rest, businessId } })
 }
 
+async function getLowStock(businessId, query = {}) {
+  const limit = Number(query.limit) || 10
+  const products = await prisma.product.findMany({
+    where: {
+      businessId,
+      status: 'active'
+    },
+    include: {
+      category: { select: { id: true, name: true } },
+      stocks: true
+    },
+    take: limit
+  })
+  return products.filter(p => {
+    const totalQty = p.stocks?.reduce((s, st) => s + Number(st.quantity), 0) ?? 0
+    return totalQty <= (p.reorderPoint || p.reorderLevel || 10)
+  })
+}
+
 module.exports = {
   adjustStock, createTransfer, getStockLevels, getTransactions,
-  getDashboard, listWarehouses, createWarehouse
+  getDashboard, listWarehouses, createWarehouse, getLowStock
 }

@@ -34,4 +34,9 @@ const createWarehouse = asyncHandler(async (req, res) => {
   created(res, await service.createWarehouse(req.businessId, req.body), 'Warehouse created')
 })
 
-module.exports = { dashboard, stockLevels, transactions, adjust, transfer, listWarehouses, createWarehouse }
+const lowStock = asyncHandler(async (req, res) => {
+  const items = await service.getLowStock(req.businessId, req.query)
+  success(res, items)
+})
+
+module.exports = { dashboard, stockLevels, lowStock, transactions, adjust, transfer, listWarehouses, createWarehouse }

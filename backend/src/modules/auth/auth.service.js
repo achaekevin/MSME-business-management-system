@@ -398,12 +398,23 @@ async function acceptInvitation(token, password) {
 // ---------------------------------------------------------------------------
 function sanitizeUser(user) {
   const { passwordHash, twoFactorSecret, ...safe } = user
+  const { PERMISSIONS, ENTERPRISE_ROLE_PERMISSIONS } = require('../../constants/permissions')
   
-  // Add permissions array from role
-  if (user.role && user.role.permissions) {
-    safe.permissions = user.role.permissions.map(rp => rp.permission.key)
+  const roleName = user.role?.displayName || user.role?.name || ''
+  const isOwnerOrAdmin = user.isOwner || 
+    roleName === 'Business Owner' || 
+    roleName === 'Super Administrator' || 
+    roleName === 'Administrator' || 
+    roleName === 'Owner' || 
+    roleName === 'owner' || 
+    roleName === 'admin'
+
+  if (isOwnerOrAdmin) {
+    safe.permissions = Object.values(PERMISSIONS)
   } else {
-    safe.permissions = []
+    const dbPermissions = (user.role?.permissions || []).map(rp => rp.permission?.key).filter(Boolean)
+    const enterprisePermissions = ENTERPRISE_ROLE_PERMISSIONS[roleName] || ENTERPRISE_ROLE_PERMISSIONS[user.role?.name] || []
+    safe.permissions = Array.from(new Set([...dbPermissions, ...enterprisePermissions]))
   }
   
   return safe
