@@ -129,11 +129,19 @@ export const employeeSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
   email: z.string().email('Enter a valid email'),
   phone: z.string().optional(),
-  departmentId: z.string().min(1, 'Select a department'),
-  positionId: z.string().min(1, 'Select a position'),
+  department: z.string().optional(),
+  departmentId: z.string().optional(),
+  position: z.string().optional(),
+  positionId: z.string().optional(),
   salary: z.number().min(0, 'Salary cannot be negative'),
   salaryType: z.enum(['monthly', 'weekly', 'daily', 'hourly']),
   joinDate: z.string().min(1, 'Join date is required')
+}).refine(data => (data.department && data.department.trim().length > 0) || (data.departmentId && data.departmentId.trim().length > 0), {
+  message: 'Please choose or enter a department',
+  path: ['department']
+}).refine(data => (data.position && data.position.trim().length > 0) || (data.positionId && data.positionId.trim().length > 0), {
+  message: 'Please choose or enter a position',
+  path: ['position']
 })
 
 // Expense schema

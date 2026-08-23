@@ -17,6 +17,41 @@ import toast from 'react-hot-toast'
 import { DataTable } from '@/components/tables/DataTable'
 import { format } from 'date-fns'
 
+const DEFAULT_DEPARTMENTS = [
+  {
+    name: 'Operations',
+    positions: ['Operations Manager', 'Operations Officer', 'Shift Supervisor', 'Quality Controller']
+  },
+  {
+    name: 'Sales & Marketing',
+    positions: ['Sales Manager', 'Sales Representative', 'Cashier', 'Marketing Executive', 'Customer Service Rep']
+  },
+  {
+    name: 'Inventory & Warehousing',
+    positions: ['Inventory Officer', 'Warehouse Supervisor', 'Storekeeper', 'Stock Controller']
+  },
+  {
+    name: 'Finance & Accounting',
+    positions: ['Chief Accountant', 'Accountant', 'Accounts Assistant', 'Billing Specialist', 'Cashier']
+  },
+  {
+    name: 'Human Resources & Admin',
+    positions: ['HR Manager', 'HR Officer', 'Administrative Assistant', 'Office Administrator']
+  },
+  {
+    name: 'Procurement & Logistics',
+    positions: ['Procurement Officer', 'Purchasing Agent', 'Logistics Coordinator', 'Delivery Driver']
+  },
+  {
+    name: 'Information Technology',
+    positions: ['IT Support Specialist', 'Systems Administrator', 'Software Engineer']
+  },
+  {
+    name: 'Security & Maintenance',
+    positions: ['Security Officer', 'Maintenance Technician', 'Facility Assistant']
+  }
+]
+
 const columns = (onDelete) => [
   { accessorKey: 'name', header: 'Name', cell: ({ row }) => (
     <div className="flex items-center gap-2">
@@ -55,7 +90,8 @@ export default function EmployeesList() {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
-  const [selectedDeptId, setSelectedDeptId] = useState('')
+  const [deptInput, setDeptInput] = useState('')
+  const [posInput, setPosInput] = useState('')
   const qc = useQueryClient()
 
   const { data: deptsData } = useQuery({
@@ -64,8 +100,8 @@ export default function EmployeesList() {
   })
 
   const { data: positionsData } = useQuery({
-    queryKey: ['positions', selectedDeptId],
-    queryFn: () => employeeService.getPositions(selectedDeptId || undefined)
+    queryKey: ['positions', deptInput],
+    queryFn: () => employeeService.getPositions()
   })
 
   const { data, isLoading, refetch } = useQuery({
@@ -76,18 +112,37 @@ export default function EmployeesList() {
 
   const { register, handleSubmit, setValue, reset, formState: { errors } } = useForm({
     resolver: zodResolver(employeeSchema),
-    defaultValues: { salary: 0, salaryType: 'monthly', joinDate: format(new Date(), 'yyyy-MM-dd') }
+    defaultValues: {
+      name: '',
+      email: '',
+      phone: '',
+      department: '',
+      position: '',
+      salary: 50000,
+      salaryType: 'monthly',
+      joinDate: format(new Date(), 'yyyy-MM-dd')
+    }
   })
 
   const createMutation = useMutation({
-    mutationFn: (d) => employeeService.create(d),
+    mutationFn: (d) => {
+      const payload = {
+        ...d,
+        department: deptInput || d.department,
+        position: posInput || d.position
+      }
+      return employeeService.create(payload)
+    },
     onSuccess: () => {
       toast.success('Employee created successfully')
       qc.invalidateQueries({ queryKey: ['employees'] })
       qc.invalidateQueries({ queryKey: ['employees-all'] })
       qc.invalidateQueries({ queryKey: ['employees-report'] })
+      qc.invalidateQueries({ queryKey: ['departments'] })
+      qc.invalidateQueries({ queryKey: ['positions'] })
       reset()
-      setSelectedDeptId('')
+      setDeptInput('')
+      setPosInput('')
       setOpen(false)
     },
     onError: (e) => toast.error(e.response?.data?.message || 'Failed to create employee')
@@ -123,8 +178,37 @@ export default function EmployeesList() {
 
   const employees = extractList(data)
   const total = extractTotal(data, employees.length)
-  const deptsList = extractList(deptsData)
-  const positionsList = extractList(positionsData)
+  const serverDepts = extractList(deptsData)
+  const serverPositions = extractList(positionsData)
+
+  const allDepartmentNames = Array.from(new Set([
+    ...DEFAULT_DEPARTMENTS.map(d => d.name),
+    ...serverDepts.map(d => d.name || d)
+  ]))
+
+  const matchedDeptConfig = DEFAULT_DEPARTMENTS.find(
+    d => d.name.toLowerCase() === (deptInput || '').trim().toLowerCase()
+  )
+
+  const availablePositions = Array.from(new Set([
+    ...(matchedDeptConfig ? matchedDeptConfig.positions : DEFAULT_DEPARTMENTS.flatMap(d => d.positions)),
+    ...serverPositions.map(p => p.title || p.name || p)
+  ]))
+
+  const handleSelectDepartment = (name) => {
+    setDeptInput(name)
+    setValue('department', name, { shouldValidate: true })
+    const config = DEFAULT_DEPARTMENTS.find(d => d.name.toLowerCase() === name.toLowerCase())
+    if (config && config.positions.length > 0) {
+      setPosInput(config.positions[0])
+      setValue('position', config.positions[0], { shouldValidate: true })
+    }
+  }
+
+  const handleSelectPosition = (title) => {
+    setPosInput(title)
+    setValue('position', title, { shouldValidate: true })
+  }
 
   return (
     <>
@@ -139,7 +223,7 @@ export default function EmployeesList() {
             <Button variant="outline" size="sm" onClick={() => refetch()}>
               <RefreshCw className="h-4 w-4 mr-2" /> Refresh
             </Button>
-            <Button onClick={() => setOpen(true)}>
+            <Button size="sm" onClick={() => setOpen(true)}>
               <PlusCircle className="h-4 w-4 mr-2" /> Add Employee
             </Button>
           </div>
@@ -164,7 +248,7 @@ export default function EmployeesList() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Departments</p>
-                <p className="text-2xl font-bold mt-0.5">{deptsList.length}</p>
+                <p className="text-2xl font-bold mt-0.5">{allDepartmentNames.length}</p>
               </div>
             </CardContent>
           </Card>
@@ -190,16 +274,16 @@ export default function EmployeesList() {
         </Card>
 
         <Dialog open={open} onOpenChange={setOpen}>
-          <DialogContent className="max-w-md">
-            <DialogHeader><DialogTitle>New Employee</DialogTitle></DialogHeader>
-            <form onSubmit={handleSubmit(d => createMutation.mutate(d))} className="space-y-4">
+          <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader><DialogTitle>New Employee Registration</DialogTitle></DialogHeader>
+            <form onSubmit={handleSubmit(d => createMutation.mutate(d))} className="space-y-4 pt-2">
               <div className="space-y-2">
                 <Label>Full Name *</Label>
                 <Input placeholder="e.g. Jane Doe" {...register('name')} />
                 {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-2">
                   <Label>Email *</Label>
                   <Input type="email" placeholder="jane@company.com" {...register('email')} />
@@ -207,56 +291,92 @@ export default function EmployeesList() {
                 </div>
                 <div className="space-y-2">
                   <Label>Phone</Label>
-                  <Input placeholder="+25470000000" {...register('phone')} />
+                  <Input placeholder="+254 700 000000" {...register('phone')} />
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-2">
-                  <Label>Department *</Label>
-                  <select
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                    {...register('departmentId', {
-                      onChange: (e) => {
-                        setSelectedDeptId(e.target.value)
-                        setValue('positionId', '')
-                      }
+              <div className="space-y-2 p-3 rounded-lg border bg-muted/20">
+                <div className="flex items-center justify-between">
+                  <Label className="font-semibold text-sm">Department *</Label>
+                  <span className="text-[11px] text-muted-foreground">Select or type custom</span>
+                </div>
+                <div className="flex gap-2">
+                  <Input
+                    list="department-options"
+                    placeholder="Type or select a department..."
+                    value={deptInput}
+                    {...register('department', {
+                      onChange: (e) => setDeptInput(e.target.value)
                     })}
-                  >
-                    <option value="">Select Department</option>
-                    {deptsList.map(d => (
-                      <option key={d.id} value={d.id}>{d.name}</option>
-                    ))}
-                  </select>
-                  {errors.departmentId && <p className="text-xs text-destructive">{errors.departmentId.message}</p>}
-                </div>
-                <div className="space-y-2">
-                  <Label>Position *</Label>
+                    className="flex-1"
+                  />
                   <select
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                    {...register('positionId')}
+                    className="w-auto max-w-[140px] h-10 rounded-md border border-input bg-background px-2 py-1 text-xs text-muted-foreground"
+                    value=""
+                    onChange={(e) => { if (e.target.value) handleSelectDepartment(e.target.value) }}
                   >
-                    <option value="">Select Position</option>
-                    {positionsList.map(p => (
-                      <option key={p.id} value={p.id}>{p.title || p.name}</option>
-                    ))}
+                    <option value="">Quick Pick ▼</option>
+                    {allDepartmentNames.map((d, i) => <option key={i} value={d}>{d}</option>)}
                   </select>
-                  {errors.positionId && <p className="text-xs text-destructive">{errors.positionId.message}</p>}
+                </div>
+                <datalist id="department-options">
+                  {allDepartmentNames.map((d, i) => <option key={i} value={d} />)}
+                </datalist>
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {allDepartmentNames.slice(0, 6).map((d) => (
+                    <button
+                      key={d} type="button" onClick={() => handleSelectDepartment(d)}
+                      className={`text-xs px-2 py-1 rounded-md border transition-all ${deptInput.toLowerCase() === d.toLowerCase() ? 'bg-primary text-primary-foreground border-primary font-medium' : 'bg-background hover:bg-muted text-muted-foreground border-input'}`}
+                    >{d}</button>
+                  ))}
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2 p-3 rounded-lg border bg-muted/20">
+                <div className="flex items-center justify-between">
+                  <Label className="font-semibold text-sm">Job Position / Title *</Label>
+                  <span className="text-[11px] text-muted-foreground">Select or type custom</span>
+                </div>
+                <div className="flex gap-2">
+                  <Input
+                    list="position-options"
+                    placeholder="Type or select a job title..."
+                    value={posInput}
+                    {...register('position', {
+                      onChange: (e) => setPosInput(e.target.value)
+                    })}
+                    className="flex-1"
+                  />
+                  <select
+                    className="w-auto max-w-[140px] h-10 rounded-md border border-input bg-background px-2 py-1 text-xs text-muted-foreground"
+                    value=""
+                    onChange={(e) => { if (e.target.value) handleSelectPosition(e.target.value) }}
+                  >
+                    <option value="">Quick Pick ▼</option>
+                    {availablePositions.map((p, i) => <option key={i} value={p}>{p}</option>)}
+                  </select>
+                </div>
+                <datalist id="position-options">
+                  {availablePositions.map((p, i) => <option key={i} value={p} />)}
+                </datalist>
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {availablePositions.slice(0, 6).map((p) => (
+                    <button
+                      key={p} type="button" onClick={() => handleSelectPosition(p)}
+                      className={`text-xs px-2 py-1 rounded-md border transition-all ${posInput.toLowerCase() === p.toLowerCase() ? 'bg-primary text-primary-foreground border-primary font-medium' : 'bg-background hover:bg-muted text-muted-foreground border-input'}`}
+                    >{p}</button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-2">
                   <Label>Salary *</Label>
                   <Input type="number" {...register('salary', { valueAsNumber: true })} />
-                  {errors.salary && <p className="text-xs text-destructive">{errors.salary.message}</p>}
                 </div>
                 <div className="space-y-2">
-                  <Label>Pay Type *</Label>
-                  <select
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                    {...register('salaryType')}
-                  >
+                  <Label>Pay Frequency *</Label>
+                  <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" {...register('salaryType')}>
                     <option value="monthly">Monthly</option>
                     <option value="weekly">Weekly</option>
                     <option value="daily">Daily</option>
@@ -268,13 +388,12 @@ export default function EmployeesList() {
               <div className="space-y-2">
                 <Label>Join Date *</Label>
                 <Input type="date" {...register('joinDate')} />
-                {errors.joinDate && <p className="text-xs text-destructive">{errors.joinDate.message}</p>}
               </div>
 
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
                 <Button type="submit" disabled={createMutation.isPending}>
-                  {createMutation.isPending ? 'Adding...' : 'Add Employee'}
+                  {createMutation.isPending ? 'Registering...' : 'Register Employee'}
                 </Button>
               </DialogFooter>
             </form>

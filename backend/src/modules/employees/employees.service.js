@@ -120,14 +120,59 @@ async function getEmployee(businessId, id) {
 }
 
 async function createEmployee(businessId, data, req) {
+  const { prisma } = require('../../config/database')
   const count = await repo.countEmployees(businessId)
   const employeeNumber = data.employeeNumber || `EMP-${String(count + 1).padStart(5, '0')}`
 
   const existing = await repo.findByEmployeeNumber(businessId, employeeNumber)
   if (existing) throw ApiError.conflict(`Employee number "${employeeNumber}" is already in use`)
 
+  let departmentId = data.departmentId || null
+  let positionId = data.positionId || null
+
+  // Resolve custom or selected Department
+  const deptInput = (data.department || data.departmentName || (data.departmentId && !data.departmentId.match(/^[0-9a-fA-F-]{36}$/) ? data.departmentId : null))?.trim()
+  if (deptInput) {
+    let dept = await prisma.department.findFirst({
+      where: { businessId, name: deptInput }
+    })
+    if (!dept) {
+      dept = await repo.createDepartment(businessId, { name: deptInput })
+    }
+    departmentId = dept.id
+  }
+
+  // Resolve custom or selected Position
+  const posInput = (data.position || data.positionName || data.positionTitle || (data.positionId && !data.positionId.match(/^[0-9a-fA-F-]{36}$/) ? data.positionId : null))?.trim()
+  if (posInput) {
+    let pos = await prisma.position.findFirst({
+      where: { businessId, title: posInput }
+    })
+    if (!pos) {
+      pos = await repo.createPosition(businessId, {
+        departmentId: departmentId || undefined,
+        title: posInput
+      })
+    }
+    positionId = pos.id
+  }
+
   const joinDate = new Date(data.joinDate)
-  const emp = await repo.createEmployee(businessId, { ...data, employeeNumber, joinDate })
+  const payload = {
+    name: data.name,
+    email: data.email,
+    phone: data.phone || null,
+    employeeNumber,
+    departmentId,
+    positionId,
+    branchId: data.branchId || null,
+    salary: data.salary || 0,
+    salaryType: data.salaryType || 'monthly',
+    joinDate,
+    status: data.status || 'active'
+  }
+
+  const emp = await repo.createEmployee(businessId, payload)
   req?.audit?.('employee.created', 'Employee', emp.id, { name: emp.name, employeeNumber })
   return emp
 }
@@ -136,8 +181,33 @@ async function updateEmployee(businessId, id, data, req) {
   const existing = await repo.findEmployeeById(businessId, id)
   if (!existing) throw ApiError.notFound('Employee not found')
 
-  if (data.joinDate) data.joinDate = new Date(data.joinDate)
-  const updated = await repo.updateEmployee(id, data)
+  const { prisma } = require('../../config/database')
+  let departmentId = data.departmentId !== undefined ? data.departmentId : existing.departmentId
+  let positionId = data.positionId !== undefined ? data.positionId : existing.positionId
+
+  const deptInput = (data.department || data.departmentName)?.trim()
+  if (deptInput) {
+    let dept = await prisma.department.findFirst({ where: { businessId, name: deptInput } })
+    if (!dept) dept = await repo.createDepartment(businessId, { name: deptInput })
+    departmentId = dept.id
+  }
+
+  const posInput = (data.position || data.positionName || data.positionTitle)?.trim()
+  if (posInput) {
+    let pos = await prisma.position.findFirst({ where: { businessId, title: posInput } })
+    if (!pos) pos = await repo.createPosition(businessId, { departmentId: departmentId || undefined, title: posInput })
+    positionId = pos.id
+  }
+
+  const updateData = { ...data, departmentId, positionId }
+  delete updateData.department
+  delete updateData.departmentName
+  delete updateData.position
+  delete updateData.positionName
+  delete updateData.positionTitle
+
+  if (updateData.joinDate) updateData.joinDate = new Date(updateData.joinDate)
+  const updated = await repo.updateEmployee(id, updateData)
   req?.audit?.('employee.updated', 'Employee', id, { changes: data })
   return updated
 }
