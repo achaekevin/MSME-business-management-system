@@ -1,177 +1,127 @@
 import { motion } from 'framer-motion'
-import { ShoppingCart, Package, TrendingUp, DollarSign, FileText, ArrowRight } from 'lucide-react'
-
-const steps = [
-  {
-    icon: ShoppingCart,
-    title: 'Procurement',
-    description: 'Order from suppliers and manage purchases',
-    color: 'from-blue-500 to-blue-600'
-  },
-  {
-    icon: Package,
-    title: 'Inventory',
-    description: 'Track stock across warehouses and branches',
-    color: 'from-emerald-500 to-emerald-600'
-  },
-  {
-    icon: TrendingUp,
-    title: 'Sales',
-    description: 'Sell products via POS or online channels',
-    color: 'from-purple-500 to-purple-600'
-  },
-  {
-    icon: DollarSign,
-    title: 'Accounting',
-    description: 'Auto-sync financial records and invoices',
-    color: 'from-orange-500 to-orange-600'
-  },
-  {
-    icon: FileText,
-    title: 'Reports',
-    description: 'Get insights and make data-driven decisions',
-    color: 'from-pink-500 to-pink-600'
-  }
-]
+import { 
+  ShoppingCart, 
+  Package, 
+  FileText, 
+  CreditCard, 
+  BookOpen, 
+  BarChart3, 
+  ArrowRight 
+} from 'lucide-react'
 
 export default function Workflow() {
+  const steps = [
+    {
+      step: '01',
+      title: 'POS Checkout',
+      subtitle: 'Cashier Terminal',
+      description: 'Cashier scans barcodes and captures split payments (M-Pesa / Cash / Card).',
+      icon: ShoppingCart
+    },
+    {
+      step: '02',
+      title: 'Inventory Sync',
+      subtitle: 'Multi-Warehouse',
+      description: 'Stock batch is deducted in real time from the assigned branch warehouse bin.',
+      icon: Package
+    },
+    {
+      step: '03',
+      title: 'Tax Invoicing',
+      subtitle: 'KRA Compliant',
+      description: 'Serial-tracked commercial invoice is generated with itemized VAT breakdown.',
+      icon: FileText
+    },
+    {
+      step: '04',
+      title: 'Payment Clearance',
+      subtitle: 'Settlement Match',
+      description: 'Automated receipting links payment directly to the cashier till session.',
+      icon: CreditCard
+    },
+    {
+      step: '05',
+      title: 'General Ledger',
+      subtitle: 'Double-Entry Post',
+      description: 'Debits Cash/Bank and credits Revenue & VAT Liability automatically.',
+      icon: BookOpen
+    },
+    {
+      step: '06',
+      title: 'Executive Reports',
+      subtitle: 'Real-Time Insights',
+      description: 'Trial balance, P&L statement, and product gross margin dashboards update live.',
+      icon: BarChart3
+    }
+  ]
+
   return (
-    <section className="py-20 bg-gray-50 dark:bg-gray-800/50">
+    <section id="workflow" className="py-24 bg-slate-950 border-t border-slate-800 text-slate-100 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
           className="text-center mb-16"
         >
-          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            Seamless Business Workflow
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-600/10 border border-blue-500/20 text-blue-400 text-sm font-medium mb-3">
+            Automated Operations Pipeline
+          </div>
+          <h2 className="text-3xl sm:text-5xl font-bold text-white tracking-tight mb-4">
+            From transaction to insight
           </h2>
-          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-            From procurement to reporting, everything flows smoothly
+          <p className="text-base sm:text-lg text-slate-300 max-w-3xl mx-auto font-normal">
+            See how everyday front-counter sales automatically sync warehouse inventory, generate tax invoices, and balance general ledger accounts without manual data entry.
           </p>
         </motion.div>
 
-        {/* Workflow Steps - Desktop */}
-        <div className="hidden lg:block relative">
-          {/* Connection Line */}
-          <div className="absolute top-24 left-0 right-0 h-1 bg-gradient-to-r from-blue-200 via-emerald-200 to-pink-200 dark:from-blue-900 dark:via-emerald-900 dark:to-pink-900" />
-
-          <div className="relative flex justify-between items-start">
-            {steps.map((step, index) => (
+        {/* Workflow Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {steps.map((item, index) => {
+            const Icon = item.icon
+            return (
               <motion.div
-                key={step.title}
-                initial={{ opacity: 0, y: 50 }}
+                key={item.step}
+                initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className="flex flex-col items-center"
-                style={{ width: `${100 / steps.length}%` }}
+                transition={{ duration: 0.4, delay: index * 0.08 }}
+                className="relative rounded-2xl bg-slate-900 border border-slate-800 p-7 hover:border-slate-700 hover:bg-slate-900/90 transition-all text-left group"
               >
-                {/* Icon Circle */}
-                <motion.div
-                  whileHover={{ scale: 1.1, rotate: 360 }}
-                  transition={{ duration: 0.5 }}
-                  className={`relative w-32 h-32 bg-gradient-to-br ${step.color} rounded-full flex items-center justify-center shadow-2xl mb-8 z-10`}
-                >
-                  <step.icon className="w-14 h-14 text-white" />
-                  
-                  {/* Pulse Effect */}
-                  <motion.div
-                    animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0, 0.5] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                    className={`absolute inset-0 bg-gradient-to-br ${step.color} rounded-full`}
-                  />
-                </motion.div>
-
-                {/* Arrow */}
-                {index < steps.length - 1 && (
-                  <motion.div
-                    initial={{ opacity: 0, x: -20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.1 + 0.3 }}
-                    className="absolute top-24 transform -translate-y-1/2"
-                    style={{ left: `${(index + 0.5) * (100 / steps.length)}%` }}
-                  >
-                    <ArrowRight className="w-8 h-8 text-gray-400 dark:text-gray-600" />
-                  </motion.div>
-                )}
-
-                {/* Content */}
-                <div className="text-center">
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                    {step.title}
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-400 text-sm max-w-xs">
-                    {step.description}
-                  </p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-
-        {/* Workflow Steps - Mobile */}
-        <div className="lg:hidden space-y-8">
-          {steps.map((step, index) => (
-            <motion.div
-              key={step.title}
-              initial={{ opacity: 0, x: -50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
-              className="flex items-start space-x-6"
-            >
-              {/* Icon */}
-              <div className={`flex-shrink-0 w-20 h-20 bg-gradient-to-br ${step.color} rounded-2xl flex items-center justify-center shadow-lg`}>
-                <step.icon className="w-10 h-10 text-white" />
-              </div>
-
-              {/* Content */}
-              <div className="flex-1 pt-2">
-                <div className="flex items-center space-x-3 mb-2">
-                  <span className="text-2xl font-bold text-gray-300 dark:text-gray-700">
-                    {index + 1}
+                {/* Step Number Badge */}
+                <div className="flex items-center justify-between mb-5">
+                  <div className="w-12 h-12 rounded-xl bg-blue-600/10 border border-blue-500/20 flex items-center justify-center text-blue-500 group-hover:scale-105 transition-all">
+                    <Icon className="w-6 h-6" />
+                  </div>
+                  <span className="font-mono text-sm font-bold px-3 py-1 rounded-full bg-slate-950 border border-slate-800 text-slate-300">
+                    Step {item.step}
                   </span>
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                    {step.title}
-                  </h3>
                 </div>
-                <p className="text-gray-600 dark:text-gray-400">
-                  {step.description}
+
+                <div className="text-xs font-mono text-blue-400 font-semibold uppercase tracking-wider mb-1.5">
+                  {item.subtitle}
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2.5">
+                  {item.title}
+                </h3>
+                <p className="text-sm text-slate-300 leading-relaxed font-normal">
+                  {item.description}
                 </p>
-              </div>
 
-              {/* Arrow */}
-              {index < steps.length - 1 && (
-                <div className="absolute left-10 mt-24 ml-10">
-                  <ArrowRight className="w-6 h-6 text-gray-400 dark:text-gray-600 rotate-90" />
-                </div>
-              )}
-            </motion.div>
-          ))}
+                {/* Subtle Arrow Indicator for Sequence (except last) */}
+                {index < steps.length - 1 && (
+                  <div className="hidden lg:block absolute -right-3.5 top-1/2 -translate-y-1/2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="w-7 h-7 rounded-full bg-slate-900 border border-slate-700 flex items-center justify-center text-blue-400 shadow-md">
+                      <ArrowRight className="w-4 h-4" />
+                    </div>
+                  </div>
+                )}
+              </motion.div>
+            )
+          })}
         </div>
-
-        {/* CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mt-16"
-        >
-          <p className="text-lg text-gray-600 dark:text-gray-400 mb-6">
-            Ready to streamline your business workflow?
-          </p>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all"
-          >
-            Start Free Trial
-          </motion.button>
-        </motion.div>
       </div>
     </section>
   )
