@@ -24,32 +24,32 @@ export function DashboardKpiCard({
       )}
     >
       <div className="flex items-center justify-between">
-        <span className="text-xs font-medium text-muted-foreground">{label}</span>
+        <span className="text-sm font-semibold text-foreground/70">{label}</span>
         {Icon && (
-          <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center border", iconBg, iconColor)}>
-            <Icon className="w-4 h-4" />
+          <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center border", iconBg, iconColor)}>
+            <Icon className="w-5 h-5" />
           </div>
         )}
       </div>
 
       <div className="mt-2.5">
         {isLoading ? (
-          <Skeleton className="h-8 w-28 my-1" />
+          <Skeleton className="h-9 w-32 my-1" />
         ) : (
-          <div className="text-2xl font-bold tracking-tight text-foreground font-mono">
+          <div className="text-3xl font-extrabold tracking-tight text-foreground font-mono">
             {value ?? '—'}
           </div>
         )}
       </div>
 
       {(subtext || trend) && (
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium mt-2">
+        <div className="flex items-center gap-1.5 text-sm text-foreground/60 font-medium mt-2">
           {trend && (
             <span className={cn(
-              "font-semibold",
+              "font-bold",
               trendPositive === true ? "text-emerald-600 dark:text-emerald-400" :
               trendPositive === false ? "text-rose-600 dark:text-rose-400" :
-              "text-muted-foreground"
+              "text-foreground/60"
             )}>
               {trend}
             </span>

@@ -38,26 +38,26 @@ export function DashboardAlertBanner({
   return (
     <div className={cn("p-4 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3", current.border)}>
       <div className="flex items-start sm:items-center gap-3">
-        <div className="p-1.5 rounded-lg bg-background/60 shadow-2xs shrink-0">
-          <Icon className={cn("w-4 h-4", current.iconColor)} />
+        <div className="p-2 rounded-lg bg-background/60 shadow-2xs shrink-0">
+          <Icon className={cn("w-5 h-5", current.iconColor)} />
         </div>
         <div>
-          <div className="text-xs font-semibold">{title}</div>
-          <div className="text-xs opacity-90 mt-0.5">{message}</div>
+          <div className="text-sm font-bold">{title}</div>
+          <div className="text-sm mt-0.5">{message}</div>
         </div>
       </div>
 
       {(actionText && (actionLink || onActionClick)) && (
         <div className="shrink-0 pl-7 sm:pl-0">
           {actionLink ? (
-            <Button variant="ghost" size="sm" asChild className={cn("text-xs h-8 px-2.5 font-medium", current.btn)}>
+            <Button variant="ghost" size="sm" asChild className={cn("text-sm h-9 px-3 font-semibold", current.btn)}>
               <Link to={actionLink}>
-                {actionText} <ArrowRight className="w-3.5 h-3.5 ml-1" />
+                {actionText} <ArrowRight className="w-4 h-4 ml-1" />
               </Link>
             </Button>
           ) : (
-            <Button variant="ghost" size="sm" onClick={onActionClick} className={cn("text-xs h-8 px-2.5 font-medium", current.btn)}>
-              {actionText} <ArrowRight className="w-3.5 h-3.5 ml-1" />
+            <Button variant="ghost" size="sm" onClick={onActionClick} className={cn("text-sm h-9 px-3 font-semibold", current.btn)}>
+              {actionText} <ArrowRight className="w-4 h-4 ml-1" />
             </Button>
           )}
         </div>

@@ -136,13 +136,13 @@ const Dashboard = memo(function Dashboard() {
             actionLink="/app/invoices"
           >
             <div className="flex flex-col items-center justify-center py-6 text-center">
-              <div className="text-3xl font-bold font-mono text-foreground">
+              <div className="text-3xl font-extrabold font-mono text-foreground">
                 {formatCurrency(outstanding.amount || 0)}
               </div>
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-sm text-foreground/60 mt-1">
                 {outstanding.count ?? 0} unpaid invoice(s) awaiting payment
               </p>
-              <div className="w-full mt-6 pt-4 border-t border-border/60 flex items-center justify-between text-xs text-muted-foreground">
+              <div className="w-full mt-6 pt-4 border-t border-border/60 flex items-center justify-between text-sm text-foreground/60">
                 <span>Completed Orders:</span>
                 <span className="font-semibold text-foreground font-mono">{salesCount}</span>
               </div>
@@ -163,26 +163,26 @@ const Dashboard = memo(function Dashboard() {
             {isSalesLoading ? (
               <div className="p-6 space-y-3"><Skeleton className="h-12 w-full" /><Skeleton className="h-12 w-full" /></div>
             ) : recentActivity.length === 0 ? (
-              <div className="p-8 text-center text-muted-foreground text-xs">
-                <Receipt className="w-8 h-8 mx-auto mb-2 opacity-30" />
+              <div className="p-8 text-center text-foreground/50 text-sm">
+                <Receipt className="w-8 h-8 mx-auto mb-2 opacity-50" />
                 <p>No recent transactions recorded yet.</p>
               </div>
             ) : (
-              <div className="divide-y divide-border/60 text-xs">
+              <div className="divide-y divide-border/60 text-sm">
                 {recentActivity.slice(0, 5).map((order, idx) => (
                   <div key={order.id || idx} className="p-3.5 flex items-center justify-between hover:bg-muted/40 transition-colors">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold font-mono text-[11px]">
+                      <div className="w-9 h-9 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold font-mono text-sm">
                         SO
                       </div>
                       <div>
                         <div className="font-semibold text-foreground">{order.orderNumber || `Order #${idx+1}`}</div>
-                        <div className="text-[11px] text-muted-foreground mt-0.5">{order.customerName || 'Walk-in Customer'} · {formatDate(order.createdAt)}</div>
+                        <div className="text-sm text-foreground/60 mt-0.5">{order.customerName || 'Walk-in Customer'} · {formatDate(order.createdAt)}</div>
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="font-bold font-mono text-foreground">{formatCurrency(order.total)}</div>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold">
+                      <div className="font-extrabold font-mono text-foreground text-base">{formatCurrency(order.total)}</div>
+                      <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold">
                         {order.status || 'Completed'}
                       </span>
                     </div>
@@ -203,21 +203,21 @@ const Dashboard = memo(function Dashboard() {
             {isProductsLoading ? (
               <div className="p-6 space-y-3"><Skeleton className="h-12 w-full" /><Skeleton className="h-12 w-full" /></div>
             ) : productsList.length === 0 ? (
-              <div className="p-8 text-center text-muted-foreground text-xs">
-                <Package className="w-8 h-8 mx-auto mb-2 opacity-30" />
+              <div className="p-8 text-center text-foreground/50 text-sm">
+                <Package className="w-8 h-8 mx-auto mb-2 opacity-50" />
                 <p>No catalog products registered.</p>
               </div>
             ) : (
-              <div className="divide-y divide-border/60 text-xs">
+              <div className="divide-y divide-border/60 text-sm">
                 {productsList.slice(0, 5).map((prod, idx) => (
                   <div key={prod.id || idx} className="p-3.5 flex items-center justify-between hover:bg-muted/40 transition-colors">
                     <div className="truncate max-w-[170px] sm:max-w-xs">
                       <div className="font-semibold text-foreground truncate">{prod.name}</div>
-                      <div className="text-[11px] text-muted-foreground font-mono mt-0.5">{prod.sku} · {prod.currentStock ?? 0} in stock</div>
+                      <div className="text-sm text-foreground/60 font-mono mt-0.5">{prod.sku} · {prod.currentStock ?? 0} in stock</div>
                     </div>
                     <div className="text-right">
-                      <div className="font-bold font-mono text-foreground">{formatCurrency(prod.sellingPrice)}</div>
-                      <div className="text-[10px] text-muted-foreground">Cost: {formatCurrency(prod.costPrice || 0)}</div>
+                      <div className="font-extrabold font-mono text-foreground text-base">{formatCurrency(prod.sellingPrice)}</div>
+                      <div className="text-xs text-foreground/50 font-medium">Cost: {formatCurrency(prod.costPrice || 0)}</div>
                     </div>
                   </div>
                 ))}
@@ -291,17 +291,17 @@ const Dashboard = memo(function Dashboard() {
             contentClassName="p-0"
           >
             {recentSales.length === 0 ? (
-              <div className="p-8 text-center text-muted-foreground text-xs">
-                <Receipt className="w-8 h-8 mx-auto mb-2 opacity-30" />
+              <div className="p-8 text-center text-foreground/50 text-sm">
+                <Receipt className="w-8 h-8 mx-auto mb-2 opacity-50" />
                 <p>No branch transactions recorded yet this period.</p>
               </div>
             ) : (
-              <div className="divide-y divide-border/60 text-xs">
+              <div className="divide-y divide-border/60 text-sm">
                 {recentSales.map((sale, idx) => (
                   <div key={idx} className="p-3.5 flex items-center justify-between hover:bg-muted/40 transition-colors">
                     <div>
                       <div className="font-semibold text-foreground">{sale.orderNumber}</div>
-                      <div className="text-[11px] text-muted-foreground">{sale.customerName} · {formatDate(sale.createdAt)}</div>
+                      <div className="text-sm text-foreground/60">{sale.customerName} · {formatDate(sale.createdAt)}</div>
                     </div>
                     <div className="font-bold font-mono text-foreground text-sm">
                       {formatCurrency(sale.total)}
@@ -318,14 +318,14 @@ const Dashboard = memo(function Dashboard() {
             className="lg:col-span-4"
           >
             <div className="space-y-2.5">
-              <Button onClick={() => navigate('/app/sales/pos')} className="w-full justify-start text-xs h-10 rounded-xl">
-                <ShoppingCart className="w-4 h-4 mr-2" /> Launch Point of Sale
+              <Button onClick={() => navigate('/app/sales/pos')} className="w-full justify-start text-sm h-11 rounded-xl font-semibold">
+                <ShoppingCart className="w-5 h-5 mr-2" /> Launch Point of Sale
               </Button>
-              <Button onClick={() => navigate('/app/inventory')} variant="outline" className="w-full justify-start text-xs h-10 rounded-xl">
-                <Package className="w-4 h-4 mr-2" /> Local Stock Check
+              <Button onClick={() => navigate('/app/inventory')} variant="outline" className="w-full justify-start text-sm h-11 rounded-xl font-semibold">
+                <Package className="w-5 h-5 mr-2" /> Local Stock Check
               </Button>
-              <Button onClick={() => navigate('/app/employees/attendance')} variant="outline" className="w-full justify-start text-xs h-10 rounded-xl">
-                <UserCheck className="w-4 h-4 mr-2" /> Daily Attendance Log
+              <Button onClick={() => navigate('/app/employees/attendance')} variant="outline" className="w-full justify-start text-sm h-11 rounded-xl font-semibold">
+                <UserCheck className="w-5 h-5 mr-2" /> Daily Attendance Log
               </Button>
             </div>
           </DashboardSection>
@@ -396,21 +396,21 @@ const Dashboard = memo(function Dashboard() {
             contentClassName="p-0"
           >
             {topProducts.length === 0 ? (
-              <div className="p-8 text-center text-muted-foreground text-xs">
-                <Package className="w-8 h-8 mx-auto mb-2 opacity-30" />
+              <div className="p-8 text-center text-foreground/50 text-sm">
+                <Package className="w-8 h-8 mx-auto mb-2 opacity-50" />
                 <p>No product volume data recorded yet.</p>
               </div>
             ) : (
-              <div className="divide-y divide-border/60 text-xs">
+              <div className="divide-y divide-border/60 text-sm">
                 {topProducts.map((p, idx) => (
                   <div key={idx} className="p-3.5 flex items-center justify-between hover:bg-muted/40 transition-colors">
                     <div className="flex items-center gap-3">
-                      <span className="w-5 h-5 rounded-full bg-muted flex items-center justify-center font-bold text-[10px] text-muted-foreground">
+                      <span className="w-5 h-5 rounded-full bg-muted flex items-center justify-center font-bold text-xs text-foreground/50 font-medium">
                         {idx + 1}
                       </span>
                       <span className="font-semibold text-foreground">{p.productName}</span>
                     </div>
-                    <div className="font-bold font-mono text-foreground">
+                    <div className="font-extrabold font-mono text-foreground text-base">
                       {p.soldQuantity} units sold
                     </div>
                   </div>
@@ -425,14 +425,14 @@ const Dashboard = memo(function Dashboard() {
             className="lg:col-span-5"
           >
             <div className="space-y-2.5">
-              <Button onClick={() => navigate('/app/sales/quotations')} className="w-full justify-start text-xs h-10 rounded-xl">
-                <FileText className="w-4 h-4 mr-2" /> New Commercial Quotation
+              <Button onClick={() => navigate('/app/sales/quotations')} className="w-full justify-start text-sm h-11 rounded-xl font-semibold">
+                <FileText className="w-5 h-5 mr-2" /> New Commercial Quotation
               </Button>
-              <Button onClick={() => navigate('/app/sales')} variant="outline" className="w-full justify-start text-xs h-10 rounded-xl">
-                <TrendingUp className="w-4 h-4 mr-2" /> View Sales Orders Ledger
+              <Button onClick={() => navigate('/app/sales')} variant="outline" className="w-full justify-start text-sm h-11 rounded-xl font-semibold">
+                <TrendingUp className="w-5 h-5 mr-2" /> View Sales Orders Ledger
               </Button>
-              <Button onClick={() => navigate('/app/customers')} variant="outline" className="w-full justify-start text-xs h-10 rounded-xl">
-                <Users className="w-4 h-4 mr-2" /> Customer Accounts
+              <Button onClick={() => navigate('/app/customers')} variant="outline" className="w-full justify-start text-sm h-11 rounded-xl font-semibold">
+                <Users className="w-5 h-5 mr-2" /> Customer Accounts
               </Button>
             </div>
           </DashboardSection>
@@ -510,21 +510,21 @@ const Dashboard = memo(function Dashboard() {
             contentClassName="p-0"
           >
             {recentTxns.length === 0 ? (
-              <div className="p-8 text-center text-muted-foreground text-xs">
-                <Receipt className="w-8 h-8 mx-auto mb-2 opacity-30" />
+              <div className="p-8 text-center text-foreground/50 text-sm">
+                <Receipt className="w-8 h-8 mx-auto mb-2 opacity-50" />
                 <p>No orders rung up yet today.</p>
               </div>
             ) : (
-              <div className="divide-y divide-border/60 text-xs">
+              <div className="divide-y divide-border/60 text-sm">
                 {recentTxns.map((t, idx) => (
                   <div key={idx} className="p-3.5 flex items-center justify-between hover:bg-muted/40 transition-colors">
                     <div>
                       <div className="font-semibold text-foreground">{t.orderNumber}</div>
-                      <div className="text-[11px] text-muted-foreground">{t.customerName} · {formatDate(t.createdAt)}</div>
+                      <div className="text-sm text-foreground/60">{t.customerName} · {formatDate(t.createdAt)}</div>
                     </div>
                     <div className="text-right">
-                      <div className="font-bold font-mono text-foreground">{formatCurrency(t.total)}</div>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold">
+                      <div className="font-extrabold font-mono text-foreground text-base">{formatCurrency(t.total)}</div>
+                      <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold">
                         {t.status || 'Paid'}
                       </span>
                     </div>
@@ -540,11 +540,11 @@ const Dashboard = memo(function Dashboard() {
             className="lg:col-span-4"
           >
             <div className="space-y-3">
-              <Button onClick={() => navigate('/app/sales/pos')} className="w-full text-xs h-11 rounded-xl shadow-md">
-                <ShoppingCart className="w-4 h-4 mr-2" /> Start Checkout Till
+              <Button onClick={() => navigate('/app/sales/pos')} className="w-full text-sm h-12 rounded-xl shadow-md font-semibold">
+                <ShoppingCart className="w-5 h-5 mr-2" /> Start Checkout Till
               </Button>
-              <Button onClick={() => navigate('/app/sales/returns')} variant="outline" className="w-full text-xs h-10 rounded-xl">
-                <Receipt className="w-4 h-4 mr-2" /> Customer Sales Returns
+              <Button onClick={() => navigate('/app/sales/returns')} variant="outline" className="w-full text-sm h-11 rounded-xl font-semibold">
+                <Receipt className="w-5 h-5 mr-2" /> Customer Sales Returns
               </Button>
             </div>
           </DashboardSection>
@@ -614,21 +614,21 @@ const Dashboard = memo(function Dashboard() {
             contentClassName="p-0"
           >
             {recentTxns.length === 0 ? (
-              <div className="p-8 text-center text-muted-foreground text-xs">
-                <Warehouse className="w-8 h-8 mx-auto mb-2 opacity-30" />
+              <div className="p-8 text-center text-foreground/50 text-sm">
+                <Warehouse className="w-8 h-8 mx-auto mb-2 opacity-50" />
                 <p>No inventory movements recorded yet this period.</p>
               </div>
             ) : (
-              <div className="divide-y divide-border/60 text-xs">
+              <div className="divide-y divide-border/60 text-sm">
                 {recentTxns.map((t, idx) => (
                   <div key={idx} className="p-3.5 flex items-center justify-between hover:bg-muted/40 transition-colors">
                     <div>
                       <div className="font-semibold text-foreground">{t.productName}</div>
-                      <div className="text-[11px] text-muted-foreground font-mono mt-0.5">{t.productSku} · {t.reason || 'Inventory Adjustment'} · {formatDate(t.createdAt)}</div>
+                      <div className="text-sm text-foreground/60 font-mono mt-0.5">{t.productSku} · {t.reason || 'Inventory Adjustment'} · {formatDate(t.createdAt)}</div>
                     </div>
                     <div className="text-right">
-                      <span className="font-bold font-mono text-foreground">{t.quantity > 0 ? `+${t.quantity}` : t.quantity}</span>
-                      <span className="block text-[10px] text-muted-foreground uppercase">{t.type || 'Adjustment'}</span>
+                      <span className="font-extrabold font-mono text-foreground text-base">{t.quantity > 0 ? `+${t.quantity}` : t.quantity}</span>
+                      <span className="block text-xs text-foreground/50 font-medium uppercase">{t.type || 'Adjustment'}</span>
                     </div>
                   </div>
                 ))}
@@ -642,14 +642,14 @@ const Dashboard = memo(function Dashboard() {
             className="lg:col-span-4"
           >
             <div className="space-y-2.5">
-              <Button onClick={() => navigate('/app/inventory/adjustments')} className="w-full justify-start text-xs h-10 rounded-xl">
-                <Package className="w-4 h-4 mr-2" /> Record Stock Adjustment
+              <Button onClick={() => navigate('/app/inventory/adjustments')} className="w-full justify-start text-sm h-11 rounded-xl font-semibold">
+                <Package className="w-5 h-5 mr-2" /> Record Stock Adjustment
               </Button>
-              <Button onClick={() => navigate('/app/inventory/transfers')} variant="outline" className="w-full justify-start text-xs h-10 rounded-xl">
-                <Truck className="w-4 h-4 mr-2" /> Warehouse Stock Transfer
+              <Button onClick={() => navigate('/app/inventory/transfers')} variant="outline" className="w-full justify-start text-sm h-11 rounded-xl font-semibold">
+                <Truck className="w-5 h-5 mr-2" /> Warehouse Stock Transfer
               </Button>
-              <Button onClick={() => navigate('/app/products/new')} variant="outline" className="w-full justify-start text-xs h-10 rounded-xl">
-                <Plus className="w-4 h-4 mr-2" /> Register New SKU
+              <Button onClick={() => navigate('/app/products/new')} variant="outline" className="w-full justify-start text-sm h-11 rounded-xl font-semibold">
+                <Plus className="w-5 h-5 mr-2" /> Register New SKU
               </Button>
             </div>
           </DashboardSection>
@@ -719,21 +719,21 @@ const Dashboard = memo(function Dashboard() {
             contentClassName="p-0"
           >
             {recentOrders.length === 0 ? (
-              <div className="p-8 text-center text-muted-foreground text-xs">
-                <Truck className="w-8 h-8 mx-auto mb-2 opacity-30" />
+              <div className="p-8 text-center text-foreground/50 text-sm">
+                <Truck className="w-8 h-8 mx-auto mb-2 opacity-50" />
                 <p>No purchase orders created yet.</p>
               </div>
             ) : (
-              <div className="divide-y divide-border/60 text-xs">
+              <div className="divide-y divide-border/60 text-sm">
                 {recentOrders.map((po, idx) => (
                   <div key={idx} className="p-3.5 flex items-center justify-between hover:bg-muted/40 transition-colors">
                     <div>
                       <div className="font-semibold text-foreground">{po.orderNumber}</div>
-                      <div className="text-[11px] text-muted-foreground">{po.supplierName} · {formatDate(po.createdAt)}</div>
+                      <div className="text-sm text-foreground/60">{po.supplierName} · {formatDate(po.createdAt)}</div>
                     </div>
                     <div className="text-right">
-                      <div className="font-bold font-mono text-foreground">{formatCurrency(po.total)}</div>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 font-semibold">
+                      <div className="font-extrabold font-mono text-foreground text-base">{formatCurrency(po.total)}</div>
+                      <span className="text-xs px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 font-semibold">
                         {po.status || 'Sent'}
                       </span>
                     </div>
@@ -749,14 +749,14 @@ const Dashboard = memo(function Dashboard() {
             className="lg:col-span-4"
           >
             <div className="space-y-2.5">
-              <Button onClick={() => navigate('/app/purchases')} className="w-full justify-start text-xs h-10 rounded-xl">
-                <Plus className="w-4 h-4 mr-2" /> Create Purchase Order
+              <Button onClick={() => navigate('/app/purchases')} className="w-full justify-start text-sm h-11 rounded-xl font-semibold">
+                <Plus className="w-5 h-5 mr-2" /> Create Purchase Order
               </Button>
-              <Button onClick={() => navigate('/app/purchases/grn')} variant="outline" className="w-full justify-start text-xs h-10 rounded-xl">
-                <Package className="w-4 h-4 mr-2" /> Goods Received (GRN)
+              <Button onClick={() => navigate('/app/purchases/grn')} variant="outline" className="w-full justify-start text-sm h-11 rounded-xl font-semibold">
+                <Package className="w-5 h-5 mr-2" /> Goods Received (GRN)
               </Button>
-              <Button onClick={() => navigate('/app/suppliers')} variant="outline" className="w-full justify-start text-xs h-10 rounded-xl">
-                <Truck className="w-4 h-4 mr-2" /> Supplier Directory
+              <Button onClick={() => navigate('/app/suppliers')} variant="outline" className="w-full justify-start text-sm h-11 rounded-xl font-semibold">
+                <Truck className="w-5 h-5 mr-2" /> Supplier Directory
               </Button>
             </div>
           </DashboardSection>
@@ -828,17 +828,17 @@ const Dashboard = memo(function Dashboard() {
             contentClassName="p-0"
           >
             {unpaidList.length === 0 ? (
-              <div className="p-8 text-center text-muted-foreground text-xs">
-                <FileText className="w-8 h-8 mx-auto mb-2 opacity-30" />
+              <div className="p-8 text-center text-foreground/50 text-sm">
+                <FileText className="w-8 h-8 mx-auto mb-2 opacity-50" />
                 <p>No pending unpaid invoices.</p>
               </div>
             ) : (
-              <div className="divide-y divide-border/60 text-xs">
+              <div className="divide-y divide-border/60 text-sm">
                 {unpaidList.map((inv, idx) => (
                   <div key={idx} className="p-3.5 flex items-center justify-between hover:bg-muted/40 transition-colors">
                     <div>
                       <div className="font-semibold text-foreground">{inv.invoiceNumber}</div>
-                      <div className="text-[11px] text-muted-foreground">{inv.customerName} · Due {formatDate(inv.dueDate)}</div>
+                      <div className="text-sm text-foreground/60">{inv.customerName} · Due {formatDate(inv.dueDate)}</div>
                     </div>
                     <div className="font-bold font-mono text-amber-600 dark:text-amber-400">
                       {formatCurrency(inv.balance)}
@@ -858,17 +858,17 @@ const Dashboard = memo(function Dashboard() {
             contentClassName="p-0"
           >
             {recentExpenses.length === 0 ? (
-              <div className="p-8 text-center text-muted-foreground text-xs">
-                <ShoppingBag className="w-8 h-8 mx-auto mb-2 opacity-30" />
+              <div className="p-8 text-center text-foreground/50 text-sm">
+                <ShoppingBag className="w-8 h-8 mx-auto mb-2 opacity-50" />
                 <p>No expenses recorded this period.</p>
               </div>
             ) : (
-              <div className="divide-y divide-border/60 text-xs">
+              <div className="divide-y divide-border/60 text-sm">
                 {recentExpenses.map((exp, idx) => (
                   <div key={idx} className="p-3.5 flex items-center justify-between hover:bg-muted/40 transition-colors">
                     <div>
                       <div className="font-semibold text-foreground capitalize">{exp.category || 'General'}</div>
-                      <div className="text-[11px] text-muted-foreground truncate max-w-[140px]">{exp.description || 'Expense entry'}</div>
+                      <div className="text-sm text-foreground/60 truncate max-w-[140px]">{exp.description || 'Expense entry'}</div>
                     </div>
                     <div className="font-bold font-mono text-rose-600 dark:text-rose-400">
                       -{formatCurrency(exp.amount)}
@@ -944,19 +944,19 @@ const Dashboard = memo(function Dashboard() {
             contentClassName="p-0"
           >
             {recentHires.length === 0 ? (
-              <div className="p-8 text-center text-muted-foreground text-xs">
-                <Users className="w-8 h-8 mx-auto mb-2 opacity-30" />
+              <div className="p-8 text-center text-foreground/50 text-sm">
+                <Users className="w-8 h-8 mx-auto mb-2 opacity-50" />
                 <p>No recent staff hires recorded.</p>
               </div>
             ) : (
-              <div className="divide-y divide-border/60 text-xs">
+              <div className="divide-y divide-border/60 text-sm">
                 {recentHires.map((h, idx) => (
                   <div key={idx} className="p-3.5 flex items-center justify-between hover:bg-muted/40 transition-colors">
                     <div>
                       <div className="font-semibold text-foreground">{h.name}</div>
-                      <div className="text-[11px] text-muted-foreground">{h.email} · {h.role}</div>
+                      <div className="text-sm text-foreground/60">{h.email} · {h.role}</div>
                     </div>
-                    <div className="text-right text-muted-foreground text-[11px]">
+                    <div className="text-right text-muted-foreground text-sm">
                       Joined {formatDate(h.joinedAt)}
                     </div>
                   </div>
@@ -971,14 +971,14 @@ const Dashboard = memo(function Dashboard() {
             className="lg:col-span-4"
           >
             <div className="space-y-2.5">
-              <Button onClick={() => navigate('/app/employees')} className="w-full justify-start text-xs h-10 rounded-xl">
-                <UserCheck className="w-4 h-4 mr-2" /> Add Employee Profile
+              <Button onClick={() => navigate('/app/employees')} className="w-full justify-start text-sm h-11 rounded-xl font-semibold">
+                <UserCheck className="w-5 h-5 mr-2" /> Add Employee Profile
               </Button>
-              <Button onClick={() => navigate('/app/employees/attendance')} variant="outline" className="w-full justify-start text-xs h-10 rounded-xl">
-                <Calendar className="w-4 h-4 mr-2" /> Clock-in Attendance
+              <Button onClick={() => navigate('/app/employees/attendance')} variant="outline" className="w-full justify-start text-sm h-11 rounded-xl font-semibold">
+                <Calendar className="w-5 h-5 mr-2" /> Clock-in Attendance
               </Button>
-              <Button onClick={() => navigate('/app/payroll')} variant="outline" className="w-full justify-start text-xs h-10 rounded-xl">
-                <Banknote className="w-4 h-4 mr-2" /> Monthly Payroll Run
+              <Button onClick={() => navigate('/app/payroll')} variant="outline" className="w-full justify-start text-sm h-11 rounded-xl font-semibold">
+                <Banknote className="w-5 h-5 mr-2" /> Monthly Payroll Run
               </Button>
             </div>
           </DashboardSection>
@@ -1065,31 +1065,31 @@ const Dashboard = memo(function Dashboard() {
           >
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
               <Button onClick={() => navigate('/app/inventory')} variant="outline" className="h-14 justify-start text-xs rounded-xl p-3">
-                <Warehouse className="w-4 h-4 mr-2.5 text-primary shrink-0" />
+                <Warehouse className="w-5 h-5 mr-2.5 text-primary shrink-0" />
                 <div className="text-left">
                   <div className="font-semibold text-foreground">Inventory Ledger</div>
-                  <div className="text-[10px] text-muted-foreground">Monitor stock & levels</div>
+                  <div className="text-xs text-foreground/50 font-medium">Monitor stock & levels</div>
                 </div>
               </Button>
               <Button onClick={() => navigate('/app/sales')} variant="outline" className="h-14 justify-start text-xs rounded-xl p-3">
-                <TrendingUp className="w-4 h-4 mr-2.5 text-emerald-600 shrink-0" />
+                <TrendingUp className="w-5 h-5 mr-2.5 text-emerald-600 shrink-0" />
                 <div className="text-left">
                   <div className="font-semibold text-foreground">Sales Operations</div>
-                  <div className="text-[10px] text-muted-foreground">Review orders and quotes</div>
+                  <div className="text-xs text-foreground/50 font-medium">Review orders and quotes</div>
                 </div>
               </Button>
               <Button onClick={() => navigate('/app/purchases')} variant="outline" className="h-14 justify-start text-xs rounded-xl p-3">
-                <Truck className="w-4 h-4 mr-2.5 text-blue-600 shrink-0" />
+                <Truck className="w-5 h-5 mr-2.5 text-blue-600 shrink-0" />
                 <div className="text-left">
                   <div className="font-semibold text-foreground">Procurement</div>
-                  <div className="text-[10px] text-muted-foreground">Track POs and deliveries</div>
+                  <div className="text-xs text-foreground/50 font-medium">Track POs and deliveries</div>
                 </div>
               </Button>
               <Button onClick={() => navigate('/app/employees')} variant="outline" className="h-14 justify-start text-xs rounded-xl p-3">
-                <Users className="w-4 h-4 mr-2.5 text-indigo-600 shrink-0" />
+                <Users className="w-5 h-5 mr-2.5 text-indigo-600 shrink-0" />
                 <div className="text-left">
                   <div className="font-semibold text-foreground">Staff & Shifts</div>
-                  <div className="text-[10px] text-muted-foreground">Manage workforce & attendance</div>
+                  <div className="text-xs text-foreground/50 font-medium">Manage workforce & attendance</div>
                 </div>
               </Button>
             </div>

@@ -18,17 +18,17 @@ export function DashboardSection({
       {(title || actionText || headerRight) && (
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 border-b border-border/60">
           <div>
-            {title && <CardTitle className="text-sm font-semibold text-foreground">{title}</CardTitle>}
-            {subtitle && <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>}
+            {title && <CardTitle className="text-base font-bold text-foreground">{title}</CardTitle>}
+            {subtitle && <p className="text-sm text-foreground/60 mt-0.5">{subtitle}</p>}
           </div>
           <div className="flex items-center gap-2">
             {headerRight}
             {actionText && actionLink && (
               <Link 
                 to={actionLink} 
-                className="text-xs font-medium text-primary hover:text-primary/80 flex items-center gap-1 transition-colors"
+                className="text-sm font-semibold text-primary hover:text-primary/80 flex items-center gap-1 transition-colors"
               >
-                {actionText} <ArrowRight className="w-3.5 h-3.5" />
+                {actionText} <ArrowRight className="w-4 h-4" />
               </Link>
             )}
           </div>
