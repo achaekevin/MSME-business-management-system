@@ -227,18 +227,14 @@ async function deleteEmployee(businessId, id, req) {
   if (!emp) throw ApiError.notFound('Employee not found')
 
   const { prisma } = require('../../config/database')
-  await prisma.$transaction([
-    prisma.leaveRequest.deleteMany({ where: { employeeId: id } }).catch(() => {}),
-    prisma.attendance.deleteMany({ where: { employeeId: id } }).catch(() => {}),
-    prisma.employeeDocument.deleteMany({ where: { employeeId: id } }).catch(() => {}),
-    prisma.performanceReview.deleteMany({ where: { employeeId: id } }).catch(() => {}),
-    prisma.payrollItem.deleteMany({ where: { employeeId: id } }).catch(() => {}),
-    prisma.employee.deleteMany({ where: { id, businessId } })
-  ])
+  // All related models (Leave, Attendance, EmployeeDocument, PerformanceReview, etc.)
+  // use onDelete: Cascade in the schema, so deleting the employee cascades automatically.
+  await prisma.employee.deleteMany({ where: { id, businessId } })
 
   req?.audit?.('employee.deleted', 'Employee', id)
   return { deleted: true }
 }
+
 
 async function uploadDocument(businessId, employeeId, file, type, req) {
   const emp = await repo.findEmployeeById(businessId, employeeId)

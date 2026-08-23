@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Helmet } from 'react-helmet-async'
 import { Link } from 'react-router-dom'
-import { PlusCircle, Search, RefreshCw, Trash2, Edit2, UserCheck, Briefcase } from 'lucide-react'
+import { PlusCircle, RefreshCw, Trash2, Edit2, UserCheck, Briefcase, AlertTriangle } from 'lucide-react'
 import {
   Card, CardHeader, CardTitle, CardContent,
   Button, Input, Label, Select, SelectTrigger, SelectValue, SelectContent, SelectItem,
@@ -52,18 +52,21 @@ const DEFAULT_DEPARTMENTS = [
   }
 ]
 
-const columns = (onDelete) => [
-  { accessorKey: 'name', header: 'Name', cell: ({ row }) => (
-    <div className="flex items-center gap-2">
-      <Avatar name={row.original.name} size="sm" />
-      <div>
-        <Link to={`/app/employees/${row.original.id}`} className="font-semibold text-primary hover:underline">
-          {row.original.name}
-        </Link>
-        <div className="text-xs text-muted-foreground">{row.original.email}</div>
+const columns = (onEdit, onDelete) => [
+  { accessorKey: 'name', header: 'Name', cell: ({ row }) => {
+    const empId = row.original.id || row.original._id
+    return (
+      <div className="flex items-center gap-2">
+        <Avatar name={row.original.name} size="sm" />
+        <div>
+          <Link to={`/app/employees/${empId}`} className="font-semibold text-primary hover:underline">
+            {row.original.name}
+          </Link>
+          <div className="text-xs text-muted-foreground">{row.original.email}</div>
+        </div>
       </div>
-    </div>
-  )},
+    )
+  }},
   { accessorKey: 'department.name', header: 'Department', cell: ({ row }) => row.original.department?.name || '—' },
   { accessorKey: 'position.title', header: 'Position', cell: ({ row }) => row.original.position?.title || row.original.position?.name || '—' },
   { accessorKey: 'salary', header: 'Salary', cell: ({ row }) => (
@@ -72,22 +75,25 @@ const columns = (onDelete) => [
   { accessorKey: 'joinDate', header: 'Joined', cell: ({ row }) => {
     try { return format(new Date(row.original.joinDate), 'MMM dd, yyyy') } catch { return '—' }
   }},
-  { id: 'actions', header: 'Actions', cell: ({ row }) => (
-    <div className="flex gap-2">
-      <Button variant="ghost" size="sm" asChild>
-        <Link to={`/employees/${row.original.id}`}>
+  { id: 'actions', header: 'Actions', cell: ({ row }) => {
+    const empId = row.original.id || row.original._id
+    return (
+      <div className="flex gap-2">
+        <Button variant="ghost" size="sm" onClick={() => onEdit(row.original)} title="Edit employee">
           <Edit2 className="h-4 w-4" />
-        </Link>
-      </Button>
-      <Button variant="ghost" size="sm" onClick={() => onDelete(row.original.id)}>
-        <Trash2 className="h-4 w-4 text-destructive" />
-      </Button>
-    </div>
-  )}
+        </Button>
+        <Button variant="ghost" size="sm" onClick={() => onDelete(row.original)} title="Delete employee">
+          <Trash2 className="h-4 w-4 text-destructive" />
+        </Button>
+      </div>
+    )
+  }}
 ]
 
 export default function EmployeesList() {
   const [open, setOpen] = useState(false)
+  const [editingEmployee, setEditingEmployee] = useState(null)
+  const [deleteTarget, setDeleteTarget] = useState(null)
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
   const [deptInput, setDeptInput] = useState('')
@@ -124,6 +130,14 @@ export default function EmployeesList() {
     }
   })
 
+  const invalidateAll = () => {
+    qc.invalidateQueries({ queryKey: ['employees'] })
+    qc.invalidateQueries({ queryKey: ['employees-all'] })
+    qc.invalidateQueries({ queryKey: ['employees-report'] })
+    qc.invalidateQueries({ queryKey: ['departments'] })
+    qc.invalidateQueries({ queryKey: ['positions'] })
+  }
+
   const createMutation = useMutation({
     mutationFn: (d) => {
       const payload = {
@@ -135,29 +149,117 @@ export default function EmployeesList() {
     },
     onSuccess: () => {
       toast.success('Employee created successfully')
-      qc.invalidateQueries({ queryKey: ['employees'] })
-      qc.invalidateQueries({ queryKey: ['employees-all'] })
-      qc.invalidateQueries({ queryKey: ['employees-report'] })
-      qc.invalidateQueries({ queryKey: ['departments'] })
-      qc.invalidateQueries({ queryKey: ['positions'] })
-      reset()
-      setDeptInput('')
-      setPosInput('')
-      setOpen(false)
+      invalidateAll()
+      resetForm()
     },
     onError: (e) => toast.error(e.response?.data?.message || 'Failed to create employee')
+  })
+
+  const updateMutation = useMutation({
+    mutationFn: (d) => {
+      const empId = editingEmployee?.id || editingEmployee?._id
+      const payload = {
+        ...d,
+        department: deptInput || d.department,
+        position: posInput || d.position
+      }
+      return employeeService.update(empId, payload)
+    },
+    onSuccess: () => {
+      toast.success('Employee updated successfully')
+      invalidateAll()
+      resetForm()
+    },
+    onError: (e) => toast.error(e.response?.data?.message || 'Failed to update employee')
   })
 
   const deleteMutation = useMutation({
     mutationFn: (id) => employeeService.delete(id),
     onSuccess: () => {
       toast.success('Employee deleted successfully')
-      qc.invalidateQueries({ queryKey: ['employees'] })
-      qc.invalidateQueries({ queryKey: ['employees-all'] })
-      qc.invalidateQueries({ queryKey: ['employees-report'] })
+      invalidateAll()
+      setDeleteTarget(null)
     },
     onError: (e) => toast.error(e.response?.data?.message || 'Failed to delete employee')
   })
+
+  const resetForm = () => {
+    reset({
+      name: '',
+      email: '',
+      phone: '',
+      department: '',
+      position: '',
+      salary: 50000,
+      salaryType: 'monthly',
+      joinDate: format(new Date(), 'yyyy-MM-dd')
+    })
+    setDeptInput('')
+    setPosInput('')
+    setEditingEmployee(null)
+    setOpen(false)
+  }
+
+  const handleEdit = (employee) => {
+    setEditingEmployee(employee)
+    const deptName = employee.department?.name || ''
+    const posName = employee.position?.title || employee.position?.name || ''
+    let joinDateStr = ''
+    try {
+      joinDateStr = format(new Date(employee.joinDate), 'yyyy-MM-dd')
+    } catch {
+      joinDateStr = format(new Date(), 'yyyy-MM-dd')
+    }
+    reset({
+      name: employee.name || '',
+      email: employee.email || '',
+      phone: employee.phone || '',
+      department: deptName,
+      position: posName,
+      salary: employee.salary || 0,
+      salaryType: employee.salaryType || 'monthly',
+      joinDate: joinDateStr
+    })
+    setDeptInput(deptName)
+    setPosInput(posName)
+    setOpen(true)
+  }
+
+  const handleDelete = (employee) => {
+    setDeleteTarget(employee)
+  }
+
+  const confirmDelete = () => {
+    const empId = deleteTarget?.id || deleteTarget?._id
+    if (empId) {
+      deleteMutation.mutate(empId)
+    }
+  }
+
+  const handleOpenCreate = () => {
+    setEditingEmployee(null)
+    reset({
+      name: '',
+      email: '',
+      phone: '',
+      department: '',
+      position: '',
+      salary: 50000,
+      salaryType: 'monthly',
+      joinDate: format(new Date(), 'yyyy-MM-dd')
+    })
+    setDeptInput('')
+    setPosInput('')
+    setOpen(true)
+  }
+
+  const onFormSubmit = (d) => {
+    if (editingEmployee) {
+      updateMutation.mutate(d)
+    } else {
+      createMutation.mutate(d)
+    }
+  }
 
   const extractList = (res) => {
     if (!res) return []
@@ -210,6 +312,8 @@ export default function EmployeesList() {
     setValue('position', title, { shouldValidate: true })
   }
 
+  const isSubmitting = createMutation.isPending || updateMutation.isPending
+
   return (
     <>
       <Helmet><title>Employees — MSME BMS</title></Helmet>
@@ -223,7 +327,7 @@ export default function EmployeesList() {
             <Button variant="outline" size="sm" onClick={() => refetch()}>
               <RefreshCw className="h-4 w-4 mr-2" /> Refresh
             </Button>
-            <Button size="sm" onClick={() => setOpen(true)}>
+            <Button size="sm" onClick={handleOpenCreate}>
               <PlusCircle className="h-4 w-4 mr-2" /> Add Employee
             </Button>
           </div>
@@ -258,7 +362,7 @@ export default function EmployeesList() {
           <CardHeader><CardTitle className="text-base font-semibold">Employees Directory</CardTitle></CardHeader>
           <CardContent>
             <DataTable
-              columns={columns(id => deleteMutation.mutate(id))}
+              columns={columns(handleEdit, handleDelete)}
               data={employees}
               isLoading={isLoading}
               total={total}
@@ -273,10 +377,13 @@ export default function EmployeesList() {
           </CardContent>
         </Card>
 
-        <Dialog open={open} onOpenChange={setOpen}>
+        {/* Create / Edit Employee Dialog */}
+        <Dialog open={open} onOpenChange={(v) => { if (!v) resetForm(); else setOpen(v) }}>
           <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader><DialogTitle>New Employee Registration</DialogTitle></DialogHeader>
-            <form onSubmit={handleSubmit(d => createMutation.mutate(d))} className="space-y-4 pt-2">
+            <DialogHeader>
+              <DialogTitle>{editingEmployee ? 'Edit Employee' : 'New Employee Registration'}</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4 pt-2">
               <div className="space-y-2">
                 <Label>Full Name *</Label>
                 <Input placeholder="e.g. Jane Doe" {...register('name')} />
@@ -391,12 +498,43 @@ export default function EmployeesList() {
               </div>
 
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-                <Button type="submit" disabled={createMutation.isPending}>
-                  {createMutation.isPending ? 'Registering...' : 'Register Employee'}
+                <Button type="button" variant="outline" onClick={resetForm}>Cancel</Button>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting
+                    ? (editingEmployee ? 'Updating...' : 'Registering...')
+                    : (editingEmployee ? 'Update Employee' : 'Register Employee')
+                  }
                 </Button>
               </DialogFooter>
             </form>
+          </DialogContent>
+        </Dialog>
+
+        {/* Delete Confirmation Dialog */}
+        <Dialog open={!!deleteTarget} onOpenChange={(v) => { if (!v) setDeleteTarget(null) }}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-destructive">
+                <AlertTriangle className="h-5 w-5" />
+                Delete Employee
+              </DialogTitle>
+            </DialogHeader>
+            <div className="py-4">
+              <p className="text-sm">
+                Are you sure you want to delete <strong>{deleteTarget?.name}</strong>? This will permanently remove their record, attendance, leave requests, and all associated data.
+              </p>
+              <p className="text-xs text-muted-foreground mt-2">This action cannot be undone.</p>
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setDeleteTarget(null)}>Cancel</Button>
+              <Button
+                variant="destructive"
+                onClick={confirmDelete}
+                disabled={deleteMutation.isPending}
+              >
+                {deleteMutation.isPending ? 'Deleting...' : 'Delete Employee'}
+              </Button>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>
