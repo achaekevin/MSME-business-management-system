@@ -71,7 +71,44 @@ async function uploadDocument(businessId, employeeId, file, type, req) {
 // ── Departments ───────────────────────────────────────────────────────────────
 
 async function listDepartments(businessId) {
-  return repo.findDepartments(businessId)
+  let depts = await repo.findDepartments(businessId)
+  if (!depts || depts.length === 0) {
+    const defaultDepts = [
+      {
+        name: 'Operations',
+        positions: ['Operations Manager', 'Operations Officer', 'Shift Supervisor']
+      },
+      {
+        name: 'Sales & Marketing',
+        positions: ['Sales Manager', 'Sales Representative', 'Cashier', 'Marketing Executive']
+      },
+      {
+        name: 'Inventory & Warehousing',
+        positions: ['Inventory Officer', 'Warehouse Supervisor', 'Storekeeper']
+      },
+      {
+        name: 'Finance & Accounting',
+        positions: ['Accountant', 'Accounts Assistant', 'Billing Specialist']
+      },
+      {
+        name: 'Human Resources & Admin',
+        positions: ['HR Manager', 'HR Officer', 'Administrative Assistant']
+      },
+      {
+        name: 'Procurement',
+        positions: ['Procurement Officer', 'Purchasing Agent']
+      }
+    ]
+
+    for (const d of defaultDepts) {
+      const created = await repo.createDepartment(businessId, { name: d.name })
+      for (const posTitle of d.positions) {
+        await repo.createPosition(businessId, { departmentId: created.id, title: posTitle })
+      }
+    }
+    depts = await repo.findDepartments(businessId)
+  }
+  return depts
 }
 
 async function createDepartment(businessId, data, req) {
@@ -101,7 +138,12 @@ async function deleteDepartment(businessId, id, req) {
 // ── Positions ─────────────────────────────────────────────────────────────────
 
 async function listPositions(businessId, departmentId) {
-  return repo.findPositions(businessId, departmentId)
+  let positions = await repo.findPositions(businessId, departmentId)
+  if ((!positions || positions.length === 0) && !departmentId) {
+    await listDepartments(businessId)
+    positions = await repo.findPositions(businessId, departmentId)
+  }
+  return positions
 }
 
 async function createPosition(businessId, data, req) {

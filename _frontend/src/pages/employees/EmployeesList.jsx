@@ -30,7 +30,7 @@ const columns = (onDelete) => [
     </div>
   )},
   { accessorKey: 'department.name', header: 'Department', cell: ({ row }) => row.original.department?.name || '—' },
-  { accessorKey: 'position.name', header: 'Position', cell: ({ row }) => row.original.position?.name || '—' },
+  { accessorKey: 'position.title', header: 'Position', cell: ({ row }) => row.original.position?.title || row.original.position?.name || '—' },
   { accessorKey: 'salary', header: 'Salary', cell: ({ row }) => (
     <span>{formatCurrency(row.original.salary)} / {row.original.salaryType}</span>
   )},
@@ -55,14 +55,22 @@ export default function EmployeesList() {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
+  const [selectedDeptId, setSelectedDeptId] = useState('')
   const qc = useQueryClient()
 
-  const { data: depts } = useQuery({ queryKey: ['departments'], queryFn: () => employeeService.getDepartments().then(r => r.data) })
-  const { data: positions } = useQuery({ queryKey: ['positions'], queryFn: () => employeeService.getPositions().then(r => r.data) })
+  const { data: deptsData } = useQuery({
+    queryKey: ['departments'],
+    queryFn: () => employeeService.getDepartments()
+  })
+
+  const { data: positionsData } = useQuery({
+    queryKey: ['positions', selectedDeptId],
+    queryFn: () => employeeService.getPositions(selectedDeptId || undefined)
+  })
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ['employees', { page, search }],
-    queryFn: () => employeeService.list({ page, limit: 25, search }).then(r => r.data),
+    queryFn: () => employeeService.list({ page, limit: 25, search }),
     keepPreviousData: true
   })
 
@@ -77,6 +85,7 @@ export default function EmployeesList() {
       toast.success('Employee created successfully')
       qc.invalidateQueries({ queryKey: ['employees'] })
       reset()
+      setSelectedDeptId('')
       setOpen(false)
     },
     onError: (e) => toast.error(e.response?.data?.message || 'Failed to create employee')
@@ -91,11 +100,16 @@ export default function EmployeesList() {
     onError: (e) => toast.error(e.response?.data?.message || 'Failed to delete employee')
   })
 
-  const employees = data?.data || []
-  const total = data?.total || 0
+  const employees = Array.isArray(data) ? data : (data?.data || data?.items || [])
+  const total = data?.total || (Array.isArray(employees) ? employees.length : 0)
 
-  const deptsList = depts?.data || []
-  const positionsList = positions?.data || []
+  const deptsList = Array.isArray(deptsData) 
+    ? deptsData 
+    : (Array.isArray(deptsData?.data) ? deptsData.data : [])
+
+  const positionsList = Array.isArray(positionsData) 
+    ? positionsData 
+    : (Array.isArray(positionsData?.data) ? positionsData.data : [])
 
   return (
     <>
@@ -185,7 +199,10 @@ export default function EmployeesList() {
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
                   <Label>Department *</Label>
-                  <Select onValueChange={v => setValue('departmentId', v)}>
+                  <Select onValueChange={v => {
+                    setValue('departmentId', v)
+                    setSelectedDeptId(v)
+                  }}>
                     <SelectTrigger><SelectValue placeholder="Select Department" /></SelectTrigger>
                     <SelectContent>
                       {deptsList.map(d => <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>)}
@@ -198,7 +215,7 @@ export default function EmployeesList() {
                   <Select onValueChange={v => setValue('positionId', v)}>
                     <SelectTrigger><SelectValue placeholder="Select Position" /></SelectTrigger>
                     <SelectContent>
-                      {positionsList.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
+                      {positionsList.map(p => <SelectItem key={p.id} value={p.id}>{p.title || p.name}</SelectItem>)}
                     </SelectContent>
                   </Select>
                   {errors.positionId && <p className="text-xs text-destructive">{errors.positionId.message}</p>}

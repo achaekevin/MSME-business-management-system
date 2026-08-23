@@ -60,7 +60,7 @@ export default function EmployeeDetail() {
             <div>
               <h1 className="text-2xl font-bold">{emp.name}</h1>
               <p className="text-muted-foreground text-sm flex items-center gap-1">
-                <Briefcase className="h-4 w-4" /> {emp.position?.name} • {emp.department?.name}
+                <Briefcase className="h-4 w-4" /> {emp.position?.title || emp.position?.name || 'Staff'} • {emp.department?.name || 'General'}
               </p>
             </div>
           </div>
