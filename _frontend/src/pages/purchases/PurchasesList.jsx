@@ -190,7 +190,7 @@ export default function PurchasesList() {
                 )}
 
                 <div className="flex justify-end border-t pt-2 mt-2 text-sm font-semibold">
-                  Total Amount: ${orderTotal.toFixed(2)}
+                  Total Amount: {formatCurrency(orderTotal)}
                 </div>
               </div>
 

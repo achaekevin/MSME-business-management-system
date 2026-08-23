@@ -211,7 +211,7 @@ export default function Quotations() {
                 )}
 
                 <div className="flex justify-end border-t pt-2 mt-2 text-sm font-semibold">
-                  Subtotal: ${subtotal.toFixed(2)}
+                  Subtotal: {formatCurrency(subtotal)}
                 </div>
               </div>
 

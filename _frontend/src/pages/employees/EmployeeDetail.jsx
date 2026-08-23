@@ -7,6 +7,7 @@ import {
   Card, CardHeader, CardTitle, CardContent, Button, Tabs, TabsList, TabsTrigger, TabsContent, Badge, Avatar, Skeleton
 } from '@/components/ui'
 import { employeeService } from '@/services'
+import { formatCurrency } from '@/utils'
 import toast from 'react-hot-toast'
 import { format } from 'date-fns'
 
@@ -109,7 +110,7 @@ export default function EmployeeDetail() {
                   <div>
                     <p className="text-xs text-muted-foreground">Salary</p>
                     <p className="font-semibold">
-                      ${emp.salary?.toLocaleString()} / {emp.salaryType}
+                      {formatCurrency(emp.salary)} / {emp.salaryType}
                     </p>
                   </div>
                 </div>

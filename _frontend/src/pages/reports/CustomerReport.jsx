@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom'
 import { ArrowLeft, RefreshCw, Download, FileSpreadsheet, FileIcon } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent, Button, Skeleton, Input } from '@/components/ui'
 import { reportService } from '@/services'
+import { formatCurrency } from '@/utils'
 import toast from 'react-hot-toast'
 
 export default function CustomerReport() {
@@ -76,8 +77,8 @@ export default function CustomerReport() {
           <Card>
             <CardContent className="p-4 text-center">
               <p className="text-sm text-muted-foreground">Total Outstanding Debts</p>
-              <p className="text-2xl font-bold mt-1 text-amber-600">
-                {isLoading ? <Skeleton className="h-8 w-24 mx-auto" /> : `$${(summary.totalReceivables || 0).toLocaleString()}`}
+              <p className="text-2xl font-bold mt-1 text-teal-600">
+                {isLoading ? <Skeleton className="h-8 w-24 mx-auto" /> : formatCurrency(summary.totalReceivables || 0)}
               </p>
             </CardContent>
           </Card>
@@ -107,7 +108,7 @@ export default function CustomerReport() {
                       </td>
                       <td className="px-4 py-3 text-right">{item.loyaltyPoints || 0} Points</td>
                       <td className={`px-4 py-3 text-right font-semibold ${item.balance > 0 ? 'text-amber-600' : ''}`}>
-                        ${Number(item.balance || 0).toLocaleString()}
+                        {formatCurrency(item.balance || 0)}
                       </td>
                     </tr>
                   ))}

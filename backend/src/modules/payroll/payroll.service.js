@@ -132,12 +132,12 @@ async function generatePayslipPdf(businessId, payrollRunId, employeeId) {
 
     doc.font('Helvetica-Bold').text('Earnings')
     doc.font('Helvetica')
-    doc.text(`Basic Salary:`, { continued: true }).text(` ${Number(payslip.grossSalary).toFixed(2)}`, { align: 'right' })
+    doc.text(`Basic Salary:`, { continued: true }).text(` KSh ${Number(payslip.grossSalary).toLocaleString('en-KE', { minimumFractionDigits: 2 })}`, { align: 'right' })
 
     const breakdown = payslip.breakdown || {}
     if (breakdown.allowances?.length) {
       breakdown.allowances.forEach((a) => {
-        doc.text(`${a.name}:`, { continued: true }).text(` ${Number(a.amount).toFixed(2)}`, { align: 'right' })
+        doc.text(`${a.name}:`, { continued: true }).text(` KSh ${Number(a.amount).toLocaleString('en-KE', { minimumFractionDigits: 2 })}`, { align: 'right' })
       })
     }
     doc.moveDown(0.3)
@@ -146,7 +146,7 @@ async function generatePayslipPdf(businessId, payrollRunId, employeeId) {
     doc.font('Helvetica')
     if (breakdown.deductions?.length) {
       breakdown.deductions.forEach((d) => {
-        doc.text(`${d.name}:`, { continued: true }).text(` (${Number(d.amount).toFixed(2)})`, { align: 'right' })
+        doc.text(`${d.name}:`, { continued: true }).text(` (KSh ${Number(d.amount).toLocaleString('en-KE', { minimumFractionDigits: 2 })})`, { align: 'right' })
       })
     }
     doc.moveDown(0.3)
@@ -154,7 +154,7 @@ async function generatePayslipPdf(businessId, payrollRunId, employeeId) {
     doc.moveTo(50, doc.y).lineTo(545, doc.y).stroke()
     doc.moveDown(0.3)
     doc.font('Helvetica-Bold').fontSize(12)
-    doc.text('NET SALARY:', { continued: true }).text(` ${Number(payslip.netSalary).toFixed(2)}`, { align: 'right' })
+    doc.text('NET SALARY:', { continued: true }).text(` KSh ${Number(payslip.netSalary).toLocaleString('en-KE', { minimumFractionDigits: 2 })}`, { align: 'right' })
     doc.moveDown(2)
     doc.fontSize(8).font('Helvetica').fillColor('grey')
     doc.text('This is a computer-generated payslip and does not require a signature.', { align: 'center' })
