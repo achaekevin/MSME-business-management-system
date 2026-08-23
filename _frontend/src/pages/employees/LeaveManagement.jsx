@@ -98,9 +98,26 @@ export default function LeaveManagement() {
     onError: (e) => toast.error(e.response?.data?.message || 'Failed to reject')
   })
 
-  const employeesList = emps?.data || []
-  const leaves = data?.data || []
-  const total = data?.total || 0
+  const extractList = (res) => {
+    if (!res) return []
+    if (Array.isArray(res)) return res
+    if (Array.isArray(res?.data)) return res.data
+    if (Array.isArray(res?.data?.data)) return res.data.data
+    if (Array.isArray(res?.items)) return res.items
+    if (Array.isArray(res?.data?.items)) return res.data.items
+    return []
+  }
+
+  const extractTotal = (res, fallbackLen = 0) => {
+    if (!res) return fallbackLen
+    if (typeof res.total === 'number') return res.total
+    if (typeof res.data?.total === 'number') return res.data.total
+    return fallbackLen
+  }
+
+  const employeesList = extractList(emps)
+  const leaves = extractList(data)
+  const total = extractTotal(data, leaves.length)
 
   return (
     <>

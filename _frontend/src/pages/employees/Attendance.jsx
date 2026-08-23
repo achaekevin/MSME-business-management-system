@@ -68,8 +68,18 @@ export default function Attendance() {
     onError: (e) => toast.error(e.response?.data?.message || 'Failed to record attendance')
   })
 
-  const employeesList = emps?.data || []
-  const attendanceLogs = data?.data || []
+  const extractList = (res) => {
+    if (!res) return []
+    if (Array.isArray(res)) return res
+    if (Array.isArray(res?.data)) return res.data
+    if (Array.isArray(res?.data?.data)) return res.data.data
+    if (Array.isArray(res?.items)) return res.items
+    if (Array.isArray(res?.data?.items)) return res.data.items
+    return []
+  }
+
+  const employeesList = extractList(emps)
+  const attendanceLogs = extractList(data)
 
   return (
     <>

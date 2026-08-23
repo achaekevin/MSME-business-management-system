@@ -84,6 +84,8 @@ export default function EmployeesList() {
     onSuccess: () => {
       toast.success('Employee created successfully')
       qc.invalidateQueries({ queryKey: ['employees'] })
+      qc.invalidateQueries({ queryKey: ['employees-all'] })
+      qc.invalidateQueries({ queryKey: ['employees-report'] })
       reset()
       setSelectedDeptId('')
       setOpen(false)
@@ -96,20 +98,33 @@ export default function EmployeesList() {
     onSuccess: () => {
       toast.success('Employee deleted successfully')
       qc.invalidateQueries({ queryKey: ['employees'] })
+      qc.invalidateQueries({ queryKey: ['employees-all'] })
+      qc.invalidateQueries({ queryKey: ['employees-report'] })
     },
     onError: (e) => toast.error(e.response?.data?.message || 'Failed to delete employee')
   })
 
-  const employees = Array.isArray(data) ? data : (data?.data || data?.items || [])
-  const total = data?.total || (Array.isArray(employees) ? employees.length : 0)
+  const extractList = (res) => {
+    if (!res) return []
+    if (Array.isArray(res)) return res
+    if (Array.isArray(res?.data)) return res.data
+    if (Array.isArray(res?.data?.data)) return res.data.data
+    if (Array.isArray(res?.items)) return res.items
+    if (Array.isArray(res?.data?.items)) return res.data.items
+    return []
+  }
 
-  const deptsList = Array.isArray(deptsData) 
-    ? deptsData 
-    : (Array.isArray(deptsData?.data) ? deptsData.data : [])
+  const extractTotal = (res, fallbackLen = 0) => {
+    if (!res) return fallbackLen
+    if (typeof res.total === 'number') return res.total
+    if (typeof res.data?.total === 'number') return res.data.total
+    return fallbackLen
+  }
 
-  const positionsList = Array.isArray(positionsData) 
-    ? positionsData 
-    : (Array.isArray(positionsData?.data) ? positionsData.data : [])
+  const employees = extractList(data)
+  const total = extractTotal(data, employees.length)
+  const deptsList = extractList(deptsData)
+  const positionsList = extractList(positionsData)
 
   return (
     <>

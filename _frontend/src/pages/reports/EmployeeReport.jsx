@@ -35,8 +35,18 @@ export default function EmployeeReport() {
     }
   }
 
-  const items = data?.data || []
-  const summary = data?.summary || {}
+  const extractList = (res) => {
+    if (!res) return []
+    if (Array.isArray(res)) return res
+    if (Array.isArray(res?.data)) return res.data
+    if (Array.isArray(res?.data?.data)) return res.data.data
+    if (Array.isArray(res?.items)) return res.items
+    if (Array.isArray(res?.data?.items)) return res.data.items
+    return []
+  }
+
+  const items = extractList(data)
+  const summary = data?.summary || data?.data?.summary || {}
 
   const fmt = (n) => formatCurrency(n)
 

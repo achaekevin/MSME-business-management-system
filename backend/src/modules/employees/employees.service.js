@@ -4,6 +4,54 @@ const { parsePagination } = require('../../helpers/pagination')
 const { uploadBuffer } = require('../../storage/storage.service')
 
 async function listEmployees(businessId, query) {
+  let count = await repo.countEmployees(businessId)
+  if (count === 0) {
+    const { prisma } = require('../../config/database')
+    const users = await prisma.user.findMany({
+      where: { businessId, status: 'active' },
+      include: { role: true }
+    })
+    
+    await listDepartments(businessId)
+    const allDepts = await repo.findDepartments(businessId)
+    const allPositions = await repo.findPositions(businessId)
+
+    let idx = 1
+    for (const u of users) {
+      const roleName = u.role?.name || u.role?.displayName || ''
+      const dept = allDepts.find(d => 
+        (roleName.includes('Sales') || roleName.includes('Cashier')) ? d.name.includes('Sales') :
+        (roleName.includes('Inventory') || roleName.includes('Warehouse')) ? d.name.includes('Inventory') :
+        (roleName.includes('Account') || roleName.includes('Finance')) ? d.name.includes('Finance') :
+        (roleName.includes('HR') || roleName.includes('Human')) ? d.name.includes('Human') :
+        d.name.includes('Operations')
+      ) || allDepts[0]
+
+      const pos = allPositions.find(p => p.departmentId === dept?.id && (p.title?.toLowerCase() === roleName.toLowerCase() || p.title?.includes(roleName))) || allPositions.find(p => p.departmentId === dept?.id) || allPositions[0]
+
+      const employeeNumber = `EMP-${String(idx).padStart(5, '0')}`
+      try {
+        await repo.createEmployee(businessId, {
+          userId: u.id,
+          name: u.name,
+          email: u.email,
+          phone: u.phone,
+          employeeNumber,
+          departmentId: dept?.id || null,
+          positionId: pos?.id || null,
+          branchId: u.branchId || null,
+          salary: 50000,
+          salaryType: 'monthly',
+          joinDate: u.createdAt || new Date(),
+          status: 'active'
+        })
+        idx++
+      } catch (err) {
+        // ignore duplicate
+      }
+    }
+  }
+
   const { skip, take, page, limit, orderBy } = parsePagination(query)
   const [items, total] = await repo.findEmployees(businessId, {
     skip, take, orderBy,
