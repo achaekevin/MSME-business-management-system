@@ -26,7 +26,14 @@ function findEmployees(businessId, { skip, take, orderBy, departmentId, status, 
 
 function findEmployeeById(businessId, id) {
   return prisma.employee.findFirst({
-    where: { id, businessId },
+    where: {
+      businessId,
+      OR: [
+        { id },
+        { userId: id },
+        { employeeNumber: id }
+      ]
+    },
     include: {
       department: true, position: true, branch: true,
       user: { select: { id: true, name: true, email: true } },

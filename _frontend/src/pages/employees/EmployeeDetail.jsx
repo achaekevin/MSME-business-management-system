@@ -18,7 +18,7 @@ export default function EmployeeDetail() {
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ['employee', id],
-    queryFn: () => employeeService.get(id).then(r => r.data),
+    queryFn: () => employeeService.get(id),
     staleTime: 60_000
   })
 
@@ -32,7 +32,9 @@ export default function EmployeeDetail() {
     onError: (e) => toast.error(e.response?.data?.message || 'Failed to upload document')
   })
 
-  const emp = data?.data || {}
+  const emp = (data?.data && typeof data.data === 'object' && !Array.isArray(data.data)) 
+    ? data.data 
+    : (data && typeof data === 'object' && !Array.isArray(data) ? data : {})
   const docs = emp.documents || []
 
   const handleUpload = (e) => {
