@@ -64,7 +64,57 @@ async function listEmployees(businessId, query) {
 }
 
 async function getEmployee(businessId, id) {
-  const emp = await repo.findEmployeeById(businessId, id)
+  let emp = await repo.findEmployeeById(businessId, id)
+  if (!emp) {
+    const { prisma } = require('../../config/database')
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { id, businessId: businessId || undefined },
+          { id }
+        ]
+      },
+      include: { role: true }
+    })
+    
+    if (user) {
+      await listDepartments(user.businessId || businessId)
+      const allDepts = await repo.findDepartments(user.businessId || businessId)
+      const allPositions = await repo.findPositions(user.businessId || businessId)
+      const roleName = user.role?.name || user.role?.displayName || ''
+      
+      const dept = allDepts.find(d => 
+        (roleName.includes('Sales') || roleName.includes('Cashier')) ? d.name.includes('Sales') :
+        (roleName.includes('Inventory') || roleName.includes('Warehouse')) ? d.name.includes('Inventory') :
+        (roleName.includes('Account') || roleName.includes('Finance')) ? d.name.includes('Finance') :
+        (roleName.includes('HR') || roleName.includes('Human')) ? d.name.includes('Human') :
+        d.name.includes('Operations')
+      ) || allDepts[0]
+
+      const pos = allPositions.find(p => p.departmentId === dept?.id && (p.title?.toLowerCase() === roleName.toLowerCase() || p.title?.includes(roleName))) || allPositions.find(p => p.departmentId === dept?.id) || allPositions[0]
+
+      const count = await repo.countEmployees(user.businessId || businessId)
+      const employeeNumber = `EMP-${String(count + 1).padStart(5, '0')}`
+
+      emp = await repo.createEmployee(user.businessId || businessId, {
+        userId: user.id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        employeeNumber,
+        departmentId: dept?.id || null,
+        positionId: pos?.id || null,
+        branchId: user.branchId || null,
+        salary: 50000,
+        salaryType: 'monthly',
+        joinDate: user.createdAt || new Date(),
+        status: 'active'
+      })
+      
+      emp = await repo.findEmployeeById(user.businessId || businessId, emp.id)
+    }
+  }
+
   if (!emp) throw ApiError.notFound('Employee not found')
   return emp
 }
