@@ -473,10 +473,6 @@ function generateExpenseNumber(lastNumber) {
   return `EXP-${String(num).padStart(4, '0')}`
 }
 
-module.exports = {
-  // Cash Accounts
-  createCashAccount,
-  getCashAccounts,
 // Dashboard
 async function getFinanceDashboard(businessId) {
   const now = new Date()
