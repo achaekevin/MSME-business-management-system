@@ -14,8 +14,7 @@ import {
   CheckCircle2,
   ShieldCheck,
   Zap,
-  BarChart3,
-  LayoutDashboard
+  BarChart3
 } from 'lucide-react'
 
 export default function HeroShowcase() {
@@ -84,30 +83,19 @@ export default function HeroShowcase() {
             >
               {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
-            {isAuthenticated ? (
-              <button
-                onClick={() => navigate('/app/dashboard')}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium transition-all"
-              >
-                <LayoutDashboard className="w-4 h-4" />
-                <span>Dashboard</span>
-              </button>
-            ) : null}
             <button
               onClick={() => navigate('/auth/login')}
               className="px-4 py-2 rounded-lg border border-slate-800 text-sm font-medium text-slate-200 hover:text-white hover:bg-slate-900 transition-all"
             >
               Sign In
             </button>
-            {!isAuthenticated && (
-              <button
-                onClick={() => navigate('/auth/register')}
-                className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium transition-all"
-              >
-                <span>Sign Up</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            )}
+            <button
+              onClick={() => navigate('/auth/register')}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium transition-all shadow-sm"
+            >
+              <span>Sign Up</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
           </div>
         </div>
       </nav>
@@ -133,29 +121,12 @@ export default function HeroShowcase() {
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-4 mb-16">
-            {isAuthenticated ? (
-              <button
-                onClick={() => navigate('/app/dashboard')}
-                className="px-7 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-medium text-base flex items-center gap-2 transition-all shadow-md hover:scale-[1.02] active:scale-[0.98]"
-              >
-                <LayoutDashboard className="w-5 h-5" />
-                <span>Go to Dashboard</span>
-                <ArrowRight className="w-5 h-5" />
-              </button>
-            ) : (
-              <button
-                onClick={() => navigate('/auth/login')}
-                className="px-7 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-medium text-base flex items-center gap-2 transition-all shadow-md hover:scale-[1.02] active:scale-[0.98]"
-              >
-                <span>Get Started</span>
-                <ArrowRight className="w-5 h-5" />
-              </button>
-            )}
             <button
-              onClick={() => navigate(isAuthenticated ? '/auth/login' : '/auth/register')}
-              className="px-6 py-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 font-medium text-base transition-colors"
+              onClick={() => navigate(isAuthenticated ? '/app/dashboard' : '/auth/register')}
+              className="px-7 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-medium text-base flex items-center gap-2 transition-all shadow-md hover:scale-[1.02] active:scale-[0.98]"
             >
-              {isAuthenticated ? 'Switch Account / Sign In' : 'Create Account'}
+              <span>Get Started</span>
+              <ArrowRight className="w-5 h-5" />
             </button>
           </div>
         </motion.div>
