@@ -49,10 +49,10 @@ async function generateInvoicePdf(businessId, invoiceId) {
     doc.moveTo(50, 160).lineTo(545, 160).strokeColor('#e5e7eb').stroke()
     doc.moveDown()
     doc.fontSize(9).font('Helvetica-Bold').fillColor('#6b7280').text('BILL TO', 50, 175)
-    doc.fontSize(11).font('Helvetica-Bold').fillColor('#111827').text(invoice.customer.name, 50, 188)
+    doc.fontSize(11).font('Helvetica-Bold').fillColor('#111827').text(invoice.customer?.name || 'Valued Customer', 50, 188)
     doc.fontSize(10).font('Helvetica').fillColor('#374151')
-    if (invoice.customer.email) doc.text(invoice.customer.email)
-    if (invoice.customer.phone) doc.text(invoice.customer.phone)
+    if (invoice.customer?.email) doc.text(invoice.customer.email)
+    if (invoice.customer?.phone) doc.text(invoice.customer.phone)
 
     // ── Items table ────────────────────────────────────────────────────────
     const tableTop = 260

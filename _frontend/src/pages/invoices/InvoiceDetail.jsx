@@ -54,8 +54,9 @@ export default function InvoiceDetail() {
 
   const handleDownloadPdf = async () => {
     try {
+      toast.loading('Generating invoice PDF...', { id: 'download-pdf' })
       const res = await invoiceService.getPdf(id)
-      const blob = new Blob([res.data], { type: 'application/pdf' })
+      const blob = res instanceof Blob ? res : new Blob([res?.data || res], { type: 'application/pdf' })
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
@@ -63,8 +64,10 @@ export default function InvoiceDetail() {
       document.body.appendChild(a)
       a.click()
       a.remove()
+      window.URL.revokeObjectURL(url)
+      toast.success('Invoice downloaded successfully', { id: 'download-pdf' })
     } catch {
-      toast.error('Failed to download invoice PDF')
+      toast.error('Failed to download invoice PDF', { id: 'download-pdf' })
     }
   }
 
@@ -77,7 +80,7 @@ export default function InvoiceDetail() {
       <Helmet><title>Invoice Detail — MSME BMS</title></Helmet>
       <div className="space-y-6">
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="sm" onClick={() => navigate('/invoices')}>
+          <Button variant="ghost" size="sm" onClick={() => navigate('/app/invoices')}>
             <ArrowLeft className="h-4 w-4 mr-1" /> Back
           </Button>
           <h1 className="text-xl font-bold">Invoice Details</h1>

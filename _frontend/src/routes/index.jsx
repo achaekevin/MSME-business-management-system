@@ -246,6 +246,7 @@ const router = createBrowserRouter([
   { path: 'customers/new', element: <PrivateRoute><Navigate to="/app/customers/new" replace /></PrivateRoute> },
   { path: 'invoices', element: <PrivateRoute><Navigate to="/app/invoices" replace /></PrivateRoute> },
   { path: 'invoices/new', element: <PrivateRoute><Navigate to="/app/invoices/new" replace /></PrivateRoute> },
+  { path: 'invoices/:id', element: <PrivateRoute><Navigate to="/app/invoices" replace /></PrivateRoute> },
   { path: 'purchases', element: <PrivateRoute><Navigate to="/app/purchases" replace /></PrivateRoute> },
   { path: 'finance', element: <PrivateRoute><Navigate to="/app/finance" replace /></PrivateRoute> },
   { path: 'accounting', element: <PrivateRoute><Navigate to="/app/accounting" replace /></PrivateRoute> },

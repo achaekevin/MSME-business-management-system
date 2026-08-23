@@ -42,17 +42,17 @@ router.post('/:id/cancel', requirePermission(PERMISSIONS.INVOICES_CREATE), async
   success(res, await service.cancelInvoice(req.businessId, req.params.id, req), 'Invoice cancelled')
 }))
 
-module.exports = router
-
-// PDF download endpoint (added after initial route setup)
+// PDF download endpoint
 const { generateInvoicePdf } = require('./invoice.pdf')
 router.get('/:id/pdf', requirePermission(PERMISSIONS.INVOICES_VIEW), asyncHandler(async (req, res) => {
   const invoice = await service.getInvoice(req.businessId, req.params.id)
   const buffer = await generateInvoicePdf(req.businessId, req.params.id)
   res.set({
     'Content-Type': 'application/pdf',
-    'Content-Disposition': `attachment; filename="invoice-${invoice.invoiceNumber}.pdf"`,
+    'Content-Disposition': `attachment; filename="invoice-${invoice.invoiceNumber || req.params.id}.pdf"`,
     'Content-Length': buffer.length
   })
   res.send(buffer)
 }))
+
+module.exports = router

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { Plus, Eye, Download } from 'lucide-react'
 import { Helmet } from 'react-helmet-async'
+import toast from 'react-hot-toast'
 import { invoiceService } from '@/services'
 import { DataTable } from '@/components/tables/DataTable'
 import { Button } from '@/components/ui/button'
@@ -25,8 +26,27 @@ export default function InvoicesList() {
   const invoices = data?.data?.data || []
   const total = data?.data?.total || 0
 
+  const handleDownloadPdf = async (id, invoiceNumber) => {
+    try {
+      toast.loading('Generating invoice PDF...', { id: 'download-pdf' })
+      const res = await invoiceService.getPdf(id)
+      const blob = res instanceof Blob ? res : new Blob([res?.data || res], { type: 'application/pdf' })
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `Invoice_${invoiceNumber || id.substring(0, 8)}.pdf`
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      window.URL.revokeObjectURL(url)
+      toast.success('Invoice downloaded successfully', { id: 'download-pdf' })
+    } catch {
+      toast.error('Failed to download invoice PDF', { id: 'download-pdf' })
+    }
+  }
+
   const columns = [
-    { header: 'Invoice #', accessorKey: 'invoiceNumber', cell: ({ row, getValue }) => <Link to={`/invoices/${row.original.id}`} className="font-medium text-primary hover:underline">{getValue()}</Link> },
+    { header: 'Invoice #', accessorKey: 'invoiceNumber', cell: ({ row, getValue }) => <Link to={`/app/invoices/${row.original.id}`} className="font-medium text-primary hover:underline">{getValue()}</Link> },
     { header: 'Customer', accessorKey: 'customer', cell: ({ row }) => row.original.customer?.name || '—' },
     { header: 'Total', accessorKey: 'total', cell: ({ getValue }) => <span className="font-medium">{formatCurrency(getValue())}</span> },
     { header: 'Paid', accessorKey: 'amountPaid', cell: ({ getValue }) => formatCurrency(getValue()) },
@@ -36,8 +56,14 @@ export default function InvoicesList() {
     { header: 'Created', accessorKey: 'createdAt', cell: ({ getValue }) => formatDate(getValue()) },
     { id: 'actions', header: '', cell: ({ row }) => (
       <div className="flex gap-1 justify-end">
-        <Button variant="ghost" size="icon" className="h-8 w-8" asChild><Link to={`/invoices/${row.original.id}`}><Eye className="h-3.5 w-3.5" /></Link></Button>
-        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => invoiceService.getPdf(row.original.id)}><Download className="h-3.5 w-3.5" /></Button>
+        <Button variant="ghost" size="icon" className="h-8 w-8" asChild title="View Invoice">
+          <Link to={`/app/invoices/${row.original.id}`}>
+            <Eye className="h-3.5 w-3.5" />
+          </Link>
+        </Button>
+        <Button variant="ghost" size="icon" className="h-8 w-8" title="Download PDF" onClick={() => handleDownloadPdf(row.original.id, row.original.invoiceNumber)}>
+          <Download className="h-3.5 w-3.5" />
+        </Button>
       </div>
     )}
   ]

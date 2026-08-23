@@ -44,7 +44,12 @@ export default function CreateInvoice() {
     onSuccess: (res) => {
       toast.success('Invoice created successfully')
       qc.invalidateQueries({ queryKey: ['invoices'] })
-      navigate(`/app/invoices/${res.data.data.id}`)
+      const invoiceId = res?.data?.id || res?.data?.data?.id || res?.id
+      if (invoiceId) {
+        navigate(`/app/invoices/${invoiceId}`)
+      } else {
+        navigate('/app/invoices')
+      }
     },
     onError: (e) => toast.error(e.response?.data?.message || 'Failed to create invoice')
   })
