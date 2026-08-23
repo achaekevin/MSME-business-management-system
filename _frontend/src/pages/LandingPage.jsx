@@ -8,7 +8,6 @@ import HowItWorks from '../components/landing/HowItWorks'
 import Security from '../components/landing/Security'
 import Pricing from '../components/landing/Pricing'
 import FAQ from '../components/landing/FAQ'
-import CTA from '../components/landing/CTA'
 import ClosingFooter from '../components/landing/ClosingFooter'
 
 export default function LandingPage() {
@@ -70,10 +69,7 @@ export default function LandingPage() {
         {/* 9. Key Questions FAQ */}
         <FAQ />
 
-        {/* 10. Final Call to Action */}
-        <CTA />
-
-        {/* 11. Customer-Facing Footer */}
+        {/* 10. Customer-Facing Footer */}
         <ClosingFooter />
       </main>
     </>

@@ -229,7 +229,7 @@ export default function HeroShowcase() {
 
           <div className="flex flex-wrap items-center justify-center gap-4 mb-14">
             <button
-              onClick={() => navigate(isAuthenticated ? '/app/dashboard' : '/auth/register')}
+              onClick={() => navigate('/auth/login')}
               className="px-8 py-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-base sm:text-lg flex items-center gap-2 transition-all shadow-lg hover:shadow-blue-600/25 hover:scale-[1.02] active:scale-[0.98]"
             >
               <span>Get Started</span>
