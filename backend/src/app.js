@@ -14,6 +14,7 @@ const swaggerSpec = require('./config/swagger')
 const requestLogger = require('./middleware/requestLogger')
 const { errorHandler, notFoundHandler } = require('./middleware/errorHandler')
 const { apiLimiter } = require('./middleware/rateLimiter')
+const { sanitizeInput, payloadErrorHandler } = require('./middleware/sanitization.middleware')
 const apiRouter = require('./routes')
 const logger = require('./config/logger')
 
@@ -38,12 +39,14 @@ function createApp(redisVersionOk = false) {
     allowedHeaders: ['Content-Type', 'Authorization', 'X-API-Key', 'X-Business-ID']
   }))
 
-  // ── Core middleware ───────────────────────────────────────────────────────
+  // ── Core middleware with payload size enforcement & sanitization ──────────
   app.use(compression())
-  app.use(express.json({ limit: '10mb' }))
-  app.use(express.urlencoded({ extended: true, limit: '10mb' }))
+  app.use(express.json({ limit: '2mb' }))
+  app.use(express.urlencoded({ extended: true, limit: '2mb' }))
+  app.use(payloadErrorHandler) // Gracefully catches malformed JSON and oversized payloads
   app.use(cookieParser())
-  app.use(mongoSanitize()) // strips $ and . from request data — prevents NoSQL-style injections even in MySQL queries
+  app.use(mongoSanitize()) // strips $ and . from request data
+  app.use(sanitizeInput) // Recursively trims and strips dangerous script tags from body, query & params
   app.use(requestLogger)
 
   // ── Metrics tracking ──────────────────────────────────────────────────────
