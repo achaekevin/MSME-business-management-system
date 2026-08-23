@@ -5,8 +5,7 @@ import { Helmet } from 'react-helmet-async'
 import { ArrowLeft, RefreshCw, Truck, Mail, Phone, Calendar } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent, Button, Tabs, TabsList, TabsTrigger, TabsContent, Skeleton } from '@/components/ui'
 import { supplierService } from '@/services'
-import { formatCurrency } from '@/utils'
-import { format } from 'date-fns'
+import { formatCurrency, formatDate } from '@/utils'
 
 export default function SupplierDetail() {
   const { id } = useParams()
@@ -119,7 +118,7 @@ export default function SupplierDetail() {
                           {purchases.map(p => (
                             <tr key={p.id} className="border-b">
                               <td className="px-4 py-3 font-semibold text-primary">{p.orderNumber}</td>
-                              <td className="px-4 py-3">{format(new Date(p.createdAt), 'MMM dd, yyyy')}</td>
+                              <td className="px-4 py-3">{formatDate(p.createdAt)}</td>
                               <td className="px-4 py-3 text-right">{fmt(p.total)}</td>
                               <td className="px-4 py-3 text-center capitalize">{p.status}</td>
                             </tr>
@@ -156,7 +155,7 @@ export default function SupplierDetail() {
                         <tbody>
                           {statement.map((item, i) => (
                             <tr key={i} className="border-b">
-                              <td className="px-4 py-3">{format(new Date(item.date), 'MMM dd, yyyy')}</td>
+                              <td className="px-4 py-3">{formatDate(item.date)}</td>
                               <td className="px-4 py-3 font-mono text-xs">{item.reference}</td>
                               <td className="px-4 py-3 text-right text-green-600">{item.debit > 0 ? fmt(item.debit) : '—'}</td>
                               <td className="px-4 py-3 text-right text-red-600">{item.credit > 0 ? fmt(item.credit) : '—'}</td>

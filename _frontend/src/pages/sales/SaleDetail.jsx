@@ -9,9 +9,8 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Skeleton, Badge
 } from '@/components/ui'
 import { salesService } from '@/services'
-import { formatCurrency } from '@/utils'
+import { formatCurrency, formatDateTime } from '@/utils'
 import toast from 'react-hot-toast'
-import { format } from 'date-fns'
 
 export default function SaleDetail() {
   const { id } = useParams()
@@ -68,7 +67,7 @@ export default function SaleDetail() {
                 <CardHeader className="pb-3 border-b flex flex-row justify-between items-center">
                   <div>
                     <CardTitle className="text-base font-semibold">Sale #{sale.invoiceNumber || sale.id?.substring(0, 8)}</CardTitle>
-                    <p className="text-xs text-muted-foreground mt-0.5">Recorded on {format(new Date(sale.createdAt), 'MMM dd, yyyy HH:mm')}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">Recorded on {formatDateTime(sale.createdAt)}</p>
                   </div>
                   <Badge variant={sale.status === 'paid' ? 'success' : sale.status === 'voided' ? 'destructive' : 'warning'}>
                     {sale.status?.toUpperCase()}

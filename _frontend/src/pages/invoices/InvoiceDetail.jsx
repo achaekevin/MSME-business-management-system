@@ -9,9 +9,8 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Skeleton, Badge
 } from '@/components/ui'
 import { invoiceService } from '@/services'
-import { formatCurrency } from '@/utils'
+import { formatCurrency, formatDate } from '@/utils'
 import toast from 'react-hot-toast'
-import { format } from 'date-fns'
 
 export default function InvoiceDetail() {
   const { id } = useParams()
@@ -102,7 +101,7 @@ export default function InvoiceDetail() {
                 <CardHeader className="pb-3 border-b flex flex-row justify-between items-center">
                   <div>
                     <CardTitle className="text-base font-semibold">{inv.invoiceNumber || `INV-${inv.id?.substring(0, 8)}`}</CardTitle>
-                    <p className="text-xs text-muted-foreground mt-0.5">Due {format(new Date(inv.dueDate), 'MMM dd, yyyy')}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">Due {formatDate(inv.dueDate)}</p>
                   </div>
                   <Badge variant={inv.status === 'paid' ? 'success' : inv.status === 'overdue' ? 'destructive' : 'warning'}>
                     {inv.status?.toUpperCase()}
@@ -164,7 +163,7 @@ export default function InvoiceDetail() {
                     <div key={i} className="p-3 border rounded-lg flex items-center justify-between text-sm">
                       <div>
                         <p className="font-semibold">Payment Received</p>
-                        <p className="text-xs text-muted-foreground">Recorded on {format(new Date(p.createdAt), 'MMM dd, yyyy')}</p>
+                        <p className="text-xs text-muted-foreground">Recorded on {formatDate(p.createdAt)}</p>
                         {p.notes && <p className="text-xs text-muted-foreground mt-1">Notes: {p.notes}</p>}
                       </div>
                       <span className="font-semibold text-green-600">{formatCurrency(p.amount)}</span>

@@ -4,12 +4,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Helmet } from 'react-helmet-async'
 import { UserCheck, RefreshCw, Mail, Phone, Calendar, Briefcase, FileText, UploadCloud, Check } from 'lucide-react'
 import {
-  Card, CardHeader, CardTitle, CardContent, Button, Tabs, TabsList, TabsTrigger, TabsContent, Badge, Avatar, Skeleton
+  Card, CardHeader, CardTitle, CardContent, Button, Tabs, TabsList, TabsTrigger, TabsContent, Badge, Avatar, Skeleton, Input, Label
 } from '@/components/ui'
 import { employeeService } from '@/services'
-import { formatCurrency } from '@/utils'
+import { formatCurrency, formatDate } from '@/utils'
 import toast from 'react-hot-toast'
-import { format } from 'date-fns'
 
 export default function EmployeeDetail() {
   const { id } = useParams()
@@ -101,7 +100,7 @@ export default function EmployeeDetail() {
                   <div>
                     <p className="text-xs text-muted-foreground">Join Date</p>
                     <p className="font-semibold">
-                      {emp.joinDate ? format(new Date(emp.joinDate), 'MMM dd, yyyy') : '—'}
+                      {formatDate(emp.joinDate)}
                     </p>
                   </div>
                 </div>

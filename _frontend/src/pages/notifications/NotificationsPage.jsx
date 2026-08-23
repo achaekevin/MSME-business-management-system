@@ -4,8 +4,8 @@ import { Helmet } from 'react-helmet-async'
 import { Bell, RefreshCw, Eye, Trash2, CheckSquare } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent, Button, Skeleton } from '@/components/ui'
 import { notificationService } from '@/services'
+import { formatDateTime } from '@/utils'
 import toast from 'react-hot-toast'
-import { format } from 'date-fns'
 
 export default function NotificationsPage() {
   const [page, setPage] = useState(1)
@@ -82,7 +82,7 @@ export default function NotificationsPage() {
                   <div className="flex-1 space-y-1">
                     <p className={`text-sm ${!n.isRead ? 'font-semibold' : 'text-muted-foreground'}`}>{n.title}</p>
                     <p className="text-xs text-muted-foreground">{n.message}</p>
-                    <p className="text-[10px] text-muted-foreground">{format(new Date(n.createdAt), 'MMM dd, yyyy HH:mm')}</p>
+                    <p className="text-[10px] text-muted-foreground">{formatDateTime(n.createdAt)}</p>
                   </div>
                   <div className="flex gap-1">
                     {!n.isRead && (

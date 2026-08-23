@@ -9,9 +9,8 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Skeleton, Badge
 } from '@/components/ui'
 import { purchaseService } from '@/services'
-import { formatCurrency } from '@/utils'
+import { formatCurrency, formatDate, formatDateTime } from '@/utils'
 import toast from 'react-hot-toast'
-import { format } from 'date-fns'
 
 export default function PurchaseDetail() {
   const { id } = useParams()
@@ -70,7 +69,7 @@ export default function PurchaseDetail() {
                 <CardHeader className="pb-3 border-b flex flex-row justify-between items-center">
                   <div>
                     <CardTitle className="text-base font-semibold">Order Information</CardTitle>
-                    <p className="text-xs text-muted-foreground mt-0.5">PO generated on {format(new Date(po.createdAt), 'MMM dd, yyyy')}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">PO generated on {formatDate(po.createdAt)}</p>
                   </div>
                   <Badge variant={po.status === 'received' ? 'success' : po.status === 'cancelled' ? 'destructive' : 'warning'}>
                     {po.status?.toUpperCase()}
@@ -143,7 +142,7 @@ export default function PurchaseDetail() {
                     <div key={i} className="p-3 border rounded-lg flex items-center justify-between text-sm">
                       <div>
                         <p className="font-semibold">{grn.grnNumber}</p>
-                        <p className="text-xs text-muted-foreground">Received on {format(new Date(grn.createdAt), 'MMM dd, yyyy HH:mm')}</p>
+                        <p className="text-xs text-muted-foreground">Received on {formatDateTime(grn.createdAt)}</p>
                         {grn.notes && <p className="text-xs text-muted-foreground mt-1">Notes: {grn.notes}</p>}
                       </div>
                       <Badge variant="success">Received</Badge>
