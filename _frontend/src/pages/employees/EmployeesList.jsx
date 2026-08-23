@@ -214,25 +214,33 @@ export default function EmployeesList() {
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
                   <Label>Department *</Label>
-                  <Select onValueChange={v => {
-                    setValue('departmentId', v)
-                    setSelectedDeptId(v)
-                  }}>
-                    <SelectTrigger><SelectValue placeholder="Select Department" /></SelectTrigger>
-                    <SelectContent>
-                      {deptsList.map(d => <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
+                  <select
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    {...register('departmentId', {
+                      onChange: (e) => {
+                        setSelectedDeptId(e.target.value)
+                        setValue('positionId', '')
+                      }
+                    })}
+                  >
+                    <option value="">Select Department</option>
+                    {deptsList.map(d => (
+                      <option key={d.id} value={d.id}>{d.name}</option>
+                    ))}
+                  </select>
                   {errors.departmentId && <p className="text-xs text-destructive">{errors.departmentId.message}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label>Position *</Label>
-                  <Select onValueChange={v => setValue('positionId', v)}>
-                    <SelectTrigger><SelectValue placeholder="Select Position" /></SelectTrigger>
-                    <SelectContent>
-                      {positionsList.map(p => <SelectItem key={p.id} value={p.id}>{p.title || p.name}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
+                  <select
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    {...register('positionId')}
+                  >
+                    <option value="">Select Position</option>
+                    {positionsList.map(p => (
+                      <option key={p.id} value={p.id}>{p.title || p.name}</option>
+                    ))}
+                  </select>
                   {errors.positionId && <p className="text-xs text-destructive">{errors.positionId.message}</p>}
                 </div>
               </div>
@@ -245,15 +253,15 @@ export default function EmployeesList() {
                 </div>
                 <div className="space-y-2">
                   <Label>Pay Type *</Label>
-                  <Select defaultValue="monthly" onValueChange={v => setValue('salaryType', v)}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="monthly">Monthly</SelectItem>
-                      <SelectItem value="weekly">Weekly</SelectItem>
-                      <SelectItem value="daily">Daily</SelectItem>
-                      <SelectItem value="hourly">Hourly</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <select
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    {...register('salaryType')}
+                  >
+                    <option value="monthly">Monthly</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="daily">Daily</option>
+                    <option value="hourly">Hourly</option>
+                  </select>
                 </div>
               </div>
 

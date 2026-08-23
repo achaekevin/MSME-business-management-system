@@ -187,6 +187,7 @@ async function uploadDocument(businessId, employeeId, file, type, req) {
 // ── Departments ───────────────────────────────────────────────────────────────
 
 async function listDepartments(businessId) {
+  const { prisma } = require('../../config/database')
   let depts = await repo.findDepartments(businessId)
   if (!depts || depts.length === 0) {
     const defaultDepts = [
@@ -213,13 +214,25 @@ async function listDepartments(businessId) {
       {
         name: 'Procurement',
         positions: ['Procurement Officer', 'Purchasing Agent']
+      },
+      {
+        name: 'Information Technology',
+        positions: ['IT Support Officer', 'Systems Administrator']
       }
     ]
 
     for (const d of defaultDepts) {
-      const created = await repo.createDepartment(businessId, { name: d.name })
+      let dept = await prisma.department.findFirst({ where: { businessId, name: d.name } })
+      if (!dept) {
+        dept = await repo.createDepartment(businessId, { name: d.name })
+      }
       for (const posTitle of d.positions) {
-        await repo.createPosition(businessId, { departmentId: created.id, title: posTitle })
+        const posExisting = await prisma.position.findFirst({
+          where: { businessId, departmentId: dept.id, title: posTitle }
+        })
+        if (!posExisting) {
+          await repo.createPosition(businessId, { departmentId: dept.id, title: posTitle })
+        }
       }
     }
     depts = await repo.findDepartments(businessId)
@@ -254,11 +267,8 @@ async function deleteDepartment(businessId, id, req) {
 // ── Positions ─────────────────────────────────────────────────────────────────
 
 async function listPositions(businessId, departmentId) {
-  let positions = await repo.findPositions(businessId, departmentId)
-  if ((!positions || positions.length === 0) && !departmentId) {
-    await listDepartments(businessId)
-    positions = await repo.findPositions(businessId, departmentId)
-  }
+  await listDepartments(businessId)
+  const positions = await repo.findPositions(businessId, departmentId && departmentId.trim() !== '' ? departmentId : undefined)
   return positions
 }
 
