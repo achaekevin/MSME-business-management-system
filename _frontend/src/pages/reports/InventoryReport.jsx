@@ -70,7 +70,7 @@ export default function InventoryReport() {
             <CardContent className="p-4 text-center">
               <p className="text-sm text-muted-foreground">Total Stock Value</p>
               <p className="text-2xl font-bold mt-1 text-green-600">
-                {isLoading ? <Skeleton className="h-8 w-24 mx-auto" /> : `$${(summary.totalValue || 0).toLocaleString()}`}
+                {isLoading ? <Skeleton className="h-8 w-24 mx-auto" /> : formatCurrency(summary.totalValue || 0)}
               </p>
             </CardContent>
           </Card>
