@@ -1,7 +1,7 @@
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { Helmet } from 'react-helmet-async'
-import { ArrowLeft, RefreshCw, Package, Tag, Layers, DollarSign, Settings } from 'lucide-react'
+import { ArrowLeft, RefreshCw, Package, Tag, Layers, Banknote, Settings } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent, Button, Skeleton, Badge } from '@/components/ui'
 import { productService } from '@/services'
 import { formatCurrency } from '@/utils'

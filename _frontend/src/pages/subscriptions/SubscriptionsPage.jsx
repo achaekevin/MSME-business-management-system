@@ -44,8 +44,9 @@ export default function SubscriptionsPage() {
                       <CardTitle>{plan.name}</CardTitle>
                     </div>
                     <p className="text-sm text-muted-foreground">{plan.description}</p>
-                    <div className="mt-3">
-                      <span className="text-4xl font-black">${price}</span>
+                    <div className="mt-3 flex items-baseline gap-1.5">
+                      <span className="text-sm font-semibold text-muted-foreground">KSh</span>
+                      <span className="text-3xl sm:text-4xl font-black font-mono">{price.toLocaleString()}</span>
                       <span className="text-muted-foreground text-sm">/{billing === 'year' ? 'mo, billed yearly' : 'month'}</span>
                     </div>
                   </CardHeader>

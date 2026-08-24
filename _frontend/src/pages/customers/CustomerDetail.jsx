@@ -1,6 +1,6 @@
 import { useParams, Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { ArrowLeft, Edit, Phone, Mail, MapPin, FileText, DollarSign } from 'lucide-react'
+import { ArrowLeft, Edit, Phone, Mail, MapPin, FileText, Banknote, Award, CreditCard, Landmark } from 'lucide-react'
 import { Helmet } from 'react-helmet-async'
 import { customerService } from '@/services'
 import { Button } from '@/components/ui/button'
@@ -42,10 +42,10 @@ export default function CustomerDetail() {
         </div>
 
         <StatCardGrid cols={4}>
-          <StatCard title="Total purchases" value={customer.totalPurchases} format="currency" icon={DollarSign} color="blue" />
-          <StatCard title="Balance" value={Math.abs(customer.balance)} format="currency" icon={DollarSign} color={customer.balance > 0 ? 'red' : 'green'} />
-          <StatCard title="Loyalty points" value={customer.loyaltyPoints} icon={DollarSign} color="purple" />
-          <StatCard title="Credit limit" value={customer.creditLimit || 0} format="currency" icon={DollarSign} color="yellow" />
+          <StatCard title="Total purchases" value={customer.totalPurchases} format="currency" icon={Banknote} color="blue" />
+          <StatCard title="Balance" value={Math.abs(customer.balance)} format="currency" icon={Landmark} color={customer.balance > 0 ? 'red' : 'green'} />
+          <StatCard title="Loyalty points" value={customer.loyaltyPoints} icon={Award} color="purple" />
+          <StatCard title="Credit limit" value={customer.creditLimit || 0} format="currency" icon={CreditCard} color="yellow" />
         </StatCardGrid>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

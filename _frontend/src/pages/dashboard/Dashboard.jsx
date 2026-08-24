@@ -6,7 +6,7 @@ import {
   Banknote, TrendingUp, ShoppingBag, Users, FileText, Package, AlertTriangle, 
   Clock, ArrowUpRight, ArrowDownRight, CreditCard, Sparkles, Building2, 
   Warehouse, Truck, UserCheck, CheckCircle2, Plus, ShoppingCart, 
-  BarChart2, ShieldCheck, DollarSign, Calendar, Layers, Receipt, RefreshCw
+  BarChart2, ShieldCheck, Calendar, Layers, Receipt, RefreshCw
 } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent, Badge, Button, Skeleton } from '@/components/ui'
 import { RevenueChart, SalesBarChart } from '@/components/charts'

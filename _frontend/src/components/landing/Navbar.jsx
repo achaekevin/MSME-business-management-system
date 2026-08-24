@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/store/authStore'
 import { 
   Menu, X, Search, Sun, Moon, ChevronDown,
-  Box, ShoppingCart, DollarSign, Users, FileText, TrendingUp,
+  Box, ShoppingCart, Banknote, Users, FileText, TrendingUp,
   LayoutDashboard
 } from 'lucide-react'
 import { cn } from '../../lib/utils'
@@ -17,7 +17,7 @@ const navigation = [
     dropdown: [
       { name: 'Inventory Management', icon: Box, href: '#features' },
       { name: 'Point of Sale', icon: ShoppingCart, href: '#features' },
-      { name: 'Accounting', icon: DollarSign, href: '#features' },
+      { name: 'Accounting', icon: Banknote, href: '#features' },
       { name: 'HR Management', icon: Users, href: '#features' },
       { name: 'Reports & Analytics', icon: TrendingUp, href: '#features' },
       { name: 'Documents', icon: FileText, href: '#features' }

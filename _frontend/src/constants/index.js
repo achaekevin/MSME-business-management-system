@@ -36,10 +36,10 @@ export const PAGINATION_LIMITS = [10, 25, 50, 100]
 export const DEFAULT_PAGE_LIMIT = 25
 
 export const CURRENCIES = [
-  { code: 'USD', symbol: '$', name: 'US Dollar' },
+  { code: 'KES', symbol: 'KSh', name: 'Kenyan Shilling' },
+  { code: 'USD', symbol: 'USD', name: 'US Dollar' },
   { code: 'EUR', symbol: '€', name: 'Euro' },
   { code: 'GBP', symbol: '£', name: 'British Pound' },
-  { code: 'KES', symbol: 'KSh', name: 'Kenyan Shilling' },
   { code: 'NGN', symbol: '₦', name: 'Nigerian Naira' },
   { code: 'ZAR', symbol: 'R', name: 'South African Rand' },
   { code: 'GHS', symbol: '₵', name: 'Ghanaian Cedi' },
@@ -226,9 +226,9 @@ export const SUBSCRIPTION_PLANS = [
   {
     id: 'starter',
     name: 'Starter',
-    price: 29,
+    price: 2500,
     period: 'month',
-    description: 'Perfect for small businesses just getting started',
+    description: 'Perfect for small businesses & single retail shops',
     features: [
       '1 branch',
       '3 users',
@@ -241,9 +241,9 @@ export const SUBSCRIPTION_PLANS = [
   {
     id: 'growth',
     name: 'Growth',
-    price: 79,
+    price: 5500,
     period: 'month',
-    description: 'For growing businesses that need more power',
+    description: 'For growing retail & wholesale businesses',
     features: [
       '5 branches',
       '15 users',
@@ -258,9 +258,9 @@ export const SUBSCRIPTION_PLANS = [
   {
     id: 'enterprise',
     name: 'Enterprise',
-    price: 199,
+    price: 15000,
     period: 'month',
-    description: 'Unlimited power for established enterprises',
+    description: 'Unlimited power for established commercial enterprises',
     features: [
       'Unlimited branches',
       'Unlimited users',

@@ -137,7 +137,7 @@ export default function BusinessProfile() {
                     </div>
                     <div className="space-y-2">
                       <Label>Currency *</Label>
-                      <Input placeholder="e.g. USD, KES" {...register('currency')} />
+                      <Input placeholder="e.g. KES, EUR, GBP" {...register('currency')} />
                     </div>
                   </div>
 

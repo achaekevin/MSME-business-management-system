@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { TrendingUp, TrendingDown, DollarSign, ShoppingCart, Users, Package, ArrowUpRight, ArrowDownRight, Calendar } from 'lucide-react'
+import { TrendingUp, TrendingDown, Banknote, ShoppingCart, Users, Package, ArrowUpRight, ArrowDownRight, Calendar } from 'lucide-react'
 import { Helmet } from 'react-helmet-async'
 import { Card, CardHeader, CardTitle, CardContent, Button, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Skeleton, Badge } from '@/components/ui'
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
@@ -141,7 +141,7 @@ export default function AnalyticsDashboard() {
           </div>
         ) : kpiData && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <StatCard title="Total Revenue" value={kpiData.revenue.value} change={kpiData.revenue.change} icon={DollarSign} />
+            <StatCard title="Total Revenue" value={kpiData.revenue.value} change={kpiData.revenue.change} icon={Banknote} />
             <StatCard title="Total Expenses" value={kpiData.expenses.value} change={kpiData.expenses.change} icon={TrendingDown} />
             <StatCard title="Net Profit" value={kpiData.profit.value} change={kpiData.profit.change} icon={TrendingUp} />
             <StatCard title="Sales Orders" value={kpiData.salesOrders.value} change={kpiData.salesOrders.change} icon={ShoppingCart} format="number" />
@@ -381,7 +381,7 @@ export default function AnalyticsDashboard() {
                   </div>
                   <div className="flex items-center justify-between p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
                     <div className="flex items-center gap-3">
-                      <DollarSign className="h-8 w-8 text-green-600" />
+                      <Banknote className="h-8 w-8 text-green-600" />
                       <div>
                         <p className="text-sm text-muted-foreground">Inventory Value</p>
                         <p className="text-2xl font-bold">{formatCurrency(inventory?.inventoryValue || 0)}</p>

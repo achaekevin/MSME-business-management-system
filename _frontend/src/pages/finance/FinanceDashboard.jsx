@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Helmet } from 'react-helmet-async'
 import { Link, useNavigate } from 'react-router-dom'
-import { TrendingUp, TrendingDown, DollarSign, CreditCard, ArrowUpRight, ArrowDownRight, RefreshCw, Banknote, ShoppingBag, FileText, ArrowRight } from 'lucide-react'
+import { TrendingUp, TrendingDown, Landmark, CreditCard, ArrowUpRight, ArrowDownRight, RefreshCw, Banknote, ShoppingBag, FileText, ArrowRight } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent, Badge, Button, Skeleton } from '@/components/ui'
 import { financeService } from '@/services'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
@@ -128,7 +128,7 @@ export default function FinanceDashboard() {
               {[
                 { label: 'Expenses', to: '/app/finance/expenses', icon: TrendingDown, desc: 'Track business expenses' },
                 { label: 'Bank Accounts', to: '/app/finance/bank-accounts', icon: CreditCard, desc: 'Manage treasury accounts' },
-                { label: 'Cash Flow Statement', to: '/app/finance/cash-flow', icon: DollarSign, desc: 'Detailed liquidity analysis' },
+                { label: 'Cash Flow Statement', to: '/app/finance/cash-flow', icon: Landmark, desc: 'Detailed liquidity analysis' },
                 { label: 'Accounts Receivable', to: '/app/finance/receivables', icon: TrendingUp, desc: 'Outstanding client invoices' },
                 { label: 'Accounts Payable', to: '/app/finance/payables', icon: TrendingDown, desc: 'Vendor payables ledger' },
               ].map(({ label, to, icon: Icon, desc }) => (

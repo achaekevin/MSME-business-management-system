@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Helmet } from 'react-helmet-async'
-import { DollarSign, ArrowUpRight, ArrowDownRight, RefreshCw, Landmark } from 'lucide-react'
+import { Banknote, ArrowUpRight, ArrowDownRight, RefreshCw, Landmark } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent, Button, Skeleton } from '@/components/ui'
 import { financeService } from '@/services'
 import { formatCurrency } from '@/utils'

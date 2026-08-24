@@ -4,9 +4,9 @@ const { invalidateTenantCache } = require('../../config/redis')
 const dayjs = require('dayjs')
 
 const PLANS = {
-  starter:    { id: 'starter',    name: 'Starter',    price: 29,  limits: { branches: 1,  users: 3,   products: 1000  }, features: ['1 branch', '3 users', '1,000 products', 'Basic reports', 'Email support'] },
-  growth:     { id: 'growth',     name: 'Growth',     price: 79,  limits: { branches: 5,  users: 15,  products: 10000 }, features: ['5 branches', '15 users', '10,000 products', 'Advanced reports', 'Priority support', 'API access'] },
-  enterprise: { id: 'enterprise', name: 'Enterprise', price: 199, limits: { branches: -1, users: -1,  products: -1    }, features: ['Unlimited branches', 'Unlimited users', 'Unlimited products', 'Custom reports', 'Dedicated support', 'SLA'] }
+  starter:    { id: 'starter',    name: 'Starter',    price: 2500,  limits: { branches: 1,  users: 3,   products: 1000  }, features: ['1 branch', '3 users', '1,000 products', 'Basic reports', 'Email support'] },
+  growth:     { id: 'growth',     name: 'Growth',     price: 5500,  limits: { branches: 5,  users: 15,  products: 10000 }, features: ['5 branches', '15 users', '10,000 products', 'Advanced reports', 'Priority support', 'API access'] },
+  enterprise: { id: 'enterprise', name: 'Enterprise', price: 15000, limits: { branches: -1, users: -1,  products: -1    }, features: ['Unlimited branches', 'Unlimited users', 'Unlimited products', 'Custom reports', 'Dedicated support', 'SLA'] }
 }
 
 async function getPlans() {
@@ -37,7 +37,7 @@ async function upgradePlan(businessId, planId, req) {
       currentPeriodStart: new Date(), currentPeriodEnd: newPeriodEnd,
       features: plan.features, limits: plan.limits
     }),
-    repo.createBillingRecord(sub.id, plan.price, 'USD', 'paid')
+    repo.createBillingRecord(sub.id, plan.price, 'KES', 'paid')
   ])
 
   await invalidateTenantCache(businessId, 'subscription')
@@ -95,7 +95,7 @@ async function checkAndRenewExpiring() {
     if (!plan) continue
     const newEnd = dayjs(sub.currentPeriodEnd).add(30, 'day').toDate()
     await repo.updateSubscription(sub.businessId, { currentPeriodStart: new Date(), currentPeriodEnd: newEnd })
-    await repo.createBillingRecord(sub.id, plan.price, 'USD', 'paid')
+    await repo.createBillingRecord(sub.id, plan.price, 'KES', 'paid')
     results.push({ subscriptionId: sub.id, businessId: sub.businessId, renewedTo: newEnd })
   }
   return results

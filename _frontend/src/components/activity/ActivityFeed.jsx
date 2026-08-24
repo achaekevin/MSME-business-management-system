@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { Clock, TrendingUp, ShoppingCart, FileText, Package, Users, DollarSign } from 'lucide-react'
+import { Clock, TrendingUp, ShoppingCart, FileText, Package, Users, Banknote } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent, Skeleton } from '@/components/ui'
 import { formatRelativeTime } from '@/utils'
 import { axiosInstance } from '@/lib/axios'
@@ -7,8 +7,8 @@ import { axiosInstance } from '@/lib/axios'
 const activityIcons = {
   'sale.created': ShoppingCart,
   'invoice.created': FileText,
-  'invoice.paid': DollarSign,
-  'payment.received': DollarSign,
+  'invoice.paid': Banknote,
+  'payment.received': Banknote,
   'product.created': Package,
   'customer.created': Users,
   'employee.added': Users,

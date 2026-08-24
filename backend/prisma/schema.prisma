@@ -28,7 +28,7 @@ model Business {
   phone              String
   taxNumber          String?
   registrationNumber String?
-  currency           String    @default("USD")
+  currency           String    @default("KES")
   timezone           String    @default("UTC")
   fiscalYearStart    String    @default("01-01")
   street             String?
@@ -160,7 +160,7 @@ model BillingRecord {
   id             String    @id @default(uuid())
   subscriptionId String
   amount         Decimal   @db.Decimal(12, 2)
-  currency       String    @default("USD")
+  currency       String    @default("KES")
   status         String // paid | failed | pending
   invoiceUrl     String?
   paidAt         DateTime?
@@ -1033,7 +1033,7 @@ model BankAccount {
   accountNumber String
   bankName      String
   balance       Decimal  @default(0) @db.Decimal(14, 2)
-  currency      String   @default("USD")
+  currency      String   @default("KES")
   isActive      Boolean  @default(true)
   createdAt     DateTime @default(now())
 
@@ -1427,7 +1427,7 @@ model CashAccount {
   name         String
   accountType  String   @default("cash") // cash | petty_cash | till
   balance      Decimal  @default(0) @db.Decimal(14, 2)
-  currency     String   @default("USD")
+  currency     String   @default("KES")
   isActive     Boolean  @default(true)
   openingDate  DateTime @default(now())
   closingDate  DateTime?

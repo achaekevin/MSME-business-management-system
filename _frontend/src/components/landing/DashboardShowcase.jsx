@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { BarChart3, Package, ShoppingCart, DollarSign, Users, TrendingUp } from 'lucide-react'
+import { BarChart3, Package, ShoppingCart, Banknote, Users, TrendingUp } from 'lucide-react'
 
 const dashboards = [
   {
@@ -24,7 +24,7 @@ const dashboards = [
   {
     id: 'accounting',
     name: 'Accounting Dashboard',
-    icon: DollarSign,
+    icon: Banknote,
     description: 'Financial overview, P&L, balance sheet, and cash flow'
   },
   {

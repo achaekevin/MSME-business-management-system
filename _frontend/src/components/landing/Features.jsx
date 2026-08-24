@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import {
-  Package, ShoppingCart, DollarSign, Users, TrendingUp, FileText,
+  Package, ShoppingCart, Banknote, Users, TrendingUp, FileText,
   Bell, BarChart3, Settings, Building2, Shield, Zap
 } from 'lucide-react'
 
@@ -16,7 +16,7 @@ const features = [
     description: 'Fast checkout, receipt printing, multiple payment methods including M-Pesa integration.'
   },
   {
-    icon: DollarSign,
+    icon: Banknote,
     title: 'Accounting & Finance',
     description: 'Complete accounting system with invoicing, expenses, tax management, and financial reports.'
   },
