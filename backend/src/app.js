@@ -29,15 +29,27 @@ function createApp(redisVersionOk = false) {
 
   app.use(cors({
     origin: (origin, cb) => {
-      if (!origin || appConfig.cors.origins.includes(origin) || appConfig.env === 'development') {
+      // Allow requests with no origin (e.g. mobile apps, curl)
+      if (!origin) return cb(null, true)
+
+      // Allow all origins in development
+      if (appConfig.env === 'development') return cb(null, true)
+
+      // Allow configured origins
+      if (appConfig.cors.origins.includes(origin)) return cb(null, true)
+
+      // Allow local network IP ranges (192.168.x.x, 10.x.x.x, 172.16-31.x.x, localhost)
+      if (/^https?:\/\/(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[0-1])\.\d+\.\d+)(:\d+)?$/.test(origin)) {
         return cb(null, true)
       }
+
       cb(new Error(`CORS policy does not allow origin: ${origin}`))
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-API-Key', 'X-Business-ID']
   }))
+
 
   // ── Core middleware with payload size enforcement & sanitization ──────────
   app.use(compression())

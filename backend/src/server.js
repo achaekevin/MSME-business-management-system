@@ -65,13 +65,28 @@ async function boot() {
     }
 
     // ── Listen ─────────────────────────────────────────────────────────────
-    server.listen(appConfig.port, () => {
+    server.listen(appConfig.port, '0.0.0.0', () => {
+      const os = require('os')
+      const ifaces = os.networkInterfaces()
+      const networkIps = []
+      for (const name of Object.keys(ifaces)) {
+        for (const iface of ifaces[name]) {
+          if (iface.family === 'IPv4' && !iface.internal) {
+            networkIps.push(iface.address)
+          }
+        }
+      }
+
       logger.info(`🚀 MSME BMS API running on port ${appConfig.port} [${appConfig.env}]`)
-      logger.info(`   API:   http://localhost:${appConfig.port}/api`)
-      logger.info(`   Docs:  http://localhost:${appConfig.port}/api/docs`)
-      logger.info(`   Health: http://localhost:${appConfig.port}/health`)
-      logger.info(`   Queues: http://localhost:${appConfig.port}/queues`)
+      logger.info(`   Local:   http://localhost:${appConfig.port}/api`)
+      networkIps.forEach((ip) => {
+        logger.info(`   Network: http://${ip}:${appConfig.port}/api`)
+      })
+      logger.info(`   Docs:    http://localhost:${appConfig.port}/api/docs`)
+      logger.info(`   Health:  http://localhost:${appConfig.port}/health`)
+      logger.info(`   Queues:  http://localhost:${appConfig.port}/queues`)
     })
+
 
     // ── Graceful shutdown ──────────────────────────────────────────────────
     const shutdown = async (signal) => {

@@ -47,6 +47,16 @@ export default defineConfig({
       '@validations': path.resolve(__dirname, './src/validations')
     }
   },
+  server: {
+    host: '0.0.0.0',
+    port: 5173,
+    cors: true
+  },
+  preview: {
+    host: '0.0.0.0',
+    port: 5173,
+    cors: true
+  },
   build: {
     rollupOptions: {
       output: {
@@ -61,3 +71,4 @@ export default defineConfig({
     }
   }
 })
+

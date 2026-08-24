@@ -1,7 +1,29 @@
 export const APP_NAME = 'MSME BMS'
 export const APP_VERSION = '1.0.0'
+const resolveApiBaseUrl = () => {
+  const envUrl = import.meta.env.VITE_API_URL
+  if (typeof window !== 'undefined') {
+    const isNetworkAccess = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'
+    if (isNetworkAccess) {
+      if (envUrl) {
+        try {
+          const parsed = new URL(envUrl)
+          if (parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1') {
+            parsed.hostname = window.location.hostname
+            return parsed.toString().replace(/\/$/, '')
+          }
+        } catch {
+          // not a valid full url, fallback
+        }
+        return envUrl
+      }
+      return `${window.location.protocol}//${window.location.hostname}:4000/api`
+    }
+  }
+  return envUrl || 'http://localhost:4000/api'
+}
 
-export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api'
+export const API_BASE_URL = resolveApiBaseUrl()
 
 export const AUTH_TOKEN_KEY = 'msme_auth_token'
 export const REFRESH_TOKEN_KEY = 'msme_refresh_token'

@@ -1,8 +1,30 @@
 import { io } from 'socket.io-client'
 import { storage } from '@/utils'
 import { AUTH_TOKEN_KEY } from '@/constants'
+const resolveSocketUrl = () => {
+  const envUrl = import.meta.env.VITE_SOCKET_URL
+  if (typeof window !== 'undefined') {
+    const isNetworkAccess = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'
+    if (isNetworkAccess) {
+      if (envUrl) {
+        try {
+          const parsed = new URL(envUrl)
+          if (parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1') {
+            parsed.hostname = window.location.hostname
+            return parsed.toString().replace(/\/$/, '')
+          }
+        } catch {
+          // fallback
+        }
+        return envUrl
+      }
+      return `${window.location.protocol}//${window.location.hostname}:4000`
+    }
+  }
+  return envUrl || 'http://localhost:4000'
+}
 
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:4000'
+const SOCKET_URL = resolveSocketUrl()
 
 let socket = null
 

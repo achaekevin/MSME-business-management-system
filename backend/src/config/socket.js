@@ -7,9 +7,21 @@ let io = null
 
 function initSocket(httpServer) {
   io = new Server(httpServer, {
-    cors: { origin: appConfig.cors.origins, credentials: true },
+    cors: {
+      origin: (origin, callback) => {
+        if (!origin) return callback(null, true)
+        if (appConfig.env === 'development') return callback(null, true)
+        if (appConfig.cors.origins.includes(origin)) return callback(null, true)
+        if (/^https?:\/\/(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[0-1])\.\d+\.\d+)(:\d+)?$/.test(origin)) {
+          return callback(null, true)
+        }
+        callback(new Error(`Socket CORS policy does not allow origin: ${origin}`))
+      },
+      credentials: true
+    },
     pingTimeout: 60000
   })
+
 
   // Authenticate socket connections via JWT, attach tenant/user context
   io.use((socket, next) => {
